@@ -3,10 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My GitHub Page</title>
+    <title>Personal Page</title>
+    <style>
+        /* Reset some default styles */
+        body, h1, h2, p {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Full height page */
+        html, body {
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Background image */
+        body {
+            background-image: url('https://via.placeholder.com/1600x900.png'); /* Change this URL to your image URL */
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+        }
+
+        /* Main content area */
+        .container {
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 20px;
+            text-align: center;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Optional: Shadow effect for better visibility of text on the background */
+        .container h1, .container h2, .container p {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello, world! This is my GitHub Page</h1>
-    <p>Welcome to my website!</p>
+
+    <div class="container">
+        <h1>Your Name</h1>
+        <h2>Title/Position</h2>
+        <p>Short description about you or your work. This can be a couple of lines introducing your background, research, or what you are currently working on.</p>
+        <p>More info about your projects, publications, or other details can go here. Feel free to add links or extra content!</p>
+    </div>
+
 </body>
 </html>
