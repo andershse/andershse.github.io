@@ -49,9 +49,11 @@
             font-size: 1.1rem;
             line-height: 1.6;
         }
-        /* To fix color of phone number on phone */
-        .your-custom-class {color: white !important; /* Change to your desired color */
-        text-decoration: none; /* Removes the underline */
+        /* To fix color of phone number on phone */y
+        .phone-number {
+        -webkit-touch-callout: none; /* Prevent phone call action on tap */
+        -webkit-user-select: none;  /* Prevent selection (and auto-linking) */
+        user-select: none;          /* Prevent selection (and auto-linking) */
         }
         /* Optional: Shadow effect for better visibility of text on the background */
         .container h1, .container h2, .container h3, .container p, .container UL {
@@ -65,7 +67,7 @@
         <h1>Contact information for Anders Hansson</h1>
 
 <h3>Phone</h3> 
-<span class="your-custom-class">+46 70 300 44 01</span>
+<span class="phone-number">+46 70 300 44 01</span>
 <h3>E-mail</h3> 
 anders.g.hansson_at_liu.se
 <h3>Address</h3>
