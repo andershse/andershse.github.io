@@ -50,11 +50,14 @@
             line-height: 1.6;
         }
         /* To fix color of phone number on phone */
-        .phone-number {
-        -webkit-touch-callout: none; /* Prevent phone call action on tap */
-        -webkit-user-select: none;  /* Prevent selection (and auto-linking) */
-        user-select: none;          /* Prevent selection (and auto-linking) */
-        }
+        span.phone-number {
+        color: inherit;           /* Inherit the parent color */
+        text-decoration: none;     /* Remove any text decoration */
+        -webkit-user-select: text; /* Allow text selection but no auto-linking */
+        -webkit-touch-callout: none; /* Disable context menu and auto-dial */
+        user-select: text;         /* Same for other browsers */
+        }  
+
         /* Optional: Shadow effect for better visibility of text on the background */
         .container h1, .container h2, .container h3, .container p, .container UL {
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
