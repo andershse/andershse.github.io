@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anders Hansson Linköping University</title>
+    <style>
+        /* Reset some default styles */
+        body, h1, h2, p {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Full height page */
+        html, body {
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Background image */
+        body {
+            background-image: url('vindmotor2.jpg'); /* Use the actual filename of your image here */
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: left;  /* Align text to the left */
+        }
+
+        /* Main content area */
+        .container {
+            position: absolute;
+            top: 20px; /* Positioning from the top */
+            right: 20px; /* Positioning from the right */
+            padding: 20px;
+            max-width: 500px; /* You can adjust the width as needed */
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Optional: Shadow effect for better visibility of text on the background */
+        .container h1, .container h2, .container h3, .container p, .container UL {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Books by Anders Hansson</h1>
+
+<UL>
+   <LI> <a href="https://bokshop.bod.se/control-engineering-anders-hansson-9789180978385" style="color: white;">Control Engineering - An Introduction, BoD, 2025</a>
+   <LI> <a href="https://bokshop.bod.se/reglerteknik-anders-hansson-9789180576314" style="color: white;">Reglerteknik - En Introduktion, BoD, 2024</a>,
+        <a href="grundkursbok-errata.pdf">Errata</a>
+   <LI> <a href="https://www.wiley.com/en-us/Optimization+for+Learning+and+Control-p-9781119809135" style="color: white;">Optimization for Learning
+and Control, Wiley, 2023</a>, <a href="Optimization_for_Learning_and_Control__Wiley_errata.pdf">Errata</a>
+   <LI> <a href="https://www.studentlitteratur.se/kurslitteratur/teknik/reglerteknik/modeling-and-identification-of-dynamic-systems/?srsltid=AfmBOopOgoZIjSpy3JJFXgUPgrcERYlqJXt-d5zZCFnZQJY9Wzhd3O2c" style="color: white;">Modeling and Identification of Dynamic Systems, Studentlitteratur, 2021</a>
+</UL>
+
+    </div>
+
+</body>
+</html>
