@@ -50,13 +50,11 @@
             line-height: 1.6;
         }
         /* To fix color of phone number on phone */
-        span.phone-number {
-        color: inherit;           /* Inherit the parent color */
-        text-decoration: none;     /* Remove any text decoration */
-        -webkit-user-select: text; /* Allow text selection but no auto-linking */
-        -webkit-touch-callout: none; /* Disable context menu and auto-dial */
-        user-select: text;         /* Same for other browsers */
-        }  
+        a[href^="tel"] {
+        color: inherit;         /* Inherit the color of the surrounding text */
+        text-decoration: none;   /* Remove the underline */
+        -webkit-tap-highlight-color: transparent;  /* Remove highlight on tap */
+        }
 
         /* Optional: Shadow effect for better visibility of text on the background */
         .container h1, .container h2, .container h3, .container p, .container UL {
@@ -70,8 +68,8 @@
         <h1>Contact information for Anders Hansson</h1>
 
 <h3>Phone</h3> 
-<span class="phone-number">+46 70 300 44 01</span>
-        1
+<a href="tel:+46 70 300 44 01">+46 70 300 44 01</a>
+        3
 <h3>E-mail</h3> 
 anders.g.hansson_at_liu.se
 <h3>Address</h3>
