@@ -3,37 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kurshemsida</title>
+    <title>Course Homepage</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             background-color: #f4f4f4;
         }
 
         .container {
             display: flex;
-            background-color: white;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
             padding: 20px;
+            background-color: white;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 80%;
+            width: 90%;
             max-width: 1000px;
+            margin: 20px auto;
+            box-sizing: border-box;
         }
 
         .figure {
             flex: 1;
             padding-right: 20px;
+            display: flex;
+            justify-content: center;
         }
 
         .figure img {
             width: 100%;
             max-width: 300px;
+            height: auto;
             border-radius: 8px;
             object-fit: cover;
         }
@@ -45,17 +49,23 @@
         .text h1 {
             font-size: 2em;
             color: #333;
-        }
-
-        .text h2 {
-            font-size: 1.4em;
-            color: #333;
+            margin-bottom: 20px;
         }
 
         .text p {
             font-size: 1.1em;
             color: #555;
             line-height: 1.6;
+        }
+
+        .text ul {
+            margin-left: 20px;
+        }
+
+        .text ul li {
+            font-size: 1em;
+            color: #333;
+            margin-bottom: 10px;
         }
 
         .text a {
@@ -66,8 +76,59 @@
         .text a:hover {
             text-decoration: underline;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .figure {
+                padding-right: 0;
+                margin-bottom: 20px;
+            }
+
+            .figure img {
+                max-width: 100%;
+                height: auto;
+            }
+
+            .text h1 {
+                font-size: 1.5em;
+            }
+
+            .text p {
+                font-size: 1em;
+            }
+
+            .text ul li {
+                font-size: 0.9em;
+            }
+        }
+
+        /* For very small devices (like phones in portrait) */
+        @media (max-width: 480px) {
+            .container {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .text h1 {
+                font-size: 1.2em;
+            }
+
+            .text p {
+                font-size: 0.9em;
+            }
+
+            .text ul li {
+                font-size: 0.8em;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="figure">
