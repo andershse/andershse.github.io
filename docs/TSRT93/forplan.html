@@ -27,6 +27,7 @@
             color: #333;
         }
 
+        /* Table Style */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -60,61 +61,40 @@
             text-decoration: underline;
         }
 
-        /* Make the table responsive */
+        /* Responsive Design */
         @media (max-width: 768px) {
+            .table-wrapper {
+                overflow-x: auto; /* Allow horizontal scrolling */
+            }
+
             table {
                 width: 100%;
-                display: block;
-                overflow-x: auto; /* Allow horizontal scroll on smaller devices */
-                -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+                display: block; /* Make the table scrollable */
+                white-space: nowrap; /* Prevent text from wrapping */
             }
 
-            thead {
-                display: none; /* Hide the header row on small screens */
+            th, td {
+                padding: 10px;
+                font-size: 14px; /* Slightly smaller text for mobile */
             }
 
-            tr {
-                display: block;
-                margin-bottom: 20px;
-                background-color: #fff;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            th {
+                text-align: center;
             }
 
             td {
-                display: block;
-                text-align: right;
-                padding: 10px;
-                border: 0;
-                position: relative;
-                font-size: 14px;
-            }
-
-            td::before {
-                content: attr(data-label);
-                font-weight: bold;
-                position: absolute;
-                left: 10px;
-                top: 10px;
-            }
-
-            td a {
-                font-size: 14px;
+                text-align: left;
             }
         }
 
-        /* Adjust font sizes for small devices */
         @media (max-width: 480px) {
             h1 {
                 font-size: 1.5em;
             }
 
-            td {
-                font-size: 12px;
-            }
-
-            td::before {
-                font-size: 13px;
+            th, td {
+                font-size: 12px; /* Further reduce font size for smaller screens */
+                padding: 8px;
             }
         }
     </style>
@@ -122,43 +102,47 @@
 <body>
     <div class="container">
         <h1>Lecture Plan</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Lecture Nr</th>
-                    <th>Lecture Contents</th>
-                    <th>Chapters in Book Covered</th>
-                    <th>Files</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td data-label="Lecture Nr">1</td>
-                    <td data-label="Lecture Contents">Introduction to Web Development</td>
-                    <td data-label="Chapters in Book Covered">Chapter 1 - Basics of Web</td>
-                    <td data-label="Files"><a href="assets/lecture1_notes.pdf" target="_blank">Lecture Notes</a> | <a href="assets/lecture1_slides.pptx" target="_blank">Slides</a></td>
-                </tr>
-                <tr>
-                    <td data-label="Lecture Nr">2</td>
-                    <td data-label="Lecture Contents">HTML Basics and Structure</td>
-                    <td data-label="Chapters in Book Covered">Chapter 2 - HTML Syntax</td>
-                    <td data-label="Files"><a href="assets/lecture2_notes.pdf" target="_blank">Lecture Notes</a> | <a href="assets/lecture2_exercises.zip" target="_blank">Exercise Files</a></td>
-                </tr>
-                <tr>
-                    <td data-label="Lecture Nr">3</td>
-                    <td data-label="Lecture Contents">CSS Styling and Layouts</td>
-                    <td data-label="Chapters in Book Covered">Chapter 3 - CSS Fundamentals</td>
-                    <td data-label="Files"><a href="assets/lecture3_notes.pdf" target="_blank">Lecture Notes</a> | <a href="assets/lecture3_examples.zip" target="_blank">Example Files</a></td>
-                </tr>
-                <tr>
-                    <td data-label="Lecture Nr">4</td>
-                    <td data-label="Lecture Contents">Responsive Web Design</td>
-                    <td data-label="Chapters in Book Covered">Chapter 4 - Flexbox and Grid</td>
-                    <td data-label="Files"><a href="assets/lecture4_notes.pdf" target="_blank">Lecture Notes</a> | <a href="assets/lecture4_assignment.docx" target="_blank">Assignment</a></td>
-                </tr>
-                <!-- You can continue adding more rows for additional lectures -->
-            </tbody>
-        </table>
+        
+        <!-- Wrapper for scrollable table -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Lecture Nr</th>
+                        <th>Lecture Contents</th>
+                        <th>Chapters in Book Covered</th>
+                        <th>Files</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Introduction to Web Development</td>
+                        <td>Chapter 1 - Basics of Web</td>
+                        <td><a href="assets/lecture1_notes.pdf" target="_blank">Lecture Notes</a> | <a href="assets/lecture1_slides.pptx" target="_blank">Slides</a></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>HTML Basics and Structure</td>
+                        <td>Chapter 2 - HTML Syntax</td>
+                        <td><a href="assets/lecture2_notes.pdf" target="_blank">Lecture Notes</a> | <a href="assets/lecture2_exercises.zip" target="_blank">Exercise Files</a></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>CSS Styling and Layouts</td>
+                        <td>Chapter 3 - CSS Fundamentals</td>
+                        <td><a href="assets/lecture3_notes.pdf" target="_blank">Lecture Notes</a> | <a href="assets/lecture3_examples.zip" target="_blank">Example Files</a></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Responsive Web Design</td>
+                        <td>Chapter 4 - Flexbox and Grid</td>
+                        <td><a href="assets/lecture4_notes.pdf" target="_blank">Lecture Notes</a> | <a href="assets/lecture4_assignment.docx" target="_blank">Assignment</a></td>
+                    </tr>
+                    <!-- Add more rows as needed -->
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>
