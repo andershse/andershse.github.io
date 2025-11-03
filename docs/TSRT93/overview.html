@@ -1,1 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Homepage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
 
+        .container {
+            display: flex;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        .figure {
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .figure img {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .text {
+            flex: 2;
+        }
+
+        .text h1 {
+            font-size: 2em;
+            color: #333;
+        }
+
+        .text p {
+            font-size: 1.1em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .text a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="figure">
+            <!-- Replace with your course image -->
+            <img src="https://via.placeholder.com/300" alt="Course Image">
+        </div>
+        <div class="text">
+            <h1>Welcome to the Web Development Course</h1>
+            <p>This course will take you through the fundamentals of web development, including HTML, CSS, and JavaScript. By the end of this course, you'll be able to build your own websites and applications from scratch!</p>
+            <p>In this course, we will cover the following topics:</p>
+            <ul>
+                <li>HTML Basics</li>
+                <li>CSS Styling</li>
+                <li>Responsive Web Design</li>
+                <li>Introduction to JavaScript</li>
+                <li>Building Interactive Web Pages</li>
+            </ul>
+            <p>Ready to start? <a href="#">Click here to begin</a>.</p>
+        </div>
+    </div>
+</body>
+</html>
