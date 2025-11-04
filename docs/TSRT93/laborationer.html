@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laborationer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 1000px;
+            margin: 20px auto;
+            box-sizing: border-box;
+        }
+
+        .figure {
+            flex: 1;
+            padding-right: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .figure img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .text {
+            flex: 2;
+        }
+
+        .text h1 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .text h2 {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+         }
+
+        .text p {
+            font-size: 1.1em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .text ul {
+            margin-left: 20px;
+        }
+
+        .text ul li {
+            font-size: 1em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .text a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .text a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .figure {
+                padding-right: 0;
+                margin-bottom: 20px;
+            }
+
+            .figure img {
+                max-width: 100%;
+                height: auto;
+            }
+
+            .text h1 {
+                font-size: 1.5em;
+            }
+
+            .text p {
+                font-size: 1em;
+            }
+
+            .text ul li {
+                font-size: 0.9em;
+            }
+        }
+
+        /* For very small devices (like phones in portrait) */
+        @media (max-width: 480px) {
+            .container {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .text h1 {
+                font-size: 1.2em;
+            }
+            
+            .text h2 {
+                font-size: 1.0em;
+            }
+
+            .text p {
+                font-size: 0.9em;
+            }
+
+            .text ul li {
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="figure">
+            <!-- Image now loaded from 'assets' directory -->
+            <img src="assets/minseg.png" alt="Course Image">
+        </div>
+        <div class="text">
+            <h1>Laborationer</h1>
+            <p>
+            I kursen ingår tre obligatoriska laborationer:
+            <ul>
+               <li>Laboration 1, Identifiering av DC-motorparametrar (<a href="https://automaticcontrol.gitlab-pages.liu.se/edu/shared/basic_course/dcmotor/pm_dcmotor.pdf">LAB-PM<\a>)</li>
+               <li>Laboration 2, PID-reglering av DC-motor (<a href="https://automaticcontrol.gitlab-pages.liu.se/edu/shared/basic_course/pid/pm_pid.pdf">LAB-PM<\a>)</li>
+               <li>Laboration 3, Balansering med tillståndsåterkoppling (<a href="https://automaticcontrol.gitlab-pages.liu.se/edu/shared/basic_course/balance/pm_balance.pdf">LAB-PM<\a>)</li>
+            </ul>
+Ansvarig för labschemat är Reza Jafari, E-post: seyyed.reza.jafari_at_liu.se
+
+Laborationerna sker i grupper om två personer. Anmälan till laborationerna finns tillgänglig i kursrummet i Lisam!
+
+Inför laborationerna krävs förutom genomläsning av lab-PM att alla förberedelseuppgifter i lab-PM är genomarbetade. Uppgifterna kontrolleras av laborationsassistenten innan laborationen påbörjas. Laborationen går ej att genomföra utan att förberedelseuppgifterna är gjorda.
+
+Alla tre laborationerna utförs i RT1 (Reglertekniks lablokal Laboteket i C-korridoren vid ingång 27).
+            
+        </div>
+    </div>
+</body>
+</html>
