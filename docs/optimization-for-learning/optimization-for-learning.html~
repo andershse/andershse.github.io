@@ -1,0 +1,43 @@
+<use file="/webbmall/rttemplate"/>
+<rt-template>
+      <H1>Optimization for Learning and Planning, 6+3 credits</H1>
+      <H3>Course type</H3>Advanced course 
+      <H3>Periodicity</H3>Irregular 
+      <H3>Intended audience</H3>Students who want to get an introduction to 
+      optimization for learning and planning. 
+      <H3>Contents</H3>The course is based on material developed by
+      Anders Hansson, Johan Löfberg, and Daniel Axehill,
+      Linkoping University and Martin Andersen, Technical
+      University of Denmark. A more detailed 
+      description of the contents is given in the <A 
+      href="http://www.control.isy.liu.se/~hansson/optimization-for-learning/schedule.html">schedule</A>. 
+
+      <H3>Organization</H3>There will be 14 lectures. The students are expected 
+      to solve 5 home work problems and carry out
+      a non-mandatory project. It is compulsory to attend the 
+      lectures. 
+      <H3>Schedule</H3>First lecture is April 15, 13.15-15.00, Systemet, see <A 
+      href="http://www.control.isy.liu.se/~hansson/optimization-for-learning/schedule.html">detailed 
+	schedule</A>.
+      <H3>Homeworks</H3> <A 
+			   href="http://www.control.isy.liu.se/~hansson/optimization-for-learning/Homework1.pdf">First homework </A> is due May 15 <A 										href="http://www.control.isy.liu.se/~hansson/optimization-for-learning/Homework1_solutions.pdf">(Solution).</A>
+       <A 
+      href="http://www.control.isy.liu.se/~hansson/optimization-for-learning/Homework2.pdf">Second homework </A> is due May 29 <A 
+																 href="http://www.control.isy.liu.se/~hansson/optimization-for-learning/webgraph.m">(Matlab file webgraph.m)</A>.
+       <A 										href="http://www.control.isy.liu.se/~hansson/optimization-for-learning/Homework2_solutions.pdf">(Solution).</A>
+      <A 
+      href="http://www.control.isy.liu.se/~hansson/optimization-for-learning/Homework3.pdf">Third homework </A> is due June 10 <A 
+      href="http://www.control.isy.liu.se/~hansson/optimization-for-learning/a1a.mat">(Matlab file a1a.mat)</A>. All homeworks should be handed in at the lecture on paper.
+      <H3>Literature</H3>Slides for the first 10 lectures can be found
+     <A href="http://www.control.isy.liu.se/~hansson/optimization-for-learning/Slides.pdf">here.</A>
+      
+      <H3>Examiner</H3><A href="http://www.control.isy.liu.se/~hansson">Anders 
+      Hansson</A>, Department of Electrical Engineering (<I><A 
+      href="mailto:hansson@isy.liu.se">hansson@isy.liu.se</A></I>, phone: +46 13 
+      281681) 
+
+
+
+      <P></P></TD>
+
+</rt-template>
