@@ -1,0 +1,494 @@
+
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+
+% Core packages
+\usepackage{amsmath,amssymb}
+\usepackage{tikz-cd}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{multicol}
+\usepackage[numbers]{natbib}
+
+% Paragraphs
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1\baselineskip}
+
+\title{Optimal Bridge Bidding as a Dynamical Game}
+\author{Anders Hansson}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This paper develops a rigorous background and research program for computational contract-bridge bidding. It surveys bridge agents, imperfect-information game solving, decentralized-team methods, learning, search, and evaluation. The bidding phase is formalized as a finite-horizon partially observed zero-sum game in which each partnership uses an ex-ante-correlated distribution over complete local bidding plans. The model defines legal auctions, observations, terminal contracts, and reproducible double-dummy raw-score rewards, while distinguishing this self-contained objective from IMP and matchpoint objectives that require comparison mechanisms. The paper explains why benchmark strength and self-play do not establish equilibrium, identifies open theoretical and experimental problems, and specifies the abstractions, response procedures, evaluation protocols, infrastructure, and interpretability tests needed for further research. It does not claim to solve full-scale optimal bridge bidding.
+\end{abstract}
+
+
+\section{Introduction}
+
+Contract bridge is a four-player \emph{imperfect-information game}: some information relevant to the result, most importantly the other players' cards, is hidden from each player. Two partnerships compete over a sequence of deals. The bidding phase is especially interesting from the point of view of game theory and artificial intelligence: each call is both a strategic action and a communication signal to one's partner, while the opponents may interfere with that communication. A \emph{bidding policy} is a rule that assigns a legal call, or probabilities over legal calls, to each hand and auction history that a player can observe. This paper studies the problem of finding an optimal bidding policy in contract bridge. A \emph{state} is a mathematical description of the current situation. The first step is to formulate the bidding phase as a \emph{finite-horizon partially observed Markov game}: a game with finitely many decision times in which a hidden state determines outcomes, each player observes only part of that state, and each player's action may affect later decisions and rewards.
+
+The survey below uses several game-solving terms before their formal mathematical treatment in Appendix~A. A \emph{payoff} is a numerical result that a player or partnership seeks to maximize. A \emph{strategy} is a player's policy in a game. A \emph{best response} is a strategy that maximizes a player or partnership's expected payoff against fixed opposing strategies. An \emph{equilibrium} is a strategy profile in which every participant is using a best response. In a \emph{zero-sum game}, one side's payoff is the negative of the other side's payoff. \emph{Exploitability} measures how much a best response can improve against a candidate strategy, and an \emph{equilibrium certificate} is a valid bound on this improvement. An \emph{extensive-form game} represents sequential decisions by a tree of histories. An \emph{information set} groups histories that a player cannot distinguish, and \emph{perfect recall} means that a player remembers its earlier information and actions.
+
+A \emph{belief} is a probability distribution over hidden states or private information conditional on what has been observed. \emph{Monte Carlo estimation} approximates an expectation by averaging random samples. A \emph{model-based} method uses specified or learned rules for transitions, observations, or other players, whereas a \emph{model-free} method learns values or policies without first constructing those rules explicitly. \emph{Online search} performs additional computation when an action must be selected; the policy available before that computation is called a \emph{blueprint}. \emph{Double-dummy evaluation} evaluates bridge play while treating all four hands as visible.
+
+A \emph{parameterized function} is a function determined by a vector of adjustable numerical parameters. \emph{Supervised learning} fits such a function to supplied input--target pairs, and \emph{imitation learning} uses actions from a person or another program as the targets. A \emph{trajectory} is one complete sequence of states, actions, and rewards. \emph{Reinforcement learning} updates policies or value estimates from generated trajectories and rewards. An \emph{action-value function} assigns an expected future return to an action in a specified situation. \emph{Q-learning} updates such action values toward observed rewards and estimated continuation values. A \emph{policy-gradient method} directly adjusts policy parameters to increase expected return, and \emph{Proximal Policy Optimization} (PPO) is a policy-gradient method that uses a clipped objective to discourage overly large policy-ratio improvements during an update. \emph{Self-play} generates training games using policies produced by the same learning procedure. A saved policy is a \emph{checkpoint}, and a \emph{policy population} is a collection of current or saved policies.
+
+A \emph{decentralized team} contains players that share an objective but choose actions from different private information. A \emph{correlated team strategy} samples a joint plan before private information is observed, whereas independent randomization samples each teammate's plan separately. A \emph{coordinated best response} optimizes all teammates' policies jointly. \emph{Regret} compares accumulated payoff with the payoff from a fixed alternative decision; a \emph{no-regret method} makes average regret approach zero. \emph{Counterfactual regret minimization} (CFR) applies this idea separately at the information sets of an extensive-form game. A \emph{response oracle} constructs an exact or approximate best response, and \emph{Policy-Space Response Oracles} (PSRO) repeatedly adds such responses to policy populations and solves the resulting finite game. Appendix~A gives precise definitions and formulas for these concepts and for the additional named methods used below.
+
+The computational question has several layers that should not be conflated. One is empirical: which methods have actually been tried for bridge bidding? A second is comparative: which methods have succeeded in other zero-sum games with hidden information? A third is theoretical: which algorithms are known to compute or approximate equilibria in partially observed stochastic games and extensive-form games, even when no particular game is the application? Bridge also belongs to a more specialized class than the usual two-player zero-sum model, because each side is a decentralized team whose members have different private information. Throughout the paper, a \emph{model} is a mathematical specification of the relevant players, information, actions, transitions, and objectives; a \emph{program} is a software implementation; a \emph{computational system} is a program together with the policies, models, and search procedures it uses; and a \emph{bidding convention} is an agreed interpretation of calls and their continuations.
+
+Section 2 surveys these four perspectives and ends with a prioritized experimental program. Section 3 then defines the bidding problem precisely. Sections 4 and 5 specify the terminal reward and its consequences for evaluation. Appendix A develops, from first principles, the mathematical definitions behind the game models, equilibrium concepts, learning methods, search procedures, and evaluation criteria used throughout the paper. The purpose of putting the survey before the formal model is to identify which parts of the bridge problem are already addressed by existing methods and which parts require a bridge-specific combination of equilibrium computation, decentralized cooperation, belief inference, function approximation, and search.
+
+
+\section{Algorithmic Landscape}
+
+\subsection{Computational methods used for bridge}
+
+The bridge literature began with hand-engineered rules, planning, search, and simulation. Much of the early computational work concerned card play rather than bidding, but it established two ideas that remain central. Frank and Basin showed why treating an incomplete-information game as a collection of unrelated perfect-information positions can give strategically inconsistent decisions \cite{frank1998search}. Ginsberg's GIB program combined sampling of possible deals, partition search, and double-dummy evaluation \cite{ginsberg2001gib}. The same basic decomposition later reappears in bidding methods: infer or sample hidden hands, evaluate contracts under a play model, and choose a call using an approximate continuation policy.
+
+Amit and Markovitch gave an early learning-and-search treatment aimed directly at bidding \cite{amit2006learning}. Their method used models of both partner and opponents, model-based Monte Carlo sampling for hidden cards, and co-training in which partners repeatedly refined and exchanged their decision models. This is important historically because it already treated bidding as both cooperation and competition rather than as classification from a hand to a call. Other early learning work often simplified the strategic setting. Ho and Lin considered non-competitive auctions and developed cost-sensitive learning and upper-confidence-bound procedures from randomly generated deals \cite{ho2015learning}. Yeh and Lin likewise studied automatic bidding with deep reinforcement learning, introducing penetrative Q-learning and several bridge-specific exploration and training devices, but their principal experiments also used non-competitive auctions in which the opponents passed \cite{yeh2016automatic}. These simplifications made learning feasible but removed the adversarial interference that is central to the present model.
+
+Subsequent work increasingly addressed communication and competitive bidding. Policy Belief Learning explicitly coupled a policy module with a belief module and added an auxiliary objective that rewarded actions for making a partner's private information easier to infer; bridge was used as a non-competitive communication benchmark \cite{tian2020communicate}. Rong, Qin, and An developed a competitive bidding agent using a compact representation of private and public information, a network that inferred the partner's cards, and a bidding network conditioned on that inference \cite{rong2019competitive}. Gong, Jiang, and Tian removed supervised human bidding data and trained an end-to-end competitive agent through self-play \cite{gong2019simple}. Tian, Gong, and Jiang then introduced joint policy search, which evaluates coordinated policy changes by teammates rather than only unilateral changes and improved a self-play bridge agent \cite{tian2020joint}. This directly addresses a bridge-specific failure mode: alternating improvement of individual players can become trapped because a useful convention may require coordinated changes by both partners.
+
+Compatibility formed a separate line of work. \emph{Policy iteration} repeatedly computes the expected performance of a current policy and then changes the policy to choose actions with higher expected returns. Lockhart et al. combined imitation learning, search, and policy iteration, using an established bridge bot to initialize training and evaluating agents when paired with themselves, with the bot, and with humans \cite{lockhart2020human}. This work shows that the strongest self-play convention is not automatically the most useful convention when a partner follows a different bidding language. Compatibility is not the objective of the present optimal-against-optimal game, but it reveals the multiplicity of effective conventions and the danger of evaluating a policy only with an identical copy of itself.
+
+Recent systems combine several earlier ideas at larger scale. Qiu et al. use supervised initialization, self-play reinforcement learning, a learned belief model, and belief Monte Carlo search at decision time \cite{qiu2024bridge}. Kita et al. provide a particularly useful reproducible baseline: supervised pretraining is followed by PPO self-play, fictitious-self-play-style sampling from prior checkpoints reduces cycling, and the terminal training reward is the double-dummy raw score normalized by the maximum absolute score; final performance is then reported in IMPs against WBridge5 \cite{kita2024simple}. Their implementation builds on the accelerator-oriented Pgx environment suite \cite{koyamada2023pgx}. Zhang et al. focus on the local-optimum problem in PPO self-play and ensemble PPO variants with different clipping and entropy constraints \cite{zhang2025diverse}. Representation learning is another complementary direction: BridgeHand2Vec learns a hand embedding from trick-prediction tasks and studies its use for opening-bid classification and reinforcement learning \cite{sztyber2023bridgehand}.
+
+Taken together, the bridge literature has tested rule-based systems, supervised imitation, Q-learning, policy gradients, PPO, checkpoint populations, explicit belief prediction, Monte Carlo sampling, online search, coordinated teammate updates, representation learning, and human-compatible policy iteration. What it has generally not produced is an equilibrium certificate for the full competitive bidding game. Reported systems are usually evaluated against WBridge5, a fixed dataset or policy, self-play copies, or historical checkpoints. Such tests establish playing strength and practical usefulness, but they do not show that neither partnership can improve through a coordinated best response. This distinction matters because the goal of the present paper is an optimal policy against another optimal policy, not only a policy that defeats a particular benchmark.
+
+\paragraph{How strong are the reported systems?}
+The most common comparison is average IMPs per board against WBridge5. If the published point estimates are ordered without adjustment, the progression is approximately Rong et al. at $+0.25$ over 64 boards, Gong et al. at $+0.41\pm0.27$ over 64 boards, joint policy search at $+0.63\pm0.22$ over 1000 boards, Lockhart et al.'s policy-iteration search agent at $+0.85\pm0.05$ over 10,000 boards, Qiu et al.'s belief-search agent at $+0.98\pm0.05$ over 10,000 boards, Diverse PPO with search at about $+0.99$, and Kita et al. at $+1.24\pm0.19$ over 1000 boards \cite{rong2019competitive,gong2019simple,tian2020joint,lockhart2020human,qiu2024bridge,zhang2025diverse,kita2024simple}. On these published numbers, Kita et al. have the largest reported advantage over WBridge5, while Qiu et al. provide the strongest result supported by a 10,000-board test; the difference between these two estimates is not decisive given Kita et al.'s larger standard error and the different experimental protocols. More generally, this ordering should be regarded as a historical summary rather than a controlled leaderboard. The studies differ in the WBridge5 configuration, board samples, number of boards, use of double-dummy versus program play, convention used for initialization, availability of test-time search, and whether the reported comparison isolates bidding or includes the playing phase. A reliable ranking would require all released agents to be reevaluated on the same deals, seats, vulnerabilities, play evaluator, time budget, and WBridge5 configuration, with confidence intervals and paired-board testing.
+
+These results nevertheless establish substantial practical progress. Several learned agents consistently beat a multiple-time computer-bridge champion under their stated protocols, and the strongest recent agents gain roughly one IMP per board against that fixed benchmark. They do not establish superhuman bridge bidding: WBridge5 is not a top human partnership, human tournament results are not directly comparable with double-dummy bidding tests, and Kita et al. explicitly note that no bridge AI has yet been demonstrated to consistently outperform top human players \cite{kita2024simple}. They also do not establish robustness to an optimal or adapting opponent. A policy may exploit regularities of WBridge5 while remaining vulnerable to a different opponent policy.
+
+\paragraph{Has equilibrium bridge bidding been studied?}
+It would be too strong to say that equilibrium ideas have never been connected to bridge. Gimbert, Paul, and Srivathsan formulate an abstract bridge-bidding game as a zero-sum imperfect-recall game and prove tractability for a restricted decision problem motivated by bidding \cite{gimbert2020bridge}. The adversarial-team literature also repeatedly uses bridge bidding as a motivating example and develops algorithms for correlated team max--min equilibria \cite{farina2018coordination,carminati2022marriage,zhang2023teambelief,mcaleer2023teampsro}. What appears to be missing is an application of these equilibrium methods to a realistic competitive bridge-bidding environment with the full deal distribution and auction, followed by reported game values, coordinated best responses, or exploitability estimates. Existing bridge agents optimize self-play performance, partnership improvement, compatibility, or performance against WBridge5; they do not demonstrate approximate equilibrium of the full bidding game. The equilibrium problem has therefore been recognized theoretically, but not solved or empirically evaluated at realistic bridge scale.
+
+\paragraph{Are the learned policies interpretable?}
+Most of the strongest agents are not interpretable in the sense familiar to human bridge players. Their policy is a neural network mapping a hand and auction history to action probabilities, often modified by search, rather than a convention card containing rules such as point ranges, suit-length requirements, forcing sequences, and continuations. A human cannot inspect the network weights and directly recover a bidding convention. Supervised initialization from SAYC or WBridge5 makes some behavior familiar, but subsequent self-play can change the meanings of calls. Reproducible code and a simple network architecture, as in Kita et al., improve scientific transparency without making the resulting convention human-readable.
+
+There are partial forms of interpretability. Rong et al.'s partner-hand estimator and Qiu et al.'s belief network expose semantically meaningful predictions about hidden cards \cite{rong2019competitive,qiu2024bridge}. Qiu et al. also report opening-bid heat maps, test approximate conformity with SAYC, and analyze individual auctions, although this remains post-hoc behavioral analysis rather than an explicit description of the complete convention. Lockhart et al. provide the strongest evidence of usability by a human: their agent was initialized from a human-compatible bot and evaluated while partnering a human expert \cite{lockhart2020human}. Compatibility, however, is not the same as explanation; the human can use an approximately familiar convention without being able to extract new general bidding principles from the learned policy.
+
+If human learning is an intended output, interpretability should be evaluated explicitly rather than inferred from playing strength. Useful tests would include distilling a policy into decision trees or rule lists; probing calls for dependence on high-card points, suit lengths, controls, vulnerability, and seat; clustering auctions to infer the information conveyed by each call; applying counterfactual changes to a hand and measuring when the recommended bid changes; and asking expert players to formulate and validate a convention card derived from the agent. Cross-play between the original network and the distilled convention would measure how much strategic meaning has been preserved. Such analysis could reveal genuinely new bidding ideas, but the published equilibrium-free neural systems have so far contributed more to agent performance than to a human-understandable theory of bidding.
+
+
+\subsection{Methods used in other partially observed games}
+
+Poker has been the dominant benchmark for two-player zero-sum imperfect-information games. The sequence form represents realization plans compactly and permits exact linear-programming methods in finite two-player zero-sum extensive-form games with perfect recall \cite{koller1996sequence}. Counterfactual regret minimization (CFR) and Monte Carlo CFR made much larger games tractable by decomposing regret across information sets and sampling the game tree \cite{zinkevich2007regret,lanctot2009monte}. Continual resolving, DeepStack, Libratus, and Deep CFR combine regret minimization with abstraction, learned value functions, and online subgame solving \cite{burch2014solving,moravcik2017deepstack,brown2018superhuman,brown2019deep}. ReBeL unifies self-play reinforcement learning with search in a public-belief representation and has a convergence result for two-player zero-sum games under its assumptions \cite{brown2020rebel}. These methods demonstrate that equilibrium approximation, learning, and search can coexist, but standard poker has only one decision maker per side; it does not contain bridge's decentralized partnership problem.
+
+Fictitious-play and population methods offer another route to equilibrium. Fictitious self-play implements best responses to historical average play in extensive-form games \cite{heinrich2015fictitious}, and Neural Fictitious Self-Play replaces the tabular components with deep reinforcement learning \cite{heinrich2016nfsp}. Policy-Space Response Oracles (PSRO) maintain a population of policies, train approximate responses to mixtures over the opposing population, and solve an empirical meta-game \cite{lanctot2017psro}. Extensive-Form Double Oracle and its neural version move the mixing operation from the root to information states, improving the worst-case iteration dependence on the number of information states \cite{mcaleer2021xdo}. These methods are attractive when the full strategy space is too large but approximate best responses can be trained. Their principal guarantees, however, are for two-player zero-sum games; bridge requires either a team-aware extension or a reduction of each partnership to an appropriate coordinator.
+
+Other games isolate individual features of bridge. Hanabi has decentralized private information and communication through actions, but all players share the same payoff and there is no opponent. Bayesian Action Decoder constructs an approximate public belief and samples partial policies, while SPARTA improves an agreed blueprint through theoretically safe cooperative search \cite{foerster2019bad,lerer2020sparta}. These ideas are highly relevant to partnership inference but do not address adversarial interference. DouDizhu has hidden cards and a temporary two-player partnership against a landlord; DouZero shows that large-scale self-play with deep action-value learning can be effective without explicit search \cite{zha2021douzero}. Stratego is a two-player zero-sum game with persistent hidden piece identities, long horizons, and a very large game tree; DeepNash uses Regularized Nash Dynamics to stabilize model-free self-play and target an approximate equilibrium without search \cite{perolat2022deepnash}. Reconnaissance blind chess emphasizes active information gathering and particle-belief planning; Deep Synoptic Monte Carlo Planning is a strong best-response-oriented method but does not attempt to compute an equilibrium \cite{clark2021dsmcp}. Student of Games combines guided search, self-play, and game-theoretic learning across chess, Go, poker, and Scotland Yard, illustrating the possibility of a more general solver architecture \cite{schmid2023student}.
+
+Partially observable stochastic games have also been studied outside recreational games, especially in pursuit--evasion, patrolling, security, and search problems. \emph{Dynamic programming} solves a sequential decision problem by expressing its solution in terms of solutions to shorter problems that begin at later times. \emph{Value iteration} repeatedly updates estimated values using immediate rewards and the estimated values of possible successor situations. For one-sided zero-sum POSGs, where only one player is partially informed, value iteration and heuristic search can exploit the structure of the belief-state value function \cite{horak2023onesided}. Heuristic-search methods have also been studied for finite-horizon zero-sum POSGs, but their finite-time guarantees depend on the game's information structure and on valid bounds for the associated belief-state problem \cite{delage2024hsvi}. These dynamic-programming methods are valuable exact or certified baselines for small models, but full bridge has two-sided private information and two decision makers per partnership.
+
+
+\subsection{General theory without a specific application}
+
+There are three overlapping theoretical descriptions of the problem. A partially observed stochastic game emphasizes hidden state, observations, transitions, and dynamic programming. An imperfect-information extensive-form game emphasizes histories, information sets, realization plans, and regret. An adversarial team game emphasizes that several agents with a common payoff jointly face another team while possessing different private information. The bridge auction can be represented in all three languages, but algorithmic guarantees do not automatically transfer between them.
+
+For finite two-player zero-sum extensive-form games with perfect recall, sequence-form linear programming and no-regret learning provide the cleanest theory \cite{koller1996sequence,zinkevich2007regret}. Function approximation, sampling, and double-oracle methods trade exact guarantees for scalability. In the POMG formulation, exact dynamic programming is possible in principle but suffers from rapidly expanding policy trees and beliefs \cite{hansen2004dynamic}.
+
+The most directly relevant theory is the literature on adversarial teams. If partners may coordinate before play but cannot exchange their private observations during play except through legal actions, then their natural solution concept depends on what form of pre-play correlation is allowed. The term \emph{ex ante} means before the deal is drawn and before either partner receives private information. Independent behavioral randomization by South and North is different from drawing a shared joint contingent plan ex ante. Work on team-maxmin equilibrium and ex-ante coordinated team-maxmin equilibrium shows that this distinction changes both the attainable value and computational complexity \cite{farina2018coordination,farina2021collusion}. Consequently, the statement that randomized policies guarantee a saddle point must specify whether randomization is independent at each player's information sets or correlated across the partnership through a pre-agreed device.
+
+Several representations make team equilibria more computationally accessible. PublicTeamConversion represents a team by a coordinator who observes the team's common information and prescribes an action for each possible private state, thereby enabling abstractions, no-regret learning, and subgame solving developed for two-player zero-sum games \cite{carminati2022marriage}. The Team Belief DAG gives a convex representation of correlated team strategies and can be paired with regret minimization \cite{zhang2023teambelief}. Team-PSRO instead learns approximate correlated team max-min equilibria through populations and cooperative reinforcement-learning best-response oracles \cite{mcaleer2023teampsro}. In the stochastic-game language, common-information-belief dynamic programs provide upper and lower values for games between competing teams and exact values when the bounds coincide \cite{kartik2022competingteams}. Public-belief reductions and regularization provide another connection between imperfect-information games and fully observed auxiliary games \cite{sokota2023abstracting}.
+
+This theory changes the algorithmic interpretation of bridge. A partnership best response is not obtained by optimizing South while holding North fixed and then reversing the roles; useful deviations may require both players to change the meaning of several calls simultaneously. Likewise, exploitability should be defined against a coordinated partnership response under the same correlation assumptions as the candidate policy. Team representations are therefore not merely an optional refinement. They determine what ``optimal against an optimal policy'' means and which algorithms can legitimately claim to approximate it.
+
+
+\subsection{What distinguishes bridge}
+
+Bridge combines features that are usually studied separately.
+
+First, it is a two-team zero-sum game with two decentralized decision makers on each side. Poker, Stratego, and reconnaissance blind chess have adversarial hidden information but only one agent per side. Hanabi has decentralized partners and implicit communication but no adversary. DouDizhu has a two-player team, but its roles, action semantics, and communication structure differ substantially. Bridge requires both intra-team convention formation and inter-team robustness in the same public action sequence.
+
+Second, every call has several strategic roles. It may propose a contract, reveal private information to partner, conceal information from the opponents, consume scarce auction space, or obstruct the opponents' communication. Because all calls are public, any signal to partner is simultaneously observed by the adversaries. The policy therefore controls not only which terminal contract is reached but also the information structure of later decisions.
+
+Third, the hidden state is drawn once at the start and remains fixed throughout the auction. During bidding there are no new private observations: each player sees one 13-card hand and then only the public sequence of calls. This makes bridge closer to a finite extensive-form Bayesian game than to many generic POMGs with evolving hidden states and noisy observation models. At the same time, the deal space is enormous, so direct enumeration of types or information sets is infeasible.
+
+Fourth, bridge has a relatively small discrete action alphabet and a finite auction, but an exceptionally sparse and expensive payoff. Calls receive no immediate reward. The terminal contract must be evaluated through double-dummy analysis, a learned play model, or actual card play. This separation between auction and play makes large-scale simulation possible with precomputed double-dummy tables, but it also introduces approximation error into the objective.
+
+Fifth, symmetry is useful but incomplete. The same policy architecture can be shared across seats, and suit permutations can augment data, yet dealer position, vulnerability, auction position, and partnership orientation alter optimal behavior. Evaluation must preserve these symmetries carefully. In addition, different equilibrium policies may implement radically different but equally effective bidding conventions. This creates a convention-selection problem even when all equilibria have the same game value.
+
+Finally, bridge permits extensive pre-play agreement. Human partners explicitly agree a bidding convention, and artificial partners can likewise coordinate their policy before a deal. They cannot reveal their actual cards except through legal calls. This makes ex-ante correlated team strategies conceptually natural, but a shared randomization device may produce conventions that are difficult for humans to execute or disclose. The model should therefore distinguish three targets: independent local randomized policies, correlated partnership plans, and human-interpretable deterministic or low-entropy conventions. The present optimality objective should select one of these before an algorithm is judged successful.
+
+
+\subsection{Prioritized methods to test}
+
+The following order prioritizes alignment with the optimal-against-optimal objective, availability of diagnostics, evidence from bridge, and implementation cost.
+
+\begin{enumerate}
+    \item \textbf{Exact or certified solving on abstract bridge games.} Construct small bridge instances by restricting the deal distribution, contract levels, or auction length. Solve them using a team representation such as PublicTeamConversion or the Team Belief DAG, followed by linear programming or regret minimization. These experiments provide ground-truth values, clarify the role of partnership correlation, and test whether best-response and exploitability code is correct. They should precede claims about optimality in the full game.
+
+    \item \textbf{A reproducible PPO plus fictitious-self-play baseline.} Reproduce the architecture of Kita et al. with a shared recurrent policy, legal-action masking, normalized raw-score rewards, supervised initialization where useful, and opponent sampling from historical checkpoints. This is the fastest route to a strong competitive baseline and directly tests the reward model developed below. Its limitation is that strength in self-play or against WBridge5 is not an equilibrium certificate.
+
+    \item \textbf{Team-PSRO with learned partnership best responses.} Maintain populations for the two partnerships, solve the empirical zero-sum meta-game, and train a coordinated response to the opposing mixture. PPO provides a practical response oracle; joint policy search can be added to permit coordinated changes by the two partners. Among scalable methods, this most directly matches the desired max--min objective and naturally exposes non-transitivity and cycling through the empirical payoff matrix.
+
+    \item \textbf{Team-aware CFR or Monte Carlo CFR on an abstraction.} Apply CFR only after converting the partnership game to a sound team representation or otherwise specifying the allowed correlation. Sampling deals and auction branches can reduce cost, while function approximation can be introduced later. This route has stronger equilibrium motivation than plain policy-gradient self-play, but the prescription action spaces generated by team conversion may be very large.
+
+    \item \textbf{Belief-guided search on top of a blueprint.} Once a reasonably robust blueprint exists, test belief Monte Carlo search in the style of Qiu et al., public-belief search in the style of ReBeL, or partnership-safe search in the style of SPARTA. Search should initially be evaluated as an improvement layer, not as a substitute for a stable population or equilibrium method, because naive search can change the meaning of calls and make later actions inconsistent with the blueprint.
+
+    \item \textbf{Regularized last-iterate and diversity methods.} Test Regularized Nash Dynamics, entropy-regularized policy optimization, and Diverse PPO as alternatives when ordinary self-play cycles or collapses to a narrow convention. These are valuable ablations, but their theoretical guarantees do not directly cover the decentralized two-team bridge model without an appropriate reduction.
+\end{enumerate}
+
+Across all six stages, representation learning, suit-permutation augmentation, recurrent history encoders, belief prediction, and supervised pretraining should be treated as interchangeable components rather than as solution concepts. Every learned policy should be evaluated by raw-score self-play value, cross-play against historical and independently trained populations, approximate coordinated best responses, and exploitability on the largest abstraction for which a response can be computed. Performance against WBridge5 remains informative, but it answers a different question from optimality against an optimal opposing policy.
+
+\section{Mathematical Definition}
+
+We model bridge bidding as a finite-horizon partially observed Markov game. The set of players is
+\[
+    \mathcal{P}=\{S,W,N,E\},
+\]
+with bidding order $S\to W\to N\to E\to S$. The partnerships are
+\[
+    P_{SN}=\{S,N\}, \qquad P_{EW}=\{E,W\}.
+\]
+Let $D$ be the standard $52$-card deck. A deal is a partition
+\[
+    \delta=(\delta_S,\delta_W,\delta_N,\delta_E)
+\]
+of $D$ into four disjoint hands, each of cardinality $13$. The deal space is
+\[
+    \Omega = \left\{(\delta_S,\delta_W,\delta_N,\delta_E): \delta_X \subset D,\ |\delta_X|=13,\ \delta_X\cap \delta_Y=\varnothing\text{ for }X\neq Y,
+    \bigcup_{X\in\mathcal{P}}\delta_X=D\right\}.
+\]
+For any finite set $Y$, let $\Delta(Y)$ denote the set of probability distributions on $Y$. Let $\mathcal{V}$ be the finite set of vulnerability conditions. Before bidding begins, the deal $\delta$, dealer $X_0$, and vulnerability $v$ are drawn jointly from an initial distribution
+\[
+    \mu_0\in\Delta(\Omega\times\mathcal{P}\times\mathcal{V}).
+\]
+The random initial condition is denoted by $\omega=(\delta,X_0,v)$. In a full duplicate model, the marginal distribution of $\delta$ is uniform and the dealer and vulnerability follow the standard board schedule.
+
+Let
+\[
+    \mathcal{L}=\{1,2,3,4,5,6,7\}, \qquad
+    \mathcal{D}=\{\clubsuit,\diamondsuit,\heartsuit,\spadesuit,\mathrm{NT}\}.
+\]
+A contract bid is a pair
+\[
+    c=(\ell,d)\in \mathcal{C}:=\mathcal{L}\times\mathcal{D},
+\]
+where $\ell$ is the level and $d$ is the denomination. Contract bids are ordered by level and then by denomination, with
+\[
+    \clubsuit < \diamondsuit < \heartsuit < \spadesuit < \mathrm{NT}.
+\]
+A call is either a contract bid, a pass, a double, or a redouble:
+\[
+    \mathcal{A}=\mathcal{C}\cup\{\mathrm{Pass},\mathrm{Double},\mathrm{Redouble}\}.
+\]
+
+An auction starts with dealer $X_0$ and follows the cyclic order $S\to W\to N\to E\to S$, with one call chosen at each turn $t=0,1,2,\ldots$. A bidding history is the list of calls made so far in the auction. A bidding history is terminal exactly when at least four calls have been made and the last three calls are all $\mathrm{Pass}$. If this condition does not hold, the bidding history is nonterminal and the next player must choose another call.
+
+The legal calls are defined recursively from the preceding auction rules. At each nonterminal turn, $\mathrm{Pass}$ is legal. A contract bid $c\in\mathcal{C}$ is legal if no contract bid has yet been made, or if $c$ is strictly higher than the current contract bid. A double is legal for a player exactly when the current contract was bid by the opposing partnership and has not already been doubled or redoubled. A redouble is legal for a player exactly when the current contract was doubled by the opposing partnership and has not already been redoubled.
+
+Thus, for any nonterminal bidding history and any player to act, the rules determine a set of legal calls. We denote this set by
+\[
+    A(b,X)\subseteq\mathcal{A},
+\]
+where $b$ is the bidding history and $X\in\mathcal{P}$ is the player to act. This notation is only a compact way to refer to the recursive legality rules above.
+
+Let $\mathcal{B}$ be the set of legal nonterminal bidding histories, and let $Z_B$ be the set of legal terminal bidding histories.
+
+The auction has a finite horizon because contract bids must increase through the finite set $\mathcal{C}$, and only finitely many doubles, redoubles, and passes can occur between successive contract bids.
+
+The time index $t\in\{0,1,2,\ldots\}$ counts the number of calls already made, so $b_t$ is the bidding history after $t$ calls. The state space of the Markov game is
+\[
+    \mathcal{S}=\Omega\times(\mathcal{B}\cup Z_B)\times\mathcal{P}\times\mathcal{P}\times\mathcal{V}.
+\]
+A state is written
+\[
+    s_t=(\delta,b_t,X_t,X_0,v),
+\]
+where $\delta$ is the deal, $b_t$ is the bidding history, $X_t\in\mathcal{P}$ is the next seat in the cyclic order, $X_0$ is the dealer, and $v$ is the vulnerability. At a nonterminal state, $X_t$ is the player to act. At a terminal state, no player acts and the $X_t$ component is ignored.
+
+For a nonterminal history $b$ and dealer $X_0$, let $T(b,X_0)$ be the seat obtained by advancing $|b|$ calls from $X_0$ in the cyclic order. Thus $T(b_t,X_0)=X_t$ at every nonterminal state.
+
+At a nonterminal state $s_t=(\delta,b_t,X_t,X_0,v)$, the player to act is $X_t$. The observation available to this player is
+\[
+    o_t=(\delta_{X_t},b_t,X_t,X_0,v).
+\]
+Thus player $X_t$ observes their own hand, the bidding history, the acting seat, the dealer, and the vulnerability, but not the other three hands. The observation space for player $X$ is
+\[
+    \mathcal{O}_X=\{(\delta_X,b,X,X_0,v): \delta\in\Omega,\ b\in\mathcal{B},\ X_0\in\mathcal{P},\ v\in\mathcal{V},\ X=T(b,X_0)\}.
+\]
+A bidding policy for player $X$ is a function
+\[
+    \pi_X:\mathcal{O}_X\to\mathcal{A}
+\]
+such that, for every legal nonterminal history $b$ at which $X$ acts,
+\[
+    \pi_X(\delta_X,b,X,X_0,v)\in A(b,X).
+\]
+Thus a policy assigns one legal call to each possible observation of player $X$.
+
+The primary strategy space in this paper permits a partnership to correlate its two members before the deal is drawn, but not to share their private hands after the deal. Let
+\[
+    \Pi_{SN}^{\mathrm{loc}}=\{(\pi_S,\pi_N)\},
+    \qquad
+    \Pi_{EW}^{\mathrm{loc}}=\{(\pi_E,\pi_W)\}
+\]
+be the finite sets of legal pairs of deterministic local bidding policies. An \emph{ex-ante correlated partnership strategy} for partnership $P$ is a distribution
+\[
+    q_P\in\Delta(\Pi_P^{\mathrm{loc}}).
+\]
+Before the initial condition is drawn, a private correlation device samples one pair of local policies from each partnership's distribution and privately delivers the relevant policy to each teammate. Equivalently, $q_P$ is a normal-form mixed strategy over complete local partnership plans. The sampled policy selects a function from observations to calls; it is not an additional post-deal observation, and it is not revealed to the opposing partnership. Thus the teammates can coordinate on a shared plan before receiving their hands, while each call remains a function only of the acting player's observation. Independent randomization by individual teammates is a more restrictive strategy space and is not the primary model considered below.
+
+The transition function is defined only for legal state-call pairs. Its domain is
+\[
+    \mathcal{D}_{\Phi}=\{((\delta,b,X,X_0,v),a): \delta\in\Omega,\ b\in\mathcal{B},\ X,X_0\in\mathcal{P},\ v\in\mathcal{V},\ a\in A(b,X)\}.
+\]
+We write
+\[
+    \Phi:\mathcal{D}_{\Phi}\to\mathcal{S}.
+\]
+For $((\delta,b_t,X_t,X_0,v),a_t)\in\mathcal{D}_{\Phi}$, define
+\[
+    b_{t+1}=b_t\mathbin{\Vert}a_t,
+\]
+where $\Vert$ denotes sequence concatenation, and let $X_{t+1}$ be the next player in the order $S\to W\to N\to E\to S$. Then
+\[
+    \Phi((\delta,b_t,X_t,X_0,v),a_t)=(\delta,b_{t+1},X_{t+1},X_0,v).
+\]
+If $b_{t+1}\in Z_B$, the new state is terminal and has no further decision. Since illegal calls are not in $\mathcal{D}_{\Phi}$, no transition function for illegal calls is needed.
+
+To define payoffs, first define the set of auction outcomes
+\[
+    \mathcal{K}=\mathcal{L}\times\mathcal{D}\times\{P_{SN},P_{EW}\}\times\mathcal{P}\times\{0,1,2\}\times\mathcal{V},
+\]
+where an element of $\mathcal{K}$ records the level and denomination of the final contract bid, together with declaring side, declarer, doubling status, and vulnerability; doubling status $0$ means undoubled, $1$ means doubled, and $2$ means redoubled. The auction outcome map is
+\[
+    \kappa:Z_B\times\mathcal{P}\times\mathcal{V}\to\mathcal{K}\cup\{\mathrm{PassedOut}\}.
+\]
+If $z$ contains no contract bid, then $\kappa(z,X_0,v)=\mathrm{PassedOut}$. Otherwise dealer $X_0$ determines which player made each call in $z$. Let $(\ell,d)$ be the final contract bid and let $P$ be the partnership that made it. The declarer is the first player in $P$ who bid denomination $d$ during the auction. The final doubling status is undoubled, doubled, or redoubled according to the last applicable double or redouble of the final contract. Thus $\kappa(z,X_0,v)$ records $(\ell,d)$, $P$, this declarer, the final doubling status, and vulnerability $v$.
+
+The terminal payoff function for the $S$--$N$ partnership is
+\[
+    r_{SN}:\Omega\times Z_B\times\mathcal{P}\times\mathcal{V}\to\mathbb{R}.
+\]
+The value $r_{SN}(\delta,z,X_0,v)$ is the bridge score for $P_{SN}$ when deal $\delta$ is played under auction outcome $\kappa(z,X_0,v)$. The terminal payoff function for the $E$--$W$ partnership is
+\[
+    r_{EW}:\Omega\times Z_B\times\mathcal{P}\times\mathcal{V}\to\mathbb{R}.
+\]
+Bridge scoring is zero-sum between the two partnerships: every point won by one partnership is lost by the other. Therefore
+\[
+    r_{EW}(\delta,z,X_0,v)=-r_{SN}(\delta,z,X_0,v)
+\]
+for every deal $\delta$, terminal bidding history $z$, dealer $X_0$, and vulnerability $v$. Thus the two partnerships do not have the same objective. The $S$--$N$ partnership wants to make $r_{SN}$ large, while the $E$--$W$ partnership wants to make $r_{SN}$ small, equivalently to make $r_{EW}$ large. If play is not modeled explicitly, these payoff functions may be externally specified expected scores, for example double-dummy or empirical expected values, but they should still satisfy the zero-sum relation above.
+
+A joint partnership strategy is a pair
+\[
+    (q_{SN},q_{EW}).
+\]
+Together with the initial distribution $\mu_0$, the observation rule, the legal-call correspondence $A$, and the transition function $\Phi$, it induces a distribution over terminal bidding histories. Let $Z_{q_{SN},q_{EW}}(\omega)\in Z_B$ be the random terminal history generated from $\omega=(\delta,X_0,v)$ after the partnerships have sampled their local policy pairs. The objective for partnership $P_{SN}$ is
+\[
+    J_{SN}(q_{SN},q_{EW})
+    =
+    \mathbb{E}_{\omega\sim\mu_0}\left[
+        r_{SN}(\delta,Z_{q_{SN},q_{EW}}(\omega),X_0,v)
+    \right].
+\]
+The expectation also includes the independent ex-ante samples from $q_{SN}$ and $q_{EW}$. The objective for partnership $P_{EW}$ is
+\[
+    J_{EW}(q_{SN},q_{EW})
+    =
+    \mathbb{E}_{\omega\sim\mu_0}\left[
+        r_{EW}(\delta,Z_{q_{SN},q_{EW}}(\omega),X_0,v)
+    \right]
+    =
+    -J_{SN}(q_{SN},q_{EW}).
+\]
+Hence it is enough to optimize the single function $J_{SN}$: $P_{SN}$ maximizes it and $P_{EW}$ minimizes it. Because each partnership mixes over a finite set of complete local policy pairs, the finite minimax theorem guarantees a saddle point in this stated strategy space. This zero-sum property does not by itself imply that the equilibrium value must be zero. If both partnerships play optimally under the risk-neutral objective of maximizing expected score, the equilibrium payoff is a game value $v$ for $P_{SN}$ and $-v$ for $P_{EW}$.
+
+The value is zero under a precise partnership-swap symmetry condition. Let $\tau$ rotate every seat one position in the bidding order, so $\tau(S)=W$, $\tau(W)=N$, $\tau(N)=E$, and $\tau(E)=S$. This exchanges the two partnerships. Apply $\tau$ to a deal by assigning the hand formerly held by $X$ to $\tau(X)$, to the dealer by replacing $X_0$ by $\tau(X_0)$, to vulnerability by exchanging the two partnership vulnerabilities, and to a policy pair by relabeling its seats. Suppose that the initial distribution is invariant under this transformation, the two partnerships have policy classes that are mapped bijectively to one another by it, and the terminal reward changes sign:
+\[
+    r_{SN}(\tau\delta,z,\tau X_0,\tau v)
+    =
+    -r_{SN}(\delta,z,X_0,v).
+\]
+Then every strategy pair has a partnership-swapped pair with the opposite expected payoff, so the minimax value is zero. A full duplicate model with a uniform deal distribution and a partnership-symmetric dealer and vulnerability schedule satisfies these conditions. This makes the symmetric risk-neutral formulation especially useful as a benchmark: a numerical algorithm should produce an estimated game value close to zero, and a large nonzero value would indicate either approximation error, sampling error, or an unintended asymmetry in the implementation. To assess approximate optimality, the estimated value can then be supplemented by coordinated best-response or exploitability checks in the same ex-ante correlated strategy space.
+
+This symmetry is a statement about the ex ante expected value of the game, not a statement that the optimal policy ignores seat or vulnerability. On the contrary, dealer position, seat relative to the dealer, auction position, and vulnerability are included in the public information available to the policy, and an optimal policy may bid differently in first, second, third, or fourth seat and at different vulnerabilities. By contrast, if the model fixes one dealer or vulnerability, uses asymmetric comparison scores, or gives the two partnerships different policy classes or information, then the symmetry is broken and optimal play may yield $v\neq 0$.
+The optimal bidding problem is to find an equilibrium of this zero-sum Markov game in the stated ex-ante correlated strategy space. It is a pair
+\[
+    (q_{SN}^\ast,q_{EW}^\ast)
+\]
+such that, for every admissible $q_{SN}$ and $q_{EW}$,
+\[
+    J_{SN}(q_{SN},q_{EW}^\ast)
+    \leq
+    J_{SN}(q_{SN}^\ast,q_{EW}^\ast)
+    \leq
+    J_{SN}(q_{SN}^\ast,q_{EW}).
+\]
+Equivalently, $q_{SN}^\ast$ is a coordinated partnership best response to $q_{EW}^\ast$, and $q_{EW}^\ast$ is a coordinated partnership best response to $q_{SN}^\ast$. This strategy space is more general than independent behavioral randomization by individual teammates and is one of several possible models of decentralized cooperation \cite{farina2018coordination,farina2021collusion}. Results for a more restrictive deterministic or independently randomized policy class must be evaluated against responses from that same class; they do not inherit the saddle-point guarantee above.
+
+The objective $J_{SN}$ is risk-neutral: it maximizes the expected score per deal. This may not be the only natural objective. In duplicate bridge one often plays a finite number of boards, so two strategies with the same expected score may be quite different if one has much larger variance. A risk-averse formulation can therefore trade off expected reward against variability. A classical version is the mean-variance criterion, originating in Markowitz's portfolio-selection work \cite{markowitz1952portfolio}. Let
+\[
+    R_{q_{SN},q_{EW}}
+    =
+    r_{SN}(\delta,Z_{q_{SN},q_{EW}}(\omega),X_0,v)
+\]
+be the random $S$--$N$ score under the joint law consisting of the initial draw from $\mu_0$ and the independent policy-pair samples from $q_{SN}$ and $q_{EW}$. Its variance is the expected squared deviation from its mean:
+\[
+    V_{SN}(q_{SN},q_{EW})
+    =
+    \mathbb{E}\left[
+        \left(
+            R_{q_{SN},q_{EW}}
+            -J_{SN}(q_{SN},q_{EW})
+        \right)^2
+    \right].
+\]
+and optimize, for a risk-aversion parameter $\lambda\geq 0$,
+\[
+    J_{SN}^{\lambda}(q_{SN},q_{EW})
+    =
+    J_{SN}(q_{SN},q_{EW})
+    -\lambda V_{SN}(q_{SN},q_{EW}).
+\]
+More generally, stochastic optimization often studies mean-risk objectives, where the expectation is combined with a risk measure rather than only with variance; convex risk-function formulations are developed, for example, by Ruszczy{\'n}ski and Shapiro \cite{ruszczynski2006convexrisk}. A risk-sensitive objective changes the symmetry discussion above. Raw bridge scores remain zero-sum board by board, but a mean-variance objective is not zero-sum in the same way: if $R$ is the $S$--$N$ score, then $E$--$W$ has score $-R$, but both partnerships face the same variance $\operatorname{Var}(R)$. Thus the two mean-variance objectives are
+\[
+    \mathbb{E}[R]-\lambda\operatorname{Var}(R)
+    \qquad\text{and}\qquad
+    -\mathbb{E}[R]-\lambda\operatorname{Var}(R),
+\]
+which do not sum to zero when $\lambda>0$. Therefore the risk-neutral symmetry argument can imply a zero expected score in a symmetric model, but it does not imply that each partnership's risk-sensitive objective value is zero. For bridge bidding this suggests that the choice of objective should be part of the model: expected IMPs per board, expected matchpoints, a mean-variance tradeoff over a finite session, or another risk-sensitive criterion may lead to different optimal bidding policies and may no longer define a strictly zero-sum game.
+
+This has important consequences for the solution concept. In the risk-neutral zero-sum formulation, one can describe optimal play by a value and a saddle point: $P_{SN}$ maximizes the same quantity that $P_{EW}$ minimizes. Once the objectives are not exact negatives of one another, this minimax interpretation is no longer appropriate. The relevant solution concept is instead a Nash equilibrium, in which each partnership's policy is a best response to the other's policy under its own objective \cite{nash1951noncooperative}. In stochastic-game language, this moves the model from the zero-sum case to a nonzero-sum stochastic game, where equilibrium analysis is generally more complex and may involve multiple equilibria, equilibrium selection, and objectives that are not summarized by a single scalar value \cite{filar1997competitive}. Risk-sensitive stochastic games are often treated separately in the zero-sum and nonzero-sum cases for exactly this reason \cite{bauerle2017zerosum,basu2018nonzero}. For the present bridge model, the practical implication is that a risk-sensitive formulation should specify whose risk is being optimized, whether both partnerships use the same risk parameter, and whether the goal is a Nash equilibrium, a robust policy against a risk-sensitive opponent, or a policy optimized against a fixed field of comparison scores.
+
+\section{Choice of the Terminal Reward}
+
+The definition above leaves open how the terminal reward functions $r_{SN}$ and $r_{EW}$ are computed. We now describe a natural choice based on standard bridge scoring and double-dummy analysis.
+
+First, define the raw score obtained after the hand has been played. This raw score is not yet the final duplicate-bridge reward; it is the table score from which matchpoints or IMPs are computed. Let $k\in\mathcal{K}$ be an auction outcome that is not $\mathrm{PassedOut}$. Write
+\[
+    k=(\ell,d,P,X,\sigma,v),
+\]
+where $\ell\in\{1,\ldots,7\}$ is the level, $d$ is the denomination, $P\in\{P_{SN},P_{EW}\}$ is the declaring side, $X\in\mathcal{P}$ is the declarer, $\sigma\in\{0,1,2\}$ is the doubling status, and $v\in\mathcal{V}$ is the vulnerability. Let $n\in\{0,1,\ldots,13\}$ be the number of tricks won by the declaring side. The contract requires
+\[
+    m(\ell)=6+\ell
+\]
+tricks. For the details of duplicate-bridge scoring, see for example Hansson \cite{hansson2013introductory}. Standard bridge scoring defines a raw-score function
+\[
+    \rho:\mathcal{K}\times\{0,1,\ldots,13\}\to\mathbb{Z},
+\]
+where $\rho(k,n)$ is the table score for the declaring side when outcome $k$ is played and the declaring side takes $n$ tricks. If $n\geq m(\ell)$, this score consists of the contract trick score, any overtrick score, game or part-score bonus, slam bonus if applicable, insult bonus if doubled or redoubled, and vulnerability-dependent bonuses. If $n<m(\ell)$, the score is negative for the declaring side and is determined by the number of undertricks $m(\ell)-n$, the vulnerability, and whether the contract is undoubled, doubled, or redoubled. If the auction is passed out, the raw score is zero.
+
+It remains to specify $n$, the number of tricks taken when a contract is played on a deal. A simple deterministic choice is to use double-dummy analysis. Given the full deal $\delta$ and auction outcome $k$, define
+\[
+    n_{\mathrm{DD}}(\delta,k)\in\{0,1,\ldots,13\}
+\]
+to be the number of tricks taken by the declaring side under optimal play by both partnerships, assuming that all four hands are visible to all players. This is not the same as actual single-dummy play, but it gives a well-defined value for every deal and contract. Double-dummy analysis is standard in computational bridge: it appears in early work on search in bridge with incomplete information \cite{frank1998search}, in Ginsberg's GIB program through double-dummy analysis over possible deals \cite{ginsberg2001gib}, and in modern double-dummy solvers such as DDS by Haglund and Hein \cite{haglunddds}.
+
+The double-dummy construction is attractive because it is precise and reproducible, but it is also an approximation to actual bridge play. A later version of the model could replace $n_{\mathrm{DD}}(\delta,k)$ by an expected number of tricks under a model of single-dummy declarer play and defense, or by empirical scores from human or computer play.
+
+For a terminal bidding history $z\in Z_B$, define the raw score for $S$--$N$ by
+\[
+    R_{SN}(\delta,z,X_0,v)=
+    \begin{cases}
+        0, & \kappa(z,X_0,v)=\mathrm{PassedOut},\\
+        \rho(k,n_{\mathrm{DD}}(\delta,k)), & \kappa(z,X_0,v)=k=(\ell,d,P_{SN},X,\sigma,v),\\
+        -\rho(k,n_{\mathrm{DD}}(\delta,k)), & \kappa(z,X_0,v)=k=(\ell,d,P_{EW},X,\sigma,v).
+    \end{cases}
+\]
+The self-contained two-partnership game uses $R_{SN}(\delta,z,X_0,v)$ directly as its terminal reward. Matchpoint or IMP rewards additionally require comparison scores, so those scores and their source must be added to the model before such rewards are used.
+
+For matchpoint scoring, the result on a board is compared with the results obtained by other pairs holding the same cards. Let $K_{\mathrm{MP}}$ be the number of comparison scores and write $\mathbf{s}=(s_1,\ldots,s_{K_{\mathrm{MP}}})$ for their vector. Let $\mathbf{1}\{E\}$ equal $1$ when event $E$ occurs and $0$ otherwise. A centered matchpoint reward is
+\[
+    r_{SN}^{MP}(\delta,z,X_0,v;\mathbf{s})
+    =\sum_{j=1}^{K_{\mathrm{MP}}}
+    \left(
+        \mathbf{1}\{R_{SN}(\delta,z,X_0,v)>s_j\}
+        +\frac{1}{2}\mathbf{1}\{R_{SN}(\delta,z,X_0,v)=s_j\}
+    \right)
+    -\frac{K_{\mathrm{MP}}}{2}.
+\]
+The subtraction centers the ordinary matchpoint score at zero and does not change which policy maximizes it. The reward may also be normalized by $K_{\mathrm{MP}}/2$. Matchpoint scoring rewards how many other pairs one beats on the board, rather than the numerical size of the raw-score difference. Hansson discusses matchpoint scoring in more detail \cite{hansson2013introductory}.
+
+For IMP scoring, the raw score is compared with another raw score, for example the score at the other table in a team match. Let
+\[
+    \iota:\mathbb{Z}\to\{-24,-23,\ldots,23,24\}
+\]
+be the standard international matchpoint conversion table, which maps a raw-score difference to IMPs. The IMP scale is given in the Laws of Duplicate Bridge \cite{acbl2017laws}. If $s$ is the comparison score for $S$--$N$, then the IMP reward is
+\[
+    r_{SN}^{IMP}(\delta,z,X_0,v;s)=\iota(R_{SN}(\delta,z,X_0,v)-s).
+\]
+In IMP-pair scoring one may instead compare against several scores and average the resulting IMPs, but the essential point is the same: raw score is first converted through a nonlinear IMP scale.
+
+Thus the terminal reward should be chosen according to the event being modeled. The present self-contained game sets $r_{SN}=R_{SN}$. An extended matchpoint or IMP model may instead use $r_{SN}^{MP}$ or $r_{SN}^{IMP}$ after specifying the probability distribution or fixed source of every comparison score. A zero-sum version defines the $E$--$W$ reward as the negative of the chosen centered $S$--$N$ reward.
+
+When the partnership-swap symmetry condition stated above also holds for the comparison-score mechanism, the equilibrium value is zero for any of these risk-neutral reward choices. This does not mean that the optimal policies are the same for the different rewards. The value is an ex ante comparison between the two partnerships under the same scoring rule, whereas the policy is chosen to rank contracts according to that rule. Raw score, IMPs, and matchpoints rank bidding outcomes differently. Raw score treats a gain of 400 points as twice a gain of 200 points. IMP scoring compresses large raw-score differences through a nonlinear table, so the marginal value of an additional overtrick or a slightly larger penalty is much smaller once the raw-score swing is already large. Matchpoint scoring is still more ordinal: the reward depends primarily on how many comparison scores are beaten, so a small overtrick that moves a result above many other pairs may matter more than a large raw-score gain that changes few comparisons. Consequently, even if each symmetric risk-neutral game has value zero, the optimal bidding policy can differ across raw-score, IMP, and matchpoint objectives. A plausible bridge interpretation is that matchpoints may favor actions that improve the frequency of beating the field, such as competing for part scores or seeking overtricks, while IMPs may favor actions that protect against large losses and accurately bid vulnerable games and slams; raw-score optimization has yet another tradeoff because it uses the table score without the duplicate conversion.
+
+
+\section{Consequences for Evaluation and Optimization}
+
+The discussion of terminal rewards has several consequences for how one should interpret numerical solutions of the model. In the risk-neutral full-duplicate setting satisfying the partnership-swap symmetry condition stated above, the ex ante value of the zero-sum game is zero. This does not mean that the optimal policy is trivial. The policy may still depend on the player's hand, seat, dealer position, vulnerability, and the previous auction. The zero value only says that before the board is known and before seats are assigned symmetrically, neither partnership has an ex ante advantage.
+
+This zero value is useful as a diagnostic for algorithms. If a numerical method is intended to solve the symmetric risk-neutral zero-sum game, then its estimated game value should be close to zero. A large nonzero value would suggest a modeling asymmetry, sampling error, or approximation error. However, the value alone is not enough to establish that the computed policies are optimal. One should also examine best-response values or exploitability: if one partnership's policy is held fixed, how much can the other partnership improve by changing its policy? This is the more direct test of whether the proposed policies are close to a saddle point.
+
+The choice of terminal reward can change the optimal policy even when the symmetric game value remains zero. Raw score, IMPs, and matchpoints all give symmetric risk-neutral zero-sum games if the comparison mechanism is itself symmetric, but they rank outcomes differently. Raw score is linear in table points. IMP scoring applies a nonlinear conversion to raw-score differences and therefore reduces the marginal importance of additional raw points once a swing is already large. Matchpoint scoring is ordinal: it rewards beating comparison scores, not the numerical size of the raw-score difference. Thus a policy that is optimal for IMPs need not be optimal for matchpoints or raw score. In bridge terms, matchpoints may put relatively more weight on frequency, part-score competition, and overtricks, whereas IMPs may put relatively more weight on avoiding large losses and bidding games and slams accurately.
+
+There is also a special issue with duplicate comparison scores. If matchpoint scores are generated by comparing a policy only with exact copies of itself, then deterministic self-play is degenerate: every comparison score is the same, so each board receives half the available matchpoints. Similarly, in a two-table IMP team model, if both teams use the same deterministic policy and the play model is deterministic, the two tables produce the same raw score from opposite directions, so the IMP difference is zero. This is not a paradox; it says that MP and IMP rewards require a meaningful comparison mechanism. The comparison scores should therefore be modeled explicitly, for example as scores from a fixed benchmark policy, an empirical field of human or bot results, a population of policies, a stochastic play model, or a distribution over comparison tables.
+
+One way to avoid this degeneracy is to optimize against a fixed reference policy or field. For example, one can fix the $E$--$W$ policy, or fix the comparison scores generated by a benchmark program, and optimize only the $S$--$N$ policy. Then matchpoint or IMP rewards are meaningful because the comparison scores are no longer produced by exact copies of the policy being optimized. The resulting policy should be interpreted accordingly: it is a best response to the specified opponent, field, or comparison-score distribution, not necessarily an equilibrium policy for the fully symmetric game.
+
+Risk-sensitive objectives introduce a different complication. Raw bridge scores remain zero-sum board by board, but a risk penalty such as variance is not generally zero-sum. If $R$ is the $S$--$N$ score, then the $E$--$W$ score is $-R$, but both partnerships face the same variance. A mean-variance objective therefore changes the game from a strict zero-sum game into a nonzero-sum game unless the risk term is formulated in a special adversarial way. Consequently, the saddle-point formulation may no longer be appropriate. One must specify whether the goal is a Nash equilibrium between two risk-sensitive partnerships, a robust policy against a risk-sensitive opponent, or an optimization against a fixed benchmark field. In addition, using risk with MP or IMP rewards does not by itself fix the comparison-score degeneracy described above; the reward distribution must first be made nondegenerate by specifying a meaningful comparison mechanism.
+
+These observations motivate the starting point for the rest of the project. The immediate goal is to study a self-contained bidding game in which an optimal policy is optimal against an also optimal opposing policy. For this objective, the terminal reward must be determined within that same two-policy game. MP and IMP scores require additional comparison scores and therefore cannot be used in the model defined in Section~3 without extending its initial condition and reward function. Raw score, by contrast, is determined by the deal, vulnerability, and auction outcome alone, is zero-sum board by board, and gives a well-defined saddle-point problem between the two partnerships. We therefore begin with the risk-neutral zero-sum game with raw-score terminal reward.
+
+\section{Possible Policy Features}
+
+When policies are implemented, their input representation may include derived bridge features such as high-card points, suit quality, shape points, and controls. These quantities are deterministic functions of a player's hand and therefore do not add information to the mathematical state or observation. They may nevertheless make learning easier by presenting strategically useful summaries directly to the function approximator.
+
+\section{Open Research Problems and Research Program}
+
+The formal model and survey identify a research program rather than a completed solution of optimal bridge bidding. The central question is not simply whether a learned partnership can defeat a fixed program. It is whether a specified class of decentralized partnership strategies can be made robust against coordinated responses by another partnership under a specified reward and play model. This section separates the resulting open problems according to whether they are primarily theoretical, primarily experimental, or require both kinds of work.
+
+\subsection{Open research problems}
+
+\begin{enumerate}
+    \item \textbf{Which partnership strategy space is appropriate for bridge?} The model in this paper permits ex-ante correlation over complete local partnership plans. This choice gives a finite zero-sum game after complete plans are treated as actions, but it may be more permissive than a human partnership can implement. Independent behavioral randomization, deterministic conventions, and correlated plans can have different values and different equilibrium policies. This is primarily a \emph{theoretical modeling problem}: one must specify which forms of pre-play agreement, shared randomness, and convention complexity are admissible, and then establish which solution concept applies. It also has an experimental component, because small bridge abstractions can measure how much value is gained by each strategy class. The relevant adversarial-team work develops correlated team max--min equilibrium representations, but has not yet reported such a comparison in a realistic bridge bidding environment \cite{farina2018coordination,farina2021collusion,carminati2022marriage,zhang2023teambelief,mcaleer2023teampsro}.
+
+    \item \textbf{Can approximate equilibrium claims be made at useful bridge scales?} Exact solution is feasible only for deliberately small abstractions. The theoretical task is to construct abstractions that preserve the relevant information restrictions, legal calls, partnership correlation model, and terminal reward, and then compute exact values or valid upper and lower bounds. The experimental task is to determine whether a scalable approximation, such as Team-PSRO with learned coordinated responses, has small response gaps on those abstractions and remains robust as the abstraction is enlarged. This problem is open because existing bridge agents report strength against benchmarks or self-play populations rather than game values or coordinated best responses \cite{tian2020joint,qiu2024bridge,kita2024simple}. It is also the point at which results from restricted bridge games \cite{gimbert2020bridge} must be connected carefully to the full auction rather than treated as direct evidence of full-scale tractability.
+
+    \item \textbf{How faithful must the terminal play model be?} Double-dummy scoring makes the bidding objective deterministic, reproducible, and inexpensive after solver values have been cached. It is nevertheless a model of perfect-information play, not of actual declarer play and defense. This is mainly an \emph{experimental model-validation problem}. One must measure whether policies that improve under double-dummy raw score also improve under a fixed single-dummy play program, under alternative play models, or in human-compatible settings. It also has a theoretical component: changing the play model changes the terminal reward and can change the equilibrium problem being approximated. A researcher should therefore avoid claiming that a double-dummy result is automatically a result about full practical bridge.
+
+    \item \textbf{Which learning and search components improve robust bidding rather than only benchmark performance?} Supervised initialization, PPO self-play, checkpoint populations, belief prediction, and online belief search have all improved published bridge systems \cite{qiu2024bridge,kita2024simple,zhang2025diverse}. Whether they improve robustness against coordinated opposing responses is primarily an \emph{experimental question}. Belief-guided search may improve immediate decisions yet change the meaning of calls relative to the blueprint. Population training may reduce cycling without producing a small equilibrium gap. The required evidence is therefore controlled ablation: compare one component at a time using identical deal distributions, play evaluator, training budget, response-oracle budget, and paired evaluation boards.
+
+    \item \textbf{Can learned policies yield useful bridge knowledge?} The strongest current systems are generally neural policies rather than human-readable convention cards. Partner-hand beliefs and opening-bid analyses offer partial explanations, while human-compatible initialization and evaluation show that compatibility can be studied directly \cite{rong2019competitive,qiu2024bridge,lockhart2020human}. This is mainly an \emph{experimental and human-factors problem}, with a theoretical constraint: a simplified convention must preserve the information restrictions and coordinated meaning of calls. A rule that imitates isolated bids but changes the continuation meaning of a call is not a faithful extracted convention.
+\end{enumerate}
+
+\subsection{How the problems should be addressed}
+
+The theoretical work should begin with an abstraction ladder. The first level should restrict the deal distribution, legal calls, and auction length enough that the complete correlated partnership game can be solved exactly. Each later level should relax one restriction while retaining the same definition of state, observation, legal actions, reward, and allowed correlation. At every level, the study should record whether the reported quantity is an exact value, a valid bound, an approximate response gap, or only an empirical playing-strength estimate. This prevents a favorable benchmark result from being misreported as evidence of equilibrium.
+
+Small exact models should answer questions that are otherwise difficult to diagnose. They can compare deterministic, independently randomized, and ex-ante-correlated partnership strategies; verify that a coordinated best-response implementation respects private information; and test whether a response oracle finds known improvements. PublicTeamConversion, Team Belief DAG representations, and related correlated-team methods are appropriate only after their information and correlation assumptions have been matched to the abstraction \cite{carminati2022marriage,zhang2023teambelief}. These experiments are theoretical in purpose even when they are carried out computationally: their main outputs are exact values, counterexamples, and validated bounds.
+
+Full-scale work is necessarily experimental. It needs a bidding environment with an independently tested legal-call generator; reproducible deal, dealer, and vulnerability sampling; a terminal evaluator; and a representation of the selected partnership strategy class. A double-dummy solver and persistent cache of contract values are needed for large raw-score experiments. The environment should also support fixed seeds, replayable boards, legal-action masks, seat and suit symmetries, checkpoint storage, and deterministic evaluation modes. Accelerator-oriented environments such as Pgx illustrate the value of high-throughput simulation for bridge learning \cite{koyamada2023pgx}, but speed does not replace independent evaluation.
+
+The minimum experimental infrastructure should include four further capabilities. First, it should maintain policy populations and a payoff matrix so that cross-play and meta-game calculations are reproducible. Second, it should train a coordinated partnership response under an explicitly fixed compute budget; the resulting improvement is evidence about vulnerability, not a certificate unless a valid response bound is available. Third, it should run paired-board evaluations with fixed seat rotations, reported uncertainty intervals, and separate held-out board sets. Fourth, it should save configurations, random seeds, model checkpoints, scoring code, solver versions, and the exact evaluation protocol. These requirements allow the PPO/checkpoint baseline of Kita et al. to be compared fairly with belief-search systems such as Qiu et al. and with later team-aware methods \cite{kita2024simple,qiu2024bridge}.
+
+The experiments should report several outcomes rather than a single leaderboard number. Raw-score value, IMPs against a fixed benchmark, cross-play matrices, approximate response gains, and exploitability bounds answer different questions. A useful result table should identify the strategy class, reward, play evaluator, training opponent distribution, response-oracle method and budget, test-time search budget, number of paired boards, and uncertainty interval. If a method is evaluated only against WBridge5 or only against a copy of itself, the report should call it a fixed-benchmark or self-play result rather than an equilibrium result.
+
+\subsection{Interpretability and the value of the results to human players}
+
+The answer to whether human players can learn from the results depends on the research target. A raw neural policy, a policy population, or an online search procedure can establish that some information-processing strategy is effective without yielding a convention that a human partnership can execute. In particular, a call may be valuable only because of a distributed, high-dimensional dependence on many earlier calls and card features. Inspecting weights or listing the most likely action is then not an explanation of the call's partnership meaning.
+
+Humanly useful knowledge is possible only if it is tested as a separate output. The research infrastructure should therefore include policy probes that vary one bridge feature at a time, analyses of inferred partner-hand ranges, clustering of similar auctions, and counterfactual tests that ask when one changed card alters a recommended call. It should also attempt to distill the learned policy into a finite convention card, decision tree, or rule list and then evaluate cross-play between the original policy and the distilled convention. A high agreement rate on isolated actions is insufficient: the distilled partners must preserve the continuation meanings of their calls. Human-expert review and human--agent partnership tests, in the spirit of the compatibility work of Lockhart et al., can then determine whether the extracted convention is understandable, usable, and competitively faithful \cite{lockhart2020human}.
+
+If no compact convention achieves acceptable fidelity and cross-play, the research questions should be rephrased. Instead of asking, ``What bidding system should human players adopt?'', the study should ask, ``What decentralized strategy class achieves robust performance under this play model and evaluation protocol?'' and ``Which information representations, belief models, or search procedures account for that performance?'' These questions remain scientifically valuable, but their answers concern computational bridge agents rather than transferable human bidding theory.
+
+The human-oriented questions are more difficult, not easier. They impose a second objective in addition to playing strength or low exploitability: the policy must use a restricted language of concepts and conventions while maintaining coordinated behavior under interference. The resulting problem is no longer simply a zero-sum optimization problem. It becomes a constrained or multi-objective design problem involving strength, robustness, convention complexity, compatibility, and human comprehensibility. Exact equilibrium guarantees may no longer survive the restriction, and empirical validation must include both bridge performance and human interpretability. This distinction should be stated whenever results are presented so that an advance in computational bidding is not automatically presented as a new lesson for human bridge.
+
+
+
+\appendix
+\input{appendix}
+
+
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

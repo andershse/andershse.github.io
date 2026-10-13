@@ -1,0 +1,1 @@
+Follow `AGENTS.md` and `EDITORIAL_RULES.md`. Before finishing, perform the complete audit required by `EDITORIAL_RULES.md`, including definition order, terminology, notation, probability notation, objectives, dependent occurrences, LaTeX compilation, and warnings. Do not claim completion until every applicable check has passed or any unresolved issue has been reported explicitly.

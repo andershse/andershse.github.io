@@ -1,0 +1,426 @@
+\begin{thebibliography}{57}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{American Contract Bridge League}(2017)]{acbl2017laws}
+{American Contract Bridge League}.
+\newblock Laws of duplicate bridge 2017, 2017.
+\newblock Includes the international matchpoint scoring scale.
+
+\bibitem[Amit and Markovitch(2006)]{amit2006learning}
+Asaf Amit and Shaul Markovitch.
+\newblock Learning to bid in bridge.
+\newblock \emph{Machine Learning}, 63\penalty0 (3):\penalty0 287--327, 2006.
+\newblock \doi{10.1007/s10994-006-6225-2}.
+
+\bibitem[Basu and Ghosh(2018)]{basu2018nonzero}
+Arnab Basu and Mrinal~K. Ghosh.
+\newblock Nonzero-sum risk-sensitive stochastic games on a countable state
+  space.
+\newblock \emph{Mathematics of Operations Research}, 43\penalty0 (2):\penalty0
+  516--532, 2018.
+\newblock \doi{10.1287/moor.2017.0870}.
+
+\bibitem[B{\"a}uerle and Rieder(2017)]{bauerle2017zerosum}
+Nicole B{\"a}uerle and Ulrich Rieder.
+\newblock Zero-sum risk-sensitive stochastic games.
+\newblock \emph{Stochastic Processes and their Applications}, 127\penalty0
+  (2):\penalty0 622--642, 2017.
+\newblock \doi{10.1016/j.spa.2016.06.012}.
+
+\bibitem[Brown and Sandholm(2018)]{brown2018superhuman}
+Noam Brown and Tuomas Sandholm.
+\newblock Superhuman {AI} for heads-up no-limit poker: {Libratus} beats top
+  professionals.
+\newblock \emph{Science}, 359\penalty0 (6374):\penalty0 418--424, 2018.
+\newblock \doi{10.1126/science.aao1733}.
+
+\bibitem[Brown et~al.(2019)Brown, Lerer, Gross, and Sandholm]{brown2019deep}
+Noam Brown, Adam Lerer, Sam Gross, and Tuomas Sandholm.
+\newblock Deep counterfactual regret minimization.
+\newblock In \emph{Proceedings of the 36th International Conference on Machine
+  Learning}, pages 793--802, 2019.
+
+\bibitem[Brown et~al.(2020)Brown, Bakhtin, Lerer, and Gong]{brown2020rebel}
+Noam Brown, Anton Bakhtin, Adam Lerer, and Qucheng Gong.
+\newblock Combining deep reinforcement learning and search for
+  imperfect-information games.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~33, pages 17057--17069, 2020.
+
+\bibitem[Burch et~al.(2014)Burch, Johanson, and Bowling]{burch2014solving}
+Neil Burch, Michael Johanson, and Michael Bowling.
+\newblock Solving imperfect information games using decomposition.
+\newblock In \emph{Proceedings of the Twenty-Eighth AAAI Conference on
+  Artificial Intelligence}, pages 602--608, 2014.
+
+\bibitem[Carminati et~al.(2022)Carminati, Cacciamani, Ciccone, and
+  Gatti]{carminati2022marriage}
+Luca Carminati, Federico Cacciamani, Marco Ciccone, and Nicola Gatti.
+\newblock A marriage between adversarial team games and 2-player games:
+  Enabling abstractions, no-regret learning, and subgame solving.
+\newblock In \emph{Proceedings of the 39th International Conference on Machine
+  Learning}, volume 162, pages 2638--2657, 2022.
+
+\bibitem[Clark(2021)]{clark2021dsmcp}
+Gregory Clark.
+\newblock Deep synoptic monte carlo planning in reconnaissance blind chess.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~34, 2021.
+
+\bibitem[Delage et~al.(2024)Delage, Buffet, Dibangoye, and
+  Saffidine]{delage2024hsvi}
+Aur{\'e}lien Delage, Olivier Buffet, Jilles~S. Dibangoye, and Abdallah
+  Saffidine.
+\newblock {HSVI} can solve zero-sum partially observable stochastic games.
+\newblock \emph{Dynamic Games and Applications}, 14\penalty0 (4):\penalty0
+  751--805, 2024.
+\newblock \doi{10.1007/s13235-023-00519-6}.
+
+\bibitem[Farina et~al.(2018)Farina, Celli, Gatti, and
+  Sandholm]{farina2018coordination}
+Gabriele Farina, Andrea Celli, Nicola Gatti, and Tuomas Sandholm.
+\newblock Ex ante coordination and collusion in zero-sum multi-player
+  extensive-form games.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~31, pages 9661--9671, 2018.
+
+\bibitem[Farina et~al.(2021)Farina, Celli, Gatti, and
+  Sandholm]{farina2021collusion}
+Gabriele Farina, Andrea Celli, Nicola Gatti, and Tuomas Sandholm.
+\newblock Connecting optimal ex-ante collusion in teams to extensive-form
+  correlation: Faster algorithms and positive complexity results.
+\newblock In \emph{Proceedings of the 38th International Conference on Machine
+  Learning}, volume 139, pages 3164--3173, 2021.
+
+\bibitem[Filar and Vrieze(1997)]{filar1997competitive}
+Jerzy Filar and Koos Vrieze.
+\newblock \emph{Competitive Markov Decision Processes}.
+\newblock Springer, 1997.
+\newblock \doi{10.1007/978-1-4612-4054-9}.
+
+\bibitem[Foerster et~al.(2019)Foerster, Song, Hughes, Burch, Dunning, Whiteson,
+  Botvinick, and Bowling]{foerster2019bad}
+Jakob Foerster, Francis Song, Edward Hughes, Neil Burch, Iain Dunning, Shimon
+  Whiteson, Matthew Botvinick, and Michael Bowling.
+\newblock Bayesian action decoder for deep multi-agent reinforcement learning.
+\newblock In \emph{Proceedings of the 36th International Conference on Machine
+  Learning}, volume~97, pages 1942--1951, 2019.
+
+\bibitem[Frank and Basin(1998)]{frank1998search}
+Ian Frank and David Basin.
+\newblock Search in games with incomplete information: A case study using
+  bridge card play.
+\newblock \emph{Artificial Intelligence}, 100\penalty0 (1--2):\penalty0
+  87--123, 1998.
+\newblock \doi{10.1016/S0004-3702(97)00082-9}.
+
+\bibitem[Gimbert et~al.(2020)Gimbert, Paul, and Srivathsan]{gimbert2020bridge}
+Hugo Gimbert, Soumyajit Paul, and B.~Srivathsan.
+\newblock A bridge between polynomial optimization and games with imperfect
+  recall.
+\newblock In \emph{Proceedings of the 19th International Conference on
+  Autonomous Agents and MultiAgent Systems}, pages 456--464, 2020.
+
+\bibitem[Ginsberg(2001)]{ginsberg2001gib}
+Matthew~L. Ginsberg.
+\newblock {GIB}: Imperfect information in a computationally challenging game.
+\newblock \emph{Journal of Artificial Intelligence Research}, 14:\penalty0
+  303--358, 2001.
+\newblock \doi{10.1613/jair.820}.
+
+\bibitem[Gong et~al.(2019)Gong, Jiang, and Tian]{gong2019simple}
+Qucheng Gong, Yu~Jiang, and Yuandong Tian.
+\newblock Simple is better: Training an end-to-end contract bridge bidding
+  agent without human knowledge.
+\newblock In \emph{ICML Workshop on Real-world Sequential Decision Making},
+  2019.
+
+\bibitem[Haglund and Hein(2018)]{haglunddds}
+Bo~Haglund and Soren Hein.
+\newblock Double dummy solver, 2018.
+\newblock Software and documentation for bridge double-dummy analysis.
+
+\bibitem[Hansen et~al.(2004)Hansen, Bernstein, and
+  Zilberstein]{hansen2004dynamic}
+Eric~A. Hansen, Daniel~S. Bernstein, and Shlomo Zilberstein.
+\newblock Dynamic programming for partially observable stochastic games.
+\newblock In \emph{Proceedings of the Nineteenth National Conference on
+  Artificial Intelligence}, pages 709--715, 2004.
+
+\bibitem[Hansson(2013)]{hansson2013introductory}
+Anders Hansson.
+\newblock \emph{Introductory Duplicate Bridge: American Standard With
+  Competitive Strategies}.
+\newblock Books on Demand, 2013.
+\newblock ISBN 9789174631746.
+
+\bibitem[Heinrich and Silver(2016)]{heinrich2016nfsp}
+Johannes Heinrich and David Silver.
+\newblock Deep reinforcement learning from self-play in imperfect-information
+  games.
+\newblock \emph{arXiv preprint arXiv:1603.01121}, 2016.
+
+\bibitem[Heinrich et~al.(2015)Heinrich, Lanctot, and
+  Silver]{heinrich2015fictitious}
+Johannes Heinrich, Marc Lanctot, and David Silver.
+\newblock Fictitious self-play in extensive-form games.
+\newblock In \emph{Proceedings of the 32nd International Conference on Machine
+  Learning}, volume~37, pages 805--813, 2015.
+
+\bibitem[Ho and Lin(2015)]{ho2015learning}
+Chun-Yen Ho and Hsuan-Tien Lin.
+\newblock Contract bridge bidding by learning.
+\newblock In \emph{Computer Poker and Imperfect Information: Papers from the
+  AAAI Workshop}, 2015.
+
+\bibitem[Hor{\'a}k et~al.(2023)Hor{\'a}k, Bo{\v{s}}ansk{\'y},
+  Kova{\v{r}}{\'i}k, and Kiekintveld]{horak2023onesided}
+Karel Hor{\'a}k, Branislav Bo{\v{s}}ansk{\'y}, Vojt{\v{e}}ch Kova{\v{r}}{\'i}k,
+  and Christopher Kiekintveld.
+\newblock Solving zero-sum one-sided partially observable stochastic games.
+\newblock \emph{Artificial Intelligence}, 316:\penalty0 103838, 2023.
+\newblock \doi{10.1016/j.artint.2022.103838}.
+
+\bibitem[Kaelbling et~al.(1998)Kaelbling, Littman, and
+  Cassandra]{kaelbling1998planning}
+Leslie~Pack Kaelbling, Michael~L. Littman, and Anthony~R. Cassandra.
+\newblock Planning and acting in partially observable stochastic domains.
+\newblock \emph{Artificial Intelligence}, 101\penalty0 (1--2):\penalty0
+  99--134, 1998.
+\newblock \doi{10.1016/S0004-3702(98)00023-X}.
+
+\bibitem[Kartik et~al.(2022)Kartik, Nayyar, and
+  Mitra]{kartik2022competingteams}
+Dhruva Kartik, Ashutosh Nayyar, and Urbashi Mitra.
+\newblock Common information belief based dynamic programs for stochastic
+  zero-sum games with competing teams.
+\newblock In \emph{2022 American Control Conference}, pages 605--612, 2022.
+
+\bibitem[Kita et~al.(2024)Kita, Koyamada, Yamaguchi, and Ishii]{kita2024simple}
+Haruka Kita, Sotetsu Koyamada, Yotaro Yamaguchi, and Shin Ishii.
+\newblock A simple, solid, and reproducible baseline for bridge bidding ai.
+\newblock In \emph{2024 IEEE Conference on Games}, 2024.
+\newblock \doi{10.1109/CoG60054.2024.10645547}.
+
+\bibitem[Koller et~al.(1996)Koller, Megiddo, and von
+  Stengel]{koller1996sequence}
+Daphne Koller, Nimrod Megiddo, and Bernhard von Stengel.
+\newblock Efficient computation of equilibria for extensive two-person games.
+\newblock \emph{Games and Economic Behavior}, 14\penalty0 (2):\penalty0
+  247--259, 1996.
+\newblock \doi{10.1006/game.1996.0051}.
+
+\bibitem[Koyamada et~al.(2023)Koyamada, Okano, Nishimori, Murata, Habara, Kita,
+  and Ishii]{koyamada2023pgx}
+Sotetsu Koyamada, Shinri Okano, Soichiro Nishimori, Yu~Murata, Keigo Habara,
+  Haruka Kita, and Shin Ishii.
+\newblock {Pgx}: Hardware-accelerated parallel game simulators for
+  reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, pages 45716--45743, 2023.
+
+\bibitem[Lanctot et~al.(2009)Lanctot, Waugh, Zinkevich, and
+  Bowling]{lanctot2009monte}
+Marc Lanctot, Kevin Waugh, Martin Zinkevich, and Michael Bowling.
+\newblock Monte carlo sampling for regret minimization in extensive games.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~22, 2009.
+
+\bibitem[Lanctot et~al.(2017)Lanctot, Zambaldi, Gruslys, Lazaridou, Tuyls,
+  Perolat, Silver, and Graepel]{lanctot2017psro}
+Marc Lanctot, Vinicius Zambaldi, Audrunas Gruslys, Angeliki Lazaridou, Karl
+  Tuyls, Julien Perolat, David Silver, and Thore Graepel.
+\newblock A unified game-theoretic approach to multiagent reinforcement
+  learning.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~30, 2017.
+
+\bibitem[Lerer et~al.(2020)Lerer, Hu, Foerster, and Brown]{lerer2020sparta}
+Adam Lerer, Hengyuan Hu, Jakob Foerster, and Noam Brown.
+\newblock Improving policies via search in cooperative partially observable
+  games.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~34, pages 7187--7194, 2020.
+
+\bibitem[Lockhart et~al.(2020)Lockhart, Burch, Bard, Borgeaud, Eccles, Smaira,
+  and Smith]{lockhart2020human}
+Edward Lockhart, Neil Burch, Nolan Bard, Sebastian Borgeaud, Tom Eccles, Lucas
+  Smaira, and Ray Smith.
+\newblock Human-agent cooperation in bridge bidding.
+\newblock \emph{arXiv preprint arXiv:2011.14124}, 2020.
+
+\bibitem[Markowitz(1952)]{markowitz1952portfolio}
+Harry Markowitz.
+\newblock Portfolio selection.
+\newblock \emph{The Journal of Finance}, 7\penalty0 (1):\penalty0 77--91, 1952.
+\newblock \doi{10.2307/2975974}.
+
+\bibitem[McAleer et~al.(2021)McAleer, Lanier, Wang, Baldi, and
+  Fox]{mcaleer2021xdo}
+Stephen McAleer, John Lanier, Kevin Wang, Pierre Baldi, and Roy Fox.
+\newblock {XDO}: A double oracle algorithm for extensive-form games.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~34, pages 23128--23139, 2021.
+
+\bibitem[McAleer et~al.(2023)McAleer, Farina, Zhou, Wang, Yang, and
+  Sandholm]{mcaleer2023teampsro}
+Stephen McAleer, Gabriele Farina, Gaoyue Zhou, Mingzhi Wang, Yaodong Yang, and
+  Tuomas Sandholm.
+\newblock Team-{PSRO} for learning approximate {TMECor} in large team games via
+  cooperative reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~36, pages 45402--45418, 2023.
+
+\bibitem[Morav{\v{c}}{\'i}k et~al.(2017)Morav{\v{c}}{\'i}k, Schmid, Burch,
+  Lis{\'y}, Morrill, Bard, Davis, Waugh, Johanson, and
+  Bowling]{moravcik2017deepstack}
+Matej Morav{\v{c}}{\'i}k, Martin Schmid, Neil Burch, Viliam Lis{\'y}, Dustin
+  Morrill, Nolan Bard, Trevor Davis, Kevin Waugh, Michael Johanson, and Michael
+  Bowling.
+\newblock {DeepStack}: Expert-level artificial intelligence in heads-up
+  no-limit poker.
+\newblock \emph{Science}, 356\penalty0 (6337):\penalty0 508--513, 2017.
+\newblock \doi{10.1126/science.aam6960}.
+
+\bibitem[Nash(1951)]{nash1951noncooperative}
+John Nash.
+\newblock Non-cooperative games.
+\newblock \emph{Annals of Mathematics}, 54\penalty0 (2):\penalty0 286--295,
+  1951.
+\newblock \doi{10.2307/1969529}.
+
+\bibitem[Perolat et~al.(2022)Perolat, de~Vylder, Hennes, Tarassov, Strub,
+  de~Boer, Muller, Connor, Burch, Anthony, et~al.]{perolat2022deepnash}
+Julien Perolat, Bart de~Vylder, Daniel Hennes, Eugene Tarassov, Florian Strub,
+  Vincent de~Boer, Paul Muller, Jerome~T. Connor, Neil Burch, Thomas Anthony,
+  et~al.
+\newblock Mastering the game of stratego with model-free multiagent
+  reinforcement learning.
+\newblock \emph{Science}, 378\penalty0 (6623):\penalty0 990--996, 2022.
+\newblock \doi{10.1126/science.add4679}.
+
+\bibitem[Qiu et~al.(2024)Qiu, Wang, You, and Zhou]{qiu2024bridge}
+Zizhang Qiu, Shouguang Wang, Dan You, and MengChu Zhou.
+\newblock Bridge bidding via deep reinforcement learning and belief monte carlo
+  search.
+\newblock \emph{IEEE/CAA Journal of Automatica Sinica}, 11\penalty0
+  (10):\penalty0 2111--2122, 2024.
+\newblock \doi{10.1109/JAS.2024.124488}.
+
+\bibitem[Rong et~al.(2019)Rong, Qin, and An]{rong2019competitive}
+Jiang Rong, Tao Qin, and Bo~An.
+\newblock Competitive bridge bidding with deep neural networks.
+\newblock In \emph{Proceedings of the 18th International Conference on
+  Autonomous Agents and MultiAgent Systems}, pages 16--24, 2019.
+
+\bibitem[Ruszczy{\'n}ski and Shapiro(2006)]{ruszczynski2006convexrisk}
+Andrzej Ruszczy{\'n}ski and Alexander Shapiro.
+\newblock Optimization of convex risk functions.
+\newblock \emph{Mathematics of Operations Research}, 31\penalty0 (3):\penalty0
+  433--452, 2006.
+\newblock \doi{10.1287/moor.1050.0186}.
+
+\bibitem[Schmid et~al.(2023)Schmid, Moravcik, Burch, Kadlec, Davidson, Waugh,
+  Bard, Timbers, Lanctot, Bowling, et~al.]{schmid2023student}
+Martin Schmid, Matej Moravcik, Neil Burch, Rudolf Kadlec, Josh Davidson, Kevin
+  Waugh, Nolan Bard, Finbarr Timbers, Marc Lanctot, Michael Bowling, et~al.
+\newblock Student of games: A unified learning algorithm for both perfect and
+  imperfect information games.
+\newblock \emph{Science Advances}, 9\penalty0 (46):\penalty0 eadg3256, 2023.
+\newblock \doi{10.1126/sciadv.adg3256}.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and
+  Klimov]{schulman2017ppo}
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
+\newblock Proximal policy optimization algorithms.
+\newblock \emph{arXiv preprint arXiv:1707.06347}, 2017.
+
+\bibitem[Sokota et~al.(2023)Sokota, D'Orazio, Ling, Wu, Kolter, and
+  Brown]{sokota2023abstracting}
+Samuel Sokota, Ryan D'Orazio, Chun~Kai Ling, David~J. Wu, J.~Zico Kolter, and
+  Noam Brown.
+\newblock Abstracting imperfect information away from two-player zero-sum
+  games.
+\newblock In \emph{Proceedings of the 40th International Conference on Machine
+  Learning}, volume 202, pages 32169--32193, 2023.
+
+\bibitem[Sutton et~al.(2000)Sutton, McAllester, Singh, and
+  Mansour]{sutton2000policygradient}
+Richard~S. Sutton, David McAllester, Satinder Singh, and Yishay Mansour.
+\newblock Policy gradient methods for reinforcement learning with function
+  approximation.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~12, pages 1057--1063, 2000.
+
+\bibitem[Sztyber-Betley et~al.(2023)Sztyber-Betley, Ko{\l}odziej, Betley, and
+  Duszak]{sztyber2023bridgehand}
+Anna Sztyber-Betley, Filip Ko{\l}odziej, Jan Betley, and Piotr Duszak.
+\newblock {BridgeHand2Vec}: Bridge hand representation.
+\newblock \emph{arXiv preprint arXiv:2310.06624}, 2023.
+
+\bibitem[Tian et~al.(2020{\natexlab{a}})Tian, Gong, and Jiang]{tian2020joint}
+Yuandong Tian, Qucheng Gong, and Tina Jiang.
+\newblock Joint policy search for multi-agent collaboration with imperfect
+  information.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~33, 2020{\natexlab{a}}.
+
+\bibitem[Tian et~al.(2020{\natexlab{b}})Tian, Zou, Davies, Warr, Wu, Bou~Ammar,
+  and Wang]{tian2020communicate}
+Zheng Tian, Shihao Zou, Ian Davies, Tim Warr, Lisheng Wu, Haitham Bou~Ammar,
+  and Jun Wang.
+\newblock Learning to communicate implicitly by actions.
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~34, pages 7261--7268, 2020{\natexlab{b}}.
+\newblock \doi{10.1609/aaai.v34i05.6217}.
+
+\bibitem[Watkins and Dayan(1992)]{watkins1992qlearning}
+Christopher J. C.~H. Watkins and Peter Dayan.
+\newblock {Q}-learning.
+\newblock \emph{Machine Learning}, 8\penalty0 (3--4):\penalty0 279--292, 1992.
+\newblock \doi{10.1007/BF00992698}.
+
+\bibitem[Yeh and Lin(2016)]{yeh2016automatic}
+Chih-Kuan Yeh and Hsuan-Tien Lin.
+\newblock Automatic bridge bidding using deep reinforcement learning.
+\newblock In \emph{Proceedings of the European Conference on Artificial
+  Intelligence}, pages 1362--1369, 2016.
+\newblock \doi{10.3233/978-1-61499-672-9-1362}.
+
+\bibitem[Zha et~al.(2021)Zha, Xie, Ma, Zhang, Lian, Hu, and
+  Liu]{zha2021douzero}
+Daochen Zha, Jingru Xie, Wenye Ma, Sheng Zhang, Xiangru Lian, Xia Hu, and
+  Ji~Liu.
+\newblock {DouZero}: Mastering {DouDizhu} with self-play deep reinforcement
+  learning.
+\newblock In \emph{Proceedings of the 38th International Conference on Machine
+  Learning}, volume 139, pages 12333--12344, 2021.
+
+\bibitem[Zhang et~al.(2023)Zhang, Farina, and Sandholm]{zhang2023teambelief}
+Brian~Hu Zhang, Gabriele Farina, and Tuomas Sandholm.
+\newblock Team belief {DAG}: Generalizing the sequence form to team games for
+  fast computation of correlated team max-min equilibria via regret
+  minimization.
+\newblock In \emph{Proceedings of the 40th International Conference on Machine
+  Learning}, volume 202, pages 40996--41018, 2023.
+
+\bibitem[Zhang et~al.(2025)Zhang, Song, Zhang, Zhang, and
+  Deng]{zhang2025diverse}
+Yi~Zhang, Fengyi Song, Chaohui Zhang, Tao Zhang, and Weiguo Deng.
+\newblock Alleviating local optima in bridge bidding via diverse {PPO}
+  ensembling.
+\newblock \emph{IEEE Access}, 13:\penalty0 59285--59294, 2025.
+\newblock \doi{10.1109/ACCESS.2025.3555303}.
+
+\bibitem[Zinkevich et~al.(2007)Zinkevich, Johanson, Bowling, and
+  Piccione]{zinkevich2007regret}
+Martin Zinkevich, Michael Johanson, Michael Bowling, and Carmelo Piccione.
+\newblock Regret minimization in games with incomplete information.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~20, 2007.
+
+\end{thebibliography}
