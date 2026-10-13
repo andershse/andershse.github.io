@@ -1,0 +1,194 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.page-container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.page-container.has-figure {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.page-figure {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+}
+
+.page-figure img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.page-content {
+    min-width: 0;
+}
+
+.course-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    padding: 0 0 14px;
+    margin: 0 0 24px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.course-nav a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.course-nav a:hover,
+.course-nav a:focus-visible {
+    text-decoration: underline;
+}
+
+.text {
+    min-width: 0;
+    color: #333;
+}
+
+.text h1,
+.text h2,
+.text h3 {
+    color: #333;
+}
+
+.text h1 {
+    font-size: 2em;
+    margin: 0 0 20px;
+}
+
+.text h2 {
+    font-size: 1.5em;
+    margin: 28px 0 12px;
+}
+
+.text h3 {
+    font-size: 1.2em;
+}
+
+.text p {
+    font-size: 1.1em;
+    color: #555;
+    line-height: 1.6;
+}
+
+.text ul,
+.text ol {
+    margin-left: 20px;
+    padding-left: 0;
+}
+
+.text li {
+    font-size: 1em;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.text a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.text a:hover,
+.text a:focus-visible {
+    text-decoration: underline;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    margin: 16px 0 24px;
+}
+
+.text table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.text th,
+.text td {
+    padding: 9px 12px;
+    border: 1px solid #d8d8d8;
+    vertical-align: top;
+}
+
+.text thead th {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.text tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.text caption {
+    text-align: left;
+    font-weight: bold;
+    padding: 0 0 8px;
+}
+
+@media (max-width: 768px) {
+    .page-container {
+        padding: 15px;
+    }
+
+    .page-container.has-figure {
+        grid-template-columns: 1fr;
+    }
+
+    .page-figure img {
+        max-width: 240px;
+    }
+
+    .text h1 {
+        font-size: 1.5em;
+    }
+
+    .text p {
+        font-size: 1em;
+    }
+
+    .text li {
+        font-size: 0.95em;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-container {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .text h1 {
+        font-size: 1.4em;
+    }
+
+    .text h2 {
+        font-size: 1.2em;
+    }
+
+    .text p {
+        font-size: 0.95em;
+    }
+}
