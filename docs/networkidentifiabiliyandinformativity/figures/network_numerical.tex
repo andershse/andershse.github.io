@@ -1,0 +1,102 @@
+\begin{tikzpicture}[auto, node distance=2cm]
+    % We place the blocks, the inputs, and the summations
+    %\node [input, name=r1] {};
+    \node [input] (sum11) {$+$};
+    \node [block, right of=sum11, node distance=3cm] (G1) {$\mathbf G^1$};
+    \node [sum, right of=G1, node distance=2cm] (sum1) {$+$};
+    \node [input, above of=sum1, node distance=1.2cm] (e1) {};
+
+    \node [sum, right of=sum1, node distance=2cm] (sum12) {$+$};
+    \node [block, right of=sum12, node distance=3cm] (G2) {$\mathbf G^2$};
+    \node [sum, right of=G2, node distance=2cm] (sum2) {$+$};
+    \node [input, below of=sum2, node distance=1.2cm] (e2) {};
+    \node [input, below of=sum12, node distance=1.2cm] (r2) {};
+    
+    \node [sum, right of=sum2, node distance=2cm] (sum13) {$+$};
+    \node [input, below of=sum13, node distance=1.2cm] (r3) {};
+    \node [block, right of=sum13, node distance=2cm] (G3) {$\mathbf G^3$};
+    \node [sum, right of=G3, node distance=2cm] (sum3) {$+$};
+    \node [input, below of=sum3, node distance=1.2cm] (e3) {};
+    \node [input, right of=sum3] (y3) {};
+
+
+    %\node [input, below of=sum2 ,node distance=1.5cm] (aux1) {};
+    %\node [input, below of=sum11, node distance=1.5cm] (aux2) {};
+
+    \node [input, above of=sum3 ,node distance=1cm] (aux3) {};
+    \node [input, above of=sum12, node distance=1cm] (aux4) {};
+
+    %%%%%  D separator:
+
+    \node [input, above of=sum3 ,node distance=2.5cm] (auxd1) {};
+    \node [block, left of=auxd1, node distance=3cm] (G7) {$\mathbf G^7$};
+    \node [sum, left of=G7, node distance=2cm] (sum7) {$+$};
+    \node [input, below of=sum7, node distance=1.2cm] (e7) {};
+
+    
+    
+    \node [sum, above of=sum11, node distance=2.5cm] (sum6) {$+$};
+    \node [block, right of=sum6, node distance=1.7cm] (G6) {$\mathbf G^6$};
+    \node [sum, right of=G6, node distance=2.5cm] (sumu6) {$+$};
+    \node [input, below of=sumu6, node distance=1.2cm] (r4) {};
+    \node [input, above of=sum6, node distance=1.2cm] (e6) {};
+
+    
+
+    %%%%%  B net:
+
+    \node [input, above of=sum7 ,node distance=1.5cm] (auxB1) {};
+    \node [block, left of=auxB1, node distance=2.5cm] (G4) {$\mathbf G^4$};
+    \node [sum, left of=G4, node distance=1.7cm] (sum4) {$+$};
+    \node [sum, above of=sumu6, node distance=1.5cm] (sum5) {$+$};
+    \node [block, right of=sum5, node distance=1.7cm] (G5) {$\mathbf G^5$};
+    \node [input, above of=sum4, node distance=1.2cm] (e4) {};
+    \node [input, above of=sum5, node distance=1.2cm] (e5) {};
+    
+    
+
+    %%%%% We draw edges
+    %\draw [-Latex] (r1) -- node {$r^1$} (sum11);  
+    %\draw [-Latex] (sum11) -- node {$u^1$} (G1); 
+    \draw [-Latex] (e1) -- node {$\mathbf v^1$} (sum1);
+    \draw [-Latex] (G1) -- node {} (sum1);
+    \draw [-Latex] (sum1) -- node {$\mathbf y^1$} (sum12);
+
+
+    \draw [-Latex] (r2) -- node {$\mathbf r^1$} (sum12);
+    \draw [-Latex] (sum12) -- node {$\mathbf u^2$} (G2);
+    \draw [-Latex] (G2) -- node {} (sum2);
+    \draw [-Latex] (e2) -- node {$\mathbf v^2$} (sum2);
+    \draw [-Latex] (sum2) -- node {$\mathbf y^2$} (sum13);
+    %\draw [-Latex] (sum2) to (aux1) to (aux2) -- node {$y^2$} (sum11);
+
+    \draw [-Latex] (r3) -- node {$\mathbf r^2$} (sum13);
+    \draw [-Latex] (sum13) -- node {$\mathbf u^3$} (G3);
+    \draw [-Latex] (G3) -- node {} (sum3);
+    \draw [-Latex] (e3) -- node {$\mathbf v^3$} (sum3);
+    \draw [-Latex] (sum3) to (aux3) to (aux4) -- node {$\mathbf y^3$} (sum12);
+
+    % Separator
+    \draw [-Latex] (sum3) to (auxd1) -- node {$\mathbf u^7 = \mathbf y^3$} (G7);
+    \draw [-Latex] (G7) -- node {} (sum7);
+    \draw [-Latex] (e7) -- node {$\mathbf v^7$} (sum7);
+    
+    
+    \draw [-Latex] (G6) -- node {} (sum6);
+    \draw [-Latex] (sumu6) -- node {$\mathbf u^6$} (G6);
+    \draw [-Latex] (r4) -- node {$\mathbf r^3$} (sumu6);
+    \draw [-Latex] (sum6) to (sum11) -- node {$\mathbf u^1 = \mathbf y^6$} (G1);
+    \draw [-Latex] (e6) -- node {$\mathbf v^6$} (sum6);
+    \draw [-Latex] (sum7) -- node {$\mathbf y^7$} (sumu6);
+
+    %B net
+
+    \draw [-Latex] (sum7) to (auxB1) -- node {$\mathbf u^4 = \mathbf y^7$} (G4);
+    \draw [-Latex] (G4) -- node {} (sum4);
+    \draw [-Latex] (G5) -- node {} (sum5);
+    \draw [-Latex] (e4) -- node {$\mathbf v^4$} (sum4);
+    \draw [-Latex] (e5) -- node {$\mathbf v^5$} (sum5);
+    \draw [-Latex] (sum5) -- node {$\mathbf y^5$} (sumu6);
+    \draw [-Latex] (sum4) -- node {$\mathbf u^5 = \mathbf y^4$} (G5);
+
+\end{tikzpicture}

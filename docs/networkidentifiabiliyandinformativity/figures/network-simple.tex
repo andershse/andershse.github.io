@@ -1,0 +1,32 @@
+\begin{tikzpicture}[auto, node distance=2cm]
+
+\node [input, name=r1] {};
+\node [sum, right of=r1, node distance=1.5cm] (sum1) {$+$};
+\node [block, right of=sum1, node distance=1.5cm] (G1) {$ G^1$};
+\node [sum, right of=G1, node distance=1.5cm] (sum2) {$+$};
+\node [input, above of=sum2, node distance=1.5cm] (v1) {};
+
+
+\node [block, below of=G1, node distance=1.5cm] (G2) {$ G^2$};
+\node [sum, below of=sum2, node distance=1.5cm] (sum3) {$+$};
+\node [sum, below of=sum1, node distance=1.5cm] (sum4) {$+$};
+\node [input, below of=sum4, node distance=1.5cm] (v2) {};
+\node [input, right of=sum3, node distance=1.5cm] (r2) {};
+
+% Draw edges
+ \draw [-Latex] (r1) -- node {$ r^1$} (sum1);  
+\draw [-Latex] (sum1) -- node {$ w^2$} (G1); 
+\draw [-Latex] (G1) -- node {} (sum2);
+\draw [-Latex] (v1) -- node {$ v^1$} (sum2);
+
+
+ \draw [-Latex] (r2) -- node {$ r^2$} (sum3);  
+\draw [-Latex] (sum3) -- node {$ w^4$} (G2); 
+\draw [-Latex] (G2) -- node {} (sum4);
+\draw [-Latex] (v2) -- node {$ v^2$} (sum4);
+
+\draw [-Latex] (sum4) -- node {$ w^3$} (sum1);
+\draw [-Latex] (sum2) -- node {$w^1$} (sum3);
+
+ 
+\end{tikzpicture}

@@ -1,0 +1,205 @@
+\documentclass[11pt,a4paper]{article}
+
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{textcomp}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algpseudocode}
+\usepackage{todonotes}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{optidef}
+\usepackage{arydshln}
+\usepackage{balance}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usetikzlibrary{arrows.meta}
+\tikzstyle{block} = [draw, rectangle, 
+    minimum height=3em, minimum width=3em]
+\tikzstyle{sum} = [draw, circle, node distance=1cm]
+\tikzstyle{input} = [coordinate]
+\tikzstyle{output} = [coordinate]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+
+\graphicspath{{./figures/}}
+
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{remark}{Remark}
+\newtheorem{proposition}{Proposition}[section]
+%
+\input{defs}
+
+
+\title{Note on informativity of $y_b$}
+
+\begin{document}
+\maketitle
+
+\section{Augmented $r$}
+
+\todo[inline]{I will rewrite it to use $\tilde y^B$ instead of $\bar y^B$.}
+
+Defining $\bar y^B$ as the subvector of $y^B$ containing only the outputs that connect to $A$, and let $\bar \Upsilon_{AB}$ be the corresponding submatrix of $\Upsilon_{AB}$ with zero rows removed, this allow us to define $\bar \Omega = \BBM \Omega_A & \bar\Upsilon_{AB} \EBM$, and
+\begin{align}\label{eq:aug_r_A}
+    \bar r = \BBM r^A \\ \bar y^{B} \EBM.
+\end{align}
+
+\todo[inline]{Note that we don't need $y^B$ to be informative, only the subset of $y^B$ that is connected to $A$, which we call $\bar y^B$ here.}
+
+
+\section{Conditions for $r^B$ for informative experiments}
+Here we will derive sufficient conditions for $r^B$ to ensure informative experiments, we will assume $\Phi_{r^A} \succ 0$. Let $|\bar B|$ denote the number of outputs in $B$ that connect to $A$.
+
+\subsection{Frequency–Domain Rank Condition}
+
+We start by characterizing when $\bar y^{B}$ provides sufficient excitation to complement $r^A$.
+
+\begin{lemma}\label{lem:informative_rank_lemma}Let $\mathbf u(z) \in \mathbb{C}^m$ be a quasi-stationary signal with power spectral density $\Phi_{u}(\omega) \succ 0$ for almost all $\omega \in [-\pi, \pi]$. Let $\mathbf F(z) \in \mathbb{C}^{p \times m}$ be a proper rational transfer function with all poles inside the
+unit circle, and consider the signal $\mathbf y(z) = \mathbf F(z)\mathbf u(z)$.  Then the spectrum of $y$ satisfies $\Phi_{y}(\omega) \succ 0$ for almost all $\omega$, if and only if $\mathbf F(z)$ has full row rank for almost all $z$.
+\end{lemma}
+
+\begin{proof}
+The power spectral density of $y$ is given by
+\begin{align*}
+    \Phi_{y}(\omega) = \mathbf F(e^{j\omega})\Phi_{u}(\omega)\mathbf F^*(e^{j\omega}),
+\end{align*}
+where $\mathbf F^*(e^{j\omega}) = \mathbf F^T(e^{-j\omega})$ denotes the conjugate transpose. 
+
+Suppose $\mathbf F(z)$ has full row rank $p$ for almost all $z$. Then for any nonzero $\mathbf v \in \mathbb{R}^p$, the row vector $\mathbf v^T\mathbf F(z)$ is not identically zero as a rational function. Since rational functions have at most a finite number of zeros, $\mathbf v^T\mathbf F(e^{j\omega}) \neq 0$ for almost all $\omega \in [-\pi, \pi]$. Therefore,
+\begin{align*}
+    \mathbf v^T\Phi_{\mathbf y}(\omega)\mathbf v = \|\mathbf F^*(e^{j\omega})\mathbf v\|_{\Phi_{\mathbf u}(\omega)}^2 > 0
+\end{align*}
+for almost all $\omega$, where the inequality follows from $\mathbf F^*(e^{j\omega})\mathbf v \neq 0$ and $\Phi_{\mathbf u}(\omega) \succ 0$. Since this holds for all nonzero $\mathbf v$, we have $\Phi_{\mathbf y}(\omega) \succ 0$ for almost all $\omega$.
+
+
+Suppose $\Phi_{\mathbf y}(\omega) \succ 0$ for almost all $\omega$. Assume for contradiction that $\mathbf F(z)$ does not have full row rank. Then there exists a nonzero $\mathbf v \in \mathbb{R}^p$ such that $\mathbf v^T\mathbf F(z) = 0$ for all $z$. In particular, $\mathbf v^T\mathbf F(e^{j\omega}) = 0$ for almost all $\omega$, which implies
+\begin{align*}
+    \mathbf v^T\Phi_{\mathbf y}(\omega)\mathbf v = \|\mathbf F^*(e^{j\omega})\mathbf v\|_{\Phi_{\mathbf u}(\omega)}^2 = 0
+\end{align*}
+for almost all $\omega$, contradicting $\Phi_{\mathbf y}(\omega) \succ 0$.
+\end{proof}
+
+Define $\mathbf{ T_{B}}(z)$ as the transfer function
+\begin{align*}
+    \mathbf{ T_{B}}(z) = \BBM \mathbf{T_{BA}}(z) & \mathbf{T_{BB}}(z) \EBM,
+\end{align*}
+where $\mathbf{T_{BA}}$ and $\mathbf{T_{BB}}$ are respectively the transfer functions from $r^A$ and $r^B$ to $\bar y^B$. 
+
+Using Lemma~\ref{lem:informative_rank_lemma}, the signal $\bar y^B$ has a positive definite spectrum if 
+\begin{align}\label{eq:rank-condition}
+    \text{rank}\bigl(\mathbf{ T_{B}}(e^{j\omega})\bigr)=|\bar B| \quad\text{for a.e.\ }\omega\in[-\pi,\pi].
+\end{align}
+
+Condition~\eqref{eq:rank-condition} is the \emph{frequency-domain rank test} for the informativity of the outputs of $B$ that are connected to $A$.
+
+The following theorem provides sufficient excitation conditions for $r^B$ in order to $\Phi_{y^B}(\omega) \succ 0$.
+
+
+\begin{theorem}\label{thm:minimal_excitation}
+Given that $\Phi_{r^A}(\omega) \succ 0$ for almost all $\omega$, the outputs of $B$ connected to $A$ satisfies the condition $\Phi_{\bar y^B}(\omega) \succ 0$ if there exists a subset $\bar r^B \subseteq r^B$ of the external signals applied to $B$ such that:
+\begin{enumerate}
+    \item \textbf{Rank Condition:} The transfer function
+    \begin{align}\label{eq:rank_condition}
+        \mathbf{T_{\bar B}}(z) = \BBM \mathbf{T_{BA}}(z) & \mathbf{T_{B\bar B}}(z) \EBM,
+    \end{align}
+     has full row rank $|\bar B|$ for almost all $\omega \in [-\pi, \pi]$, where $\mathbf{T_{B\bar B}}(z)$ denotes the transfer function from the selected external signals in $\bar r^B$ to $\bar y^B$.
+    
+    \item \textbf{Excitation Condition:} The selected external signals $\bar r^B$ satisfy
+    \begin{align}\label{eq:excitation_condition}
+        \Phi_{\bar r^B}(\omega) \succ 0 \quad \text{for almost all } \omega \in [-\pi, \pi].
+    \end{align}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+    We can write
+\begin{align*}
+    \bar y^B &= \mathbf{T_{BA}}(z) \mathbf r^A + \mathbf{T_{BB}}(z) \mathbf r^B + \text{noise terms}.
+\end{align*}
+
+For the signal $\bar y^B$ to satisfy $\Phi_{\bar y^B}(\omega) \succ 0$, $ r^B$ must provides sufficient excitation to complement $r^A$, i.e. that some subset $\bar r^B$ of external signals provides excitation to $\bar y^B$ through paths that are linearly independent from the paths taken by $r_A$.
+
+Let $\bar r^B$ be a subset of $r^B$ that satisfies the rank condition. Then
+\begin{align*}
+   \bar y^B &= \mathbf{T_{BA}}(z) \mathbf r^A + \mathbf{T_{B\bar B}}(z) \mathbf{\bar r}^B + \mathbf{T_{B\tilde B}}(z) \mathbf{\tilde r}^{B} + \text{noise terms},
+\end{align*}
+where $\tilde r^{ B}$ represents the set of remaining external signal in $r^B$ that are not in $\bar r ^B$, i.e., $\mathbf{T_{BB}}(z) \mathbf r^B = \mathbf{T_{B\bar B}}(z) \mathbf{\bar r}^B + \mathbf{T_{B\tilde B}}(z) \mathbf{\tilde r}^{B}$.
+
+By the rank condition, the matrix $\mathbf{T_{\bar B}}(z)$ in \eqref{eq:rank_condition} has full row rank, which by Lemma~\ref{lem:informative_rank_lemma} ensures that the component $\mathbf{T_{BA}}(z) \mathbf r^A + \mathbf{T_{B\bar B}}(z) \mathbf{\bar r}^B$ span the full output space of $\bar y^B$.
+
+The excitation condition \eqref{eq:excitation_condition}, combined with the assumption that $\Phi_{r^A}(\omega) \succ 0$, ensures that $\bar r^B$ have sufficient spectral richness to guarantee $\Phi_{\bar y^B}(\omega) \succ 0$.
+\end{proof}
+
+
+\begin{corollary}\label{cor:minimal_subset}
+The minimal number of external signals in $\bar r^B$ required to satisfy the rank condition in Theorem~\ref{thm:minimal_excitation} is
+\begin{align*}
+    |\bar r^B|_{\min} = \max\{0, |\bar B| - \text{rank}(\mathbf{T_{BA}}(e^{j\omega}))\}
+\end{align*}
+for almost all $\omega$.
+\end{corollary}
+
+
+
+\subsection{Path-Based Verification}
+Verifying the rank condition in Theorem~\ref{thm:minimal_excitation} directly is intractable when the transfer functions are unknown. Instead, we need a purely graph-theoretic condition. The link between the generic rank of transfer functions and vertex-disjoint paths in the underlying graph was established in \cite{graph_TF_rank}. Two or more paths in a directed graph are said to be \emph{vertex-disjoint} if they do not share any vertex.
+
+
+\begin{theorem}\label{th:graph_TF_rank}
+Consider a Multiple-Input Multiple-Output system
+\begin{align*}
+    \xi_{k+1} &= F\xi_{k} + Gu_k\\
+    y_k &= H\xi_{k},
+\end{align*}
+with output $y_k\in \reals^p$, input $u_k\in \reals^m$, and state $\xi_k\in \reals^n$. The underlying graph of the system is defined by the set of vertices $V = U\cup X \cup Y$, where
+\begin{align*}
+    U &= \{u^1, \dots, u^m\}, \\ 
+    X &= \{\xi^1, \dots, \xi^n\},\\
+    Y &= \{y^1, \dots, y^n\},
+\end{align*}
+and the set of edges
+\begin{align*}
+    E &= \{(u^j,\xi^i)|G_{ij}\neq 0\} \cup \{(\xi^j,\xi^i)|F_{ij}\neq 0\}\\ &\quad \cup \{(\xi^j,y^i)|H_{ij}\neq 0\}.
+\end{align*}
+Then, the generic rank of the transfer function $\mathbf{G}(z) = H(zI - F)^{-1}G \in \mathbb{C}^{m\times p}$ is equal to the maximum number of vertex-disjoint paths from the input nodes $U$ to the output nodes $Y$ in the underlying graph of the system.
+\end{theorem}
+\begin{proof}
+   See \cite[Theorem 2]{graph_TF_rank}. 
+\end{proof}
+
+The following corollary follows directly from the theorem.
+
+\begin{corollary}
+    The maximum number of vertex disjoint paths from the external inputs in $ r^A$ and $\bar r^B$ to $\bar y^B$ is equal to the generic rank of $\mathbf{T_{\bar B}}(e^{j\omega})$.
+\end{corollary}
+
+The rank condition in Theorem~\ref{thm:minimal_excitation} can then be verified generically using graph-theoretic conditions.
+
+\begin{proposition}\label{prop:path_based}
+    The rank condition in Theorem~\ref{thm:minimal_excitation} is generically satisfied if there exist $|\bar B|$ vertex-disjoint paths in the network graph, each starting from a node in $r^A$ and $\bar r^B$ and ending at a \textbf{distinct} output in $\bar y^B$.
+\end{proposition}
+
+Similar propositions derived from the main result in \cite{graph_TF_rank} can be found in the literature, e.g. \cite[Proposition V.1]{HendrickGeversBazanella2019} and \cite[Proposition 1]{VandenHofRamaswamy2020}
+
+Theorem~\ref{thm:minimal_excitation} together with Proposition~\ref{prop:path_based} show that complete excitation of all external signals in networks $B$ is generally not necessary. Instead, a carefully selected subset $\bar r^B$ suffices, with the selection guided by the network topology.
+
+\bibliographystyle{plain}        % Include this if you use bibtex 
+\bibliography{refs} 
+
+
+\end{document}

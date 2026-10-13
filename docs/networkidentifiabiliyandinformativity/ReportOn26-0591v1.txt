@@ -1,0 +1,72 @@
+Three reviewers evaluated the manuscript, and they converge on a set of
+substantive concerns regarding novelty, rigor, and presentation, which
+are summarized below:
+
+1. Novelty and positioning of the results — Reviewer 5; Reviewer 4. The
+main results appear to be straightforward extensions of well-known
+results. In particular, Reviewer 5 notes that the link between
+vertex-disjoint paths and the rank of associated matrices (Theorem 2)
+is already established in reference [3] of the manuscript. Reviewer 4
+similarly observes that Theorem 2 "seems like a correct generalization"
+of a result in [17] but that the extension is not shown to be
+nontrivial, and asks whether Theorem 3 is new. The paper does not
+clearly delineate what is original versus what is a restatement of
+existing work, which must be clarified.
+
+2. Missing proofs or references for the main theorems — Reviewer 3 ;
+Reviewer 4. Theorems 1–3 are given without formal proofs or precise
+references. Reviewer 3 notes that the informativity results are
+presented only informally as generalizations of prior work, and
+recommends inserting formal proofs stating exactly which assumptions
+are necessary. Reviewer 4 points out that Theorem 1 is loosely stated
+(the spectrum should be positive definite "for almost all \omega"), and
+that references on the "transfer of excitation" problem (e.g., Gevers,
+Bazanella, Bombois, Miskovic, IEEE TAC, Vol 54, No 12) should be
+provided for context.
+
+3. Conceptual clarity and terminology — Reviewer 4; Reviewer 5;
+Reviewer 3. The manuscript mixes the notions of identifiability,
+network identifiability, generic/local/global identifiability without
+clear distinction. Reviewer 4 notes that the definition offered in the
+introduction conflates classical identifiability with network
+identifiability, and that the claim that partial measurement was not
+previously considered is incorrect. Reviewer 5 stresses that
+informativity and identifiability are distinct concepts that deserve
+separate treatment, and flags that Example 3 appears to contradict a
+conjecture discussed in [19], which should be carefully verified.
+
+4. Model formulation and assumptions — Reviewer 5; Reviewer 3; Reviewer
+5. The motivation for the model P(q)wk =Q(q)uk , zk =R(q)wk +S(q)uk is
+unclear: Reviewer 5 asks why two matrices P(q) and Q(q) are needed and
+notes the unusual separation of state and output dynamics compared to
+standard network models. Reviewer 3 points out that invertibility of P
+is assumed without stating conditions or references, that it is not
+stated whether the network topology is known, and that it is unclear
+how to select which predictors to use. Reviewer 5 further notes that
+the function F(X)=Ry P&#8722;1Qr +Syr is written as a function of X,
+yet X does not appear in the expression.
+
+5. Presentation and readability — Reviewer 5; Reviewer 4. Several
+sections (Section VI on sub-networks, and the numerical examples in
+Sections VII–VIII) are perceived as adding little and could be removed
+or substantially condensed. The paper relies on concepts from algebraic
+geometry (affine varieties, ideals, fibers, Grobner bases) that are not
+standard in the controls community and should be clearly introduced.
+The symbol z is used for two different quantities, and there are
+numerous typos (e.g., publication year "2913" in reference [21]).
+
+Based on the collective reviews and this editor’s own reading, this
+editor finds that the manuscript addresses a relevant topic and the
+reviewers acknowledge potential value in some ideas. However, the
+manuscript in its current form lacks formal justification for its main
+theorems, does not adequately position its novelty relative to the
+established literature, and contains unresolved conceptual and modeling
+ambiguities. These concerns go beyond minor revision, as the reviewers
+question whether the core results are nontrivial extensions. Based on
+these grounds, this editor suggest to reject this manuscript but with
+the option that it could be resubmitted as a technical note after major
+revision. If the authors decide to resubmit, the authors need to
+address all concerns raised by the reviewers in the revision, and
+moreover, the authors are reminded that IEEE TAC has the policy that
+the manuscript will be rejected if it cannot be accepted with minor
+revision in the next round of review. 

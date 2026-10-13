@@ -1,0 +1,214 @@
+\documentclass[11pt,a4paper]{article}
+
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{textcomp}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algpseudocode}
+\usepackage{todonotes}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{optidef}
+\usepackage{arydshln}
+\usepackage{balance}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usetikzlibrary{arrows.meta}
+\tikzstyle{block} = [draw, rectangle, 
+    minimum height=3em, minimum width=3em]
+\tikzstyle{sum} = [draw, circle, node distance=1cm]
+\tikzstyle{input} = [coordinate]
+\tikzstyle{output} = [coordinate]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+
+\graphicspath{{./figures/}}
+
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{remark}{Remark}
+\newtheorem{proposition}{Proposition}[section]
+%
+\input{defs}
+
+
+\title{Generalization of generic rank theorem}
+
+\begin{document}
+\maketitle
+
+\todo[inline]{I am still working on this. There is still one problem we need to address (check the next todo note).}
+
+The link between the generic rank of transfer functions and vertex-disjoint paths in the underlying graph was established in \cite{graph_TF_rank}. Two or more paths in a directed graph are said to be \emph{vertex-disjoint} if they do not share any vertex.
+
+
+\begin{theorem}\label{th:graph_TF_rank}
+Consider a Multiple-Input Multiple-Output system
+\begin{align*}
+    \xi_{k+1} &= F\xi_{k} + Gu_k\\
+    y_k &= H\xi_{k},
+\end{align*}
+with output $y_k\in \reals^p$, input $u_k\in \reals^m$, and state $\xi_k\in \reals^n$. Assume $(F,G,H)$ are \emph{structured} matrices: each entry is either a fixed zero or an independent free parameter. The underlying graph of the system is defined by the set of vertices $V = U\cup X \cup Y$, where
+\begin{align*}
+    U &= \{u^1, \dots, u^m\}, \\ 
+    X &= \{\xi^1, \dots, \xi^n\},\\
+    Y &= \{y^1, \dots, y^p\},
+\end{align*}
+and the set of edges
+\begin{align*}
+    E &= \{(u^j,\xi^i)|G_{ij}\neq 0\} \cup \{(\xi^j,\xi^i)|F_{ij}\neq 0\}\cup \{(\xi^j,y^i)|H_{ij}\neq 0\}.
+\end{align*}
+Then, the generic rank of the transfer function $\mathbf{G}(z) = H(zI - F)^{-1}G \in \mathbb{C}^{p\times m}$ is equal to the maximum number of vertex-disjoint paths from the input nodes $U$ to the output nodes $Y$ in the underlying graph of the system.
+\end{theorem}
+\begin{proof}
+   See \cite[Theorem 2]{graph_TF_rank}. 
+\end{proof}
+
+
+Several prepositions derived from the main result in \cite{graph_TF_rank} can be found in the literature, e.g. \cite[Proposition V.1]{HendrickGeversBazanella2019} and \cite[Proposition 1]{VandenHofRamaswamy2020}.
+
+
+
+Now we are going to generalize the results of the theorem for our networks.
+
+\section{Generic rank characterization for the networked ARMAX model}
+
+Consider the closed-loop ARMAX network described by
+\begin{align}\label{eq:cl-x}
+    \xi_{k+1} &= F_c \xi_k + G_r r_k + G_e e_k,\\
+        x_k &= \begin{bmatrix} y_k \\ u_k \end{bmatrix}  = H_c \xi_k + J_r r_k + J_e e_k,
+\end{align}
+where
+\begin{align*}
+    F_c &= F + B\Upsilon H, \qquad G_r = B\Omega,\\
+    H_c &= \begin{bmatrix} I \\ \Upsilon \end{bmatrix} H, \qquad J_r = \begin{bmatrix} 0 \\ \Omega \end{bmatrix}.
+\end{align*}
+The corresponding transfer matrix from the exogenous inputs $r$ to the signal $x=(y,u)$ is
+\begin{equation}
+\label{eq:Txr}
+T_{xr}(z) = H_c (zI-F_c)^{-1} G_r + J_r .
+\end{equation}
+\todo[inline]{We have a problem here: $F_c = F + B\Upsilon H$ depend on the same coefficients $b^i$ that also appear in $G_r = B\Omega$, so some closed-loop nonzero entries are algebraically dependent. That matters because van der Woude's theorem assumes the free parameters in the nonzero entries can be chosen independently... Also we can only use it to estimate the generic rank of $H_c (zI-F_c)^{-1} G_r$ and not the full $T_{xr}(z)$.}
+\todo[inline]{That is the only thing we need to address.}
+
+\paragraph{Associated directed graph.}
+Define a directed graph $G_\Sigma=(\mathcal V,\mathcal E)$ with vertex set
+\begin{align*}
+    \mathcal V = \mathcal V_r \cup \mathcal V_\xi \cup \mathcal V_x,
+\end{align*}
+where:
+\begin{itemize}
+\item $\mathcal V_r$ contains one vertex for each component of $r$;
+\item $\mathcal V_\xi$ contains one vertex for each state component of $\xi$;
+\item $\mathcal V_x$ contains one vertex for each component of
+$x=(y,u)$.
+\end{itemize}
+Directed edges are added as follows:
+\begin{itemize}
+\item $\xi^\beta \to \xi^\alpha$ if $(F_c)_{\alpha\beta}$ is structurally nonzero;
+\item $r_j \to \xi^\alpha$ if $(G_r)_{\alpha j}$ is structurally nonzero;
+\item $\xi^\beta \to x_\ell$ if $(H_c)_{\ell\beta}$ is structurally nonzero;
+\item $r_j \to x_\ell$ if $(J_r)_{\ell j}$ is structurally nonzero.
+\end{itemize}
+
+\paragraph{Generic rank result.}
+Let $\mathcal S$ be a subset of input indices and $\mathcal T$ a subset of components of $x=(y,u)$. Denote by $T_{x_\mathcal T r_\mathcal S}(z)$ the corresponding submatrix of $T_{xr}(z)$.
+
+\begin{theorem}
+\label{thm:generic-rank-network}
+Under the stated assumptions, the generic rank of $T_{x_\mathcal T r_\mathcal S}(z)$ is given by the max number of internally vertex-disjoint directed paths from $r_\mathcal S$ to $x_\mathcal T$ in $G_\Sigma$.
+\end{theorem}
+
+
+Theorem~\ref{thm:generic-rank-network} provides a purely graph-theoretic characterization of the generic rank of transfer matrices between arbitrary subsets of node signals $(y,u)$ and exogenous inputs $r$ in the networked ARMAX model.
+
+
+\subsection{Construction of $G_\Sigma$ directly from $(\Upsilon,\Omega)$}
+
+In the present ARMAX network, the sparsity pattern of the closed-loop realization \eqref{eq:cl-x} can be generated without explicitly forming $F_c,H_c,G_r,J_r$, by exploiting the observer-form structure of each local model and the interconnection matrices $(\Upsilon,\Omega)$.
+
+For each subsystem $i\in\{1,\dots,M\}$ with order $n^i$, introduce state vertices
+\begin{align*}
+    \mathcal V_{\xi^i} = \{\xi^i_1,\dots,\xi^i_{n^i}\}, \qquad \mathcal V_\xi = \bigcup_{i=1}^M \mathcal V_{\xi^i}.
+\end{align*}
+Introduce output vertices
+\begin{align*}
+    \mathcal V_y = \{y_1,\dots,y_M\},\qquad
+    \mathcal V_u = \{u_1,\dots,u_M\},\qquad
+    \mathcal V_x = \mathcal V_y \cup \mathcal V_u,
+\end{align*}
+and input vertices $\mathcal V_r:=\{r_1,\dots,r_m\}$. Define $\mathcal V = \mathcal V_r \cup \mathcal V_\xi \cup \mathcal V_x$.
+
+
+The edge set $\mathcal E$ of $G_\Sigma=(\mathcal V,\mathcal E)$ is obtained by adding the following families of directed edges.
+
+\begin{enumerate}
+\item \textbf{Local state-shift edges (always present).}
+For each subsystem $i$ and each $\ell\in\{1,\dots,n^i-1\}$ add
+\begin{align*}
+    \xi^i_{\ell+1} \longrightarrow \xi^i_{\ell}.
+\end{align*}
+These edges encode the shift matrix $U$ in $F^i=U-a^i\hat e_1^T$.
+\item \textbf{Local autoregressive feedback edges (structural pattern of $a^i$).}
+For each subsystem $i$ and each $\ell\in\{1,\dots,n^i\}$ such that the
+coefficient $a^i_\ell$ is \emph{structurally nonzero}, add
+\begin{align*}
+    \xi^i_{1} \longrightarrow \xi^i_{\ell}.
+\end{align*}
+\item \textbf{Input-to-state edges (structural pattern of $b^i$).}
+For each subsystem $i$ and each $\ell\in\{1,\dots,n^i\}$ such that the coefficient $b^i_\ell$ is \emph{structurally nonzero}, add
+\begin{align*}
+    u_i \longrightarrow \xi^i_{\ell}.
+\end{align*}
+\item \textbf{State-to-output edges for $y$ (always present).}
+For each subsystem $i$ add
+\begin{align*}
+    \xi^i_{1} \longrightarrow y_i,
+\end{align*}
+since $y_i = \hat e_1^T \xi^i + e^i$.
+\item \textbf{Interconnection edges induced by $\Upsilon$ (feedback $u=\Upsilon y+\Omega r$).}
+For each pair $(i,j)$ with $\Upsilon_{ij}=1$, add
+\begin{align*}
+    y_j \longrightarrow u_i.
+\end{align*}
+\item \textbf{Exogenous-input edges induced by $\Omega$ (feedforward $u=\Upsilon y+\Omega r$).}
+For each $(i,j)$ with $\Omega_{ij}=1$, add
+\begin{align*}
+    r_j \longrightarrow u_i.
+\end{align*}
+\end{enumerate}
+
+The directed graph obtained by the above rules coincides with the structured graph induced by the closed-loop realization matrices $(F_c,G_r,H_c,J_r)$ in \eqref{eq:cl-x}, in the sense that there is a directed edge in $G_\Sigma$ if and only if the corresponding entry in $F_c,G_r,H_c,J_r$ is structurally nonzero. Consequently, all generic-rank statements based on vertex-disjoint paths in $G_\Sigma$ apply using this direct construction from $(\Upsilon,\Omega)$ and the local structural patterns of the ARMAX models.
+
+
+\subsection{A further reduced interconnection graph}
+
+Define the directed graph
+\begin{align*}
+    \mathcal G = (\mathcal V, \mathcal E), \qquad \mathcal V = \{1, 2, \ldots, M+Q\},
+\end{align*}
+where vertices $1$ to $M$ correspond to the $M$ dynamical systems and vertices $M+1$ to $M+Q$ correspond to the $Q$ external signals. 
+The edge set $\mathcal E \subseteq \mathcal V\times\mathcal V$ is defined by the adjacency matrix $\BBM \Upsilon & \Omega \EBM^T$: there is a directed edge $(i,j) \in \mathcal E$ if and only if the output of system (or external signal)~$i$ directly affects the input of system~$j$.
+
+
+\paragraph{Equivalence with the full structured graph.}
+For every subsystem $i\in\{1,\dots,M\}$, there exists a directed path from $u_i$ to $y_i$ in the local state graph (the local transfer $G^i(z)$ is not structurally zero). Then each subsystem can be regarded as a unit-capacity node that can be used by at most one internally vertex-disjoint path. Under this assumption, the maximum number of internally vertex-disjoint paths from external vertices to subsystem outputs in the full graph $G_\Sigma$ equals the maximum number of internally vertex-disjoint paths in the reduced interconnection graph $\mathcal G$ obtained from the adjacency pattern $[\Upsilon\ \Omega]^T$, with subsystem vertices having node-capacity one.
+
+
+\bibliographystyle{plain}        % Include this if you use bibtex 
+\bibliography{refs} 
+
+\end{document}

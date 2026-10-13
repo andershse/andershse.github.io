@@ -1,0 +1,41 @@
+This manuscript deals with the informativity and identifiability
+conditions for network of dynamic systems. The authors focus their
+analysis using the so-called Grobner basis and provide graph-theoretic
+conditions. For informatitvity, sufficient conditions are derived in
+terms of the rank of a matrix of rational functions, relating the
+excitation signals to the inputs of the optimal predictor. The
+identifiability is investigated under the lens of  the dimensionality
+of a  proper fiber for the local identifiability. The paper assumes
+full excitation of the network, but partial measurement. This paper
+also provides an example under which it states that local
+identifiability does not imply generic identifiability, a hypothesis
+that was previously discussed in the literature.
+
+This paper is clear and well-written and there is also a clear
+contribution to the field, but it is hard to follow specially because
+the authors tend to omit key steps. Therefore, I have some concerns
+about the results of the paper given in the following.
+
+1. The network model used in this manuscript assumes that P is
+invertible for well-posedness. No remarks nor references are given to
+state under what conditions this transfer matrix is invertible.
+    
+2. There are no formal proofs for none of the Theorems presented in the
+informativity section. The ideas behind the proofs are simple given in
+informal terms, and mostly they are cited as generalizations of works
+from other.  I recommend inserting formal proofs for all the results
+stating exactly which are necessary, instead of just referring to a
+book covering a wide topic.  
+    
+3. While the characterization is given in terms of input to predictors
+input, how exactly one knows which predictors to use? There are several
+ways to select the predictors.
+    
+4. Does one need to assume that the topology of the network is known?
+This assumption is not stated in the manuscript.
+    
+5. Theorem 3 seems interesting by its own, but it is not clear how to
+construct the Gronber basis from it.
+    
+6. The same comment applies to Theorem 4, which derives a necessary and
+sufficient condition for local identifiability.
