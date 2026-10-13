@@ -1,0 +1,10 @@
+{
+  "README.txt": "1edbe9852015e2a01b01d9b210a009ee56f8431eaa3b8c8484c85e715e644c09",
+  "LICENSE": "c098ddf7111a7ff7c4efb5176ee35ed58f675257757cab398186c9573e197de5",
+  "CITATION.cff": "b3b1011c6e96b809571d2aa943007382fb2fdd9e18dba76ada8a2953406a1f0b",
+  "verify_counterexample.py": "fb302023649fa516ea688a9a68e1fe43df143357f10b2d32af5d49cb24f78335",
+  "verify_spectral_counterexample.py": "71a155d2fd8714365298561b22395faaccbb0b84b133fc4d6754c82ca5c218a3",
+  "requirements.txt": "0a9ed6a11f4fa4d0d26ee841d18a70b7f4feef2852f2e7214a9c8be998e54dad",
+  "verification_results.json": "f7eaee0298931e6f3d8f7b2118d1fdca9c0a5c32dc2615921a3f7b4fa6f0f5b6",
+  "spectral_verification_results.json": "f7e83ddcd646116f2c50f5e046ae9b3fee3d2d6ccaab09e61d563480d777f364"
+}

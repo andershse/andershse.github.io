@@ -1,0 +1,425 @@
+           Generic Local Identifiability Does Not Imply Generic Global
+                       Identifiability in Linear Networks
+                                             Anders Hansson, Senior Member, IEEE
+
+
+   Abstract— We give a counterexample to the implication                   This letter answers the question for the cited scalar for-
+from generic local to generic global identifiability for linear         mulation. The topology and node selections are fixed, every
+networks with a fixed topology, independently unknown edge              permitted edge has an independent unknown coefficient, and
+coefficients, and selected excited and measured nodes. A six-
+node network with nine unknown coefficients has exactly two             excitation and measurement are both partial. A six-node con-
+compatible parameter vectors generically. Adding six excited            struction has exactly two compatible vectors generically. Six
+and measured nodes preserves this ambiguity while making                added excited and measured nodes preserve the ambiguity
+the added coefficients directly recoverable. The resulting twelve-      and make both spectral radii, the largest eigenvalue magni-
+node structure has forty-two independent unknown coefficients           tudes, arbitrarily small. The resulting structure has forty-two
+and zero diagonal. For every positive bound on the largest
+eigenvalue magnitude, a nonempty open set of parameters has             independent coefficients. For every positive spectral-radius
+two distinct compatible networks satisfying that bound. This            bound, ambiguity occurs on open subsets of both the full
+holds for both real and complex coefficients. Other open regions        complex and real parameter spaces. Both alternatives satisfy
+have exactly one admissible solution. The proof uses a rational         the same bound, including the restriction in [3]. The node
+transformation exchanging the two solutions and a common                and edge counts are constructive upper bounds; minimality
+limiting matrix whose fourth power vanishes. Exact rational-
+number certificates verify an explicit pair. The construction also      remains open.
+extends algebraically when the unknown coordinates are whole               The scalar setting allows direct feedthrough, meaning
+rational transfer functions. Genericity in prescribed numerator         an instantaneous dependence between connected node sig-
+and denominator coefficient families, and the requirement that          nals. Constant real coefficients therefore also give transfer-
+every transfer function vanish at infinite frequency, remain
+                                                                        function examples. We further use the algebraic framework
+separate questions.
+   Index Terms— Identification, network analysis and control,           of [6], where each coordinate is a whole rational transfer
+linear systems.                                                         function and genericity excludes polynomial equations in
+                                                                        these functions. This differs from varying the numerical
+                       I. I NTRODUCTION                                 numerator and denominator coefficients at a prescribed dy-
+   A linear network relates node signals through coefficients           namic order. Such coefficient families, and strictly proper
+on prescribed directed edges. Inputs excite selected nodes,             functions that vanish at infinite frequency, require separate
+and measurements record selected node signals. Network                  analysis.
+identification seeks to recover the unknown edge coefficients              Section II states the admissible classes and the precise
+from the resulting input-output relation.1                              identifiability definitions. Sections III and IV develop the two
+   Local identifiability means that the coefficients are unique         constructions. Section V proves the spectral-radius result and
+among sufficiently close admissible choices. Global identifi-           gives an explicit pair with rational entries. Section VI extends
+ability requires uniqueness among all admissible choices. For           the result to rational transfer functions under an algebraic
+scalar coefficients, a property is generic if it holds outside a        definition of generic identifiability.
+set of zero volume. A derivative test for local uniqueness can
+leave a second, isolated explanation of the same input-output              II. N ETWORK D ESCRIPTION AND I DENTIFIABILITY
+relation.
+   Legat and Hendrickx developed a generic local identifia-                A transfer function describes a linear relation between
+bility test for partial excitation and measurement and asked            signals in the frequency domain. We follow the scalar
+whether local and global identifiability can differ in this set-        formulation of [2, Secs. I and III] and [3, Sec. III-B]: each
+ting [2]. The two notions coincide when all nodes are excited           edge coefficient represents a transfer-function value at a fixed
+or all nodes are measured [3]. A further equivalence result             frequency and can therefore be complex.2
+holds for a specified class of two-part networks with known                Let n be the number of nodes, numbered 1, . . . , n, and let
+internal coefficients [4]. The general question remains open            E be a prescribed set of ordered pairs (i, j), where i, j ∈
+in the discussion of [3, Sec. II-C] and [5, Sec. 12.2]. The             {1, . . . , n} and i ̸= j. An edge (i, j) carries the signal from
+latter reports an unsuccessful search for a counterexample              node j to node i. Write m = |E|, fix an ordering of these
+with up to five unknown edges, subject to specified structural          edges, and collect their coefficients in a vector θ ∈ Cm . The
+restrictions.                                                           network matrix G(θ) ∈ Cn×n places these coefficients in
+                                                                        the positions in E and has zeros elsewhere. Each edge has
+  Anders Hansson is with the Division of Automatic Control, Linköping
+University. Email: anders.g.hansson@liu.se.
+  1 Drafting assistance: OpenAI Codex [1].                                2 Drafting assistance: OpenAI Codex [1].
+its own independent parameter. In particular, G(θ) has zero                                          a3
+diagonal.                                                                                  a1                     a2
+   Let nB and nC be the numbers of excited and measured                         1                     2                          3
+nodes. The fixed matrix B ∈ {0, 1}n×nB has distinct                                 x1                    x2                         x3
+columns of the identity matrix, and C ∈ {0, 1}nC ×n has
+distinct rows of the identity matrix. Thus B inserts inputs                     4                     5                          6
+                                                                                           d1                     d2
+at the excited nodes and C selects the measured signals. At
+the chosen frequency, let w ∈ Cn , r ∈ CnB , and y ∈ CnC                                             d3
+be the complex amplitudes of the node signals, inputs, and
+measurements, respectively. The network equations are              Fig. 1. The six-node construction. Nodes 1, 2, 3 are excited; nodes 4, 5, 6
+                                                                   are measured. Each labeled edge has an independent unknown coefficient.
+              w = G(θ)w + Br,          y = Cw.              (1)
+For a positive integer d, let Id denote the d × d identity
+                                                                      The generic claims in Sections III–V refer to the inde-
+matrix. We call (1) well posed if In − G(θ) is invertible. In
+                                                                   pendent scalar parameters. Section VI considers independent
+that case the transfer matrix from the external inputs r to the
+                                                                   rational transfer functions as the unknowns.
+measurements y, evaluated at the chosen frequency, is
+                                                                                      III. A S IX -N ODE A MBIGUITY
+                 Φ(θ) = C(In − G(θ))−1 B.                   (2)
+                                                                      Consider nine independent complex parameters ai , di , xi ,
+Identification concerns recovery of θ from Φ(θ). The fiber at      indexed by i ∈ {1, 2, 3}. In this section and in formulas using
+a transfer matrix is the set of admissible parameter vectors       these parameters, subscripts are cyclic: i+1 = 1 when i = 3,
+producing it.                                                      and i − 1 = 3 when i = 1.3 Let diag form a diagonal matrix
+   Define the set of well-posed parameters by                      from its arguments, and define
+                                                                            ⎛              ⎞               ⎛            ⎞
+           Ω = {θ ∈ Cm : det(In − G(θ)) ̸= 0}.                                 0 0 a3                        0 d1 0
+                                                                       A = ⎝a1 0 0 ⎠ ,               D = ⎝ 0 0 d2 ⎠ ,
+For a matrix, let ρ denote its spectral radius. For 0 < ε ≤ 1,                 0 a2 0                        d3 0 0            (4)
+define the more restricted set
+                                                                      X = diag(x1 , x2 , x3 ),
+               Ωε = {θ ∈ Cm : ρ(G(θ)) < ε}.                 (3)    In block matrices, zero blocks have the dimensions deter-
+The strict inequality implies Ωε ⊆ Ω. Openness and volume          mined by their positions. Set
+are understood by identifying Cm with R2m through real
+                                                                           (︃       )︃           (︃ )︃
+                                                                              A 0                  I
+                                                                                       , Bb = 3 , Cb = 0 I3 . (5)
+                                                                                                              (︁    )︁
+and imaginary parts. Both parameter sets are open in this             Gb =
+                                                                              X D                  0
+topology.
+                                                                   This is (1) with six nodes, the first three excited and the last
+   Let D be either Ω or Ωε . The network is locally identifiable
+                                                                   three measured. Figure 1 shows the edges. The within-part
+at θ ∈ D if some neighborhood N of θ satisfies the following
+                                                                   matrices A, D are unknown. In the separable networks of [4],
+implication for every alternative vector θ:
+                                          ˜︁
+                                                                   these matrices are known and only the connections between
+        θ˜︁ ∈ N ∩ D,    Φ(θ)
+                          ˜︁ = Φ(θ)      =⇒     θ˜︁ = θ.           parts are unknown; that equivalence theorem therefore does
+                                                                   not apply here. Define the products α = a1 a2 a3 and δ =
+It is globally identifiable at θ in D if the same implication      d1 d2 d3 . Then
+holds for every θ˜︁ ∈ D. Thus any competing network must
+satisfy the same admissibility restriction.                                          det(I6 − Gb ) = (1 − α)(1 − δ).
+   The structure is generically locally or globally identifiable   For well-posed parameters, denote the transfer matrix by
+in D if the corresponding property holds outside a subset
+of D of Lebesgue measure zero, that is, zero volume. We              F = Cb (I6 − Gb )−1 Bb = (I3 − D)−1 X(I3 − A)−1 . (6)
+use the complex Jacobian, the matrix of derivatives of the            For nonzero xi , define the auxiliary quantities
+entries of Φ with respect to the complex coordinates of θ.
+                                                                                       xi+1
+All ranks are over C. We prove generic local identifiability                ki = ai di      ,     hi = 1 + ki + ki ki+1 .                      (7)
+                                                                                        xi
+by showing that this Jacobian has column rank m except
+where a nonzero polynomial vanishes. Such an exceptional           Let Db ⊂ C9 be the domain specified by
+set has zero volume in R2m . For the rational map Φ,                                                               x1 x2 x3 ̸= 0,
+complex rank m gives real rank 2m after separating real and                                                                                    (8)
+                                                                               αδ(1 − α)(1 − δ)(1 − αδ)h1 h2 h3 ̸= 0.
+imaginary parts. Applying the inverse function theorem to m
+suitable complex entries of Φ then gives local uniqueness.         Define Tb on the nine parameters by
+Conversely, a nonempty open set of parameters with distinct                         ki hi+1                              1
+admissible alternatives suffices to disprove generic global                ηi =             ,     (a′i , d′i , x′i ) =      (ai , di , xi ).   (9)
+                                                                                       hi                                ηi
+identifiability. This conclusion alone does not say that almost
+every admissible parameter vector has an alternative.                3 Drafting assistance: OpenAI Codex [1].
+Primes denote the resulting alternative values.                      Substitution and multiplication by the denominators yield
+   Proposition 1: The structure (5) is generically locally
+                                                                                0 = (b2 − e2 e3 )z12
+identifiable in Ω. For every parameter vector in Db , exactly
+two well-posed vectors give its transfer matrix F , and both                          + (b1 e3 − b2 e1 − b3 e2 + e1 e2 e3 )z1   (16)
+are locally identifiable. The map Tb preserves Db and is a                            + b1 b3 − b1 e1 e3 .
+rational involution: it has rational coordinates and applying
+                                                                     Its leading coefficient is b2 − e2 e3 = −z2 z3 h1 , which is
+it twice returns the original vector.
+                                                                     nonzero on Db . There are therefore at most two values of
+     Proof: Assume first that x1 x2 x3 ̸= 0, so that F is
+                                                                     z1 . Each determines z2 , z3 and all original parameters. A
+invertible. Introduce coordinates ui = ai /xi , vi = di /xi ,
+                                                                     candidate with some xi = 0 cannot yield an invertible F ,
+and zi = 1/xi . This change is invertible, with ai = ui /zi ,
+                                                                     by (6). Formula (9) supplies the distinct second solution.
+di = vi /zi , and xi = 1/zi . The inverse transfer matrix is
+                                                                     After clearing denominators, the exclusions in (8) are zeros
+F −1 = (I3 − A)X −1 (I3 − D)                                         of nonzero polynomials: ai = di = −1/2, xi = 1 satisfy all
+       ⎛
+         z1 + u3 v3 /z3     −v1                    −u3
+                                                              ⎞      the inequalities. Thus Db has full volume in Ω, completing
+     =⎝      −u1        z2 + u1 v1 /z1             −v2        ⎠.     the generic claim.
+             −v3            −u2                z3 + u2 v2 /z2           The six-node construction alone does not give two alter-
+                                                              (10)   natives in Ω1 . Indeed, its block triangular form gives
+
+Thus the off-diagonal entries determine ui , vi . Let ei =                             ρ(Gb ) = max{|α|1/3 , |δ|1/3 }.
+(F −1 )ii be the diagonal entries. They satisfy                      If both products have magnitude below one, (14) makes the
+                                ui−1 vi−1                            alternative violate the same restriction. The next construction
+                     ei = zi +            .            (11)
+                                  zi−1                               changes the full network eigenvalues while retaining the
+With ui , vi fixed, the Jacobian of these three equations with       ambiguity.
+respect to (z1 , z2 , z3 ), denoted by Jz , has determinant                IV. A DDING E XCITED AND M EASURED N ODES
+                             u1 v1 u2 v2 u3 v3
+           det Jz = 1 −                        = 1 − αδ.    (12)       Let wb ∈ C6 collect the original node amplitudes. Add six
+                                 z12 z22 z32                         nodes with amplitudes wc ∈ C6 , all excited and measured.
+The six directly determined coordinates and (12) give Ja-            Their purpose is to change the complete network spectrum
+cobian rank nine when αδ ̸= 1. Inverting an invertible               while preserving the two base solutions.4 Let rb ∈ C3 and
+transfer matrix preserves rank. This proves generic local            s ∈ C6 be the inputs at the original and added nodes, and
+identifiability.                                                     yb = Cb wb the original measurements. Let K ∈ C3×6 , Lc ∈
+   Expanding hi and using k1 k2 k3 = αδ gives                        C6×3 , and J ∈ C6×6 specify the additional connections.
+                                                                     Define the augmented network and its selections by
+                          αδ − 1
+             ηi − 1 =            ,                                                  (︃             )︃
+                            hi                                                          Gb    Bb K
+                                                             (13)              G=                     ,
+                ki−1                                                                   Lc Cb    J
+         ηi +        = 1 + ki−1 ,        η1 η2 η3 = αδ.                             (︃       )︃           (︃       )︃       (17)
+                ηi−1                                                                   Bb 0                  Cb 0
+                                                                               B=               ,      C=             .
+The transformation fixes ui , vi and gives zi′ = ηi zi . Since                         0 I6                  0 I6
+ui−1 vi−1 /zi−1 = ki−1 zi , the second identity in (13) pre-         This again has the form (1); its twelve node amplitudes are
+serves (11), and hence F . The first identity makes the              the six original amplitudes wb followed by wc . The matrices
+alternatives distinct when αδ ̸= 1.∏︁               ∏︁3of the
+                                   Denote the products               K, Lc , J connect the added nodes to the original excited and
+                                     3
+primed cycle coefficients by α′ = i=1 a′i and δ ′ = i=1 d′i .        measured nodes and to each other. Denote its transfer matrix
+The last identity gives                                              by
+                         1            1                                                  H = C(I12 − G)−1 B.                  (18)
+                        α′ =
+                           ,    δ′ = .                 (14)
+                         δ            α                              Figure 2 groups the nodes and added connections.
+Thus the alternative is well posed on Db , and 1 − α′ δ ′ =            Lemma 1: Suppose I6 −Gb , X, and I12 −G are invertible.
+1 − 1/(αδ) ̸= 0 gives rank nine there. Applying (7) and (9)          Then H is invertible and
+to the primed parameters also gives                                                          (︃ −1
+                                                                                               F      −K
+                                                                                                           )︃
+                                                                                     H −1 =                   .          (19)
+                          hi+1                                                                 −Lc I6 − J
+                h′i =             ,    ηi′ = ηi−1 .          (15)
+                        ki+1 ki+2                                    Consequently H determines each entry of K, Lc , J, and,
+All factors excluded in (8) remain nonzero. Hence Tb (Db ) =         on this domain, equality of augmented transfer matrices
+Db and Tb2 is the identity.                                          is equivalent to equality of F, K, Lc , J. Every well-posed
+   It remains to bound the number of solutions. Define bi =          candidate with this H also has invertible X and I6 − Gb .
+ui vi . Equation (11) gives successively                             If the original base parameters belong to Db , the augmented
+
+ z2 = e2 − b1 /z1 ,      z3 = e3 − b2 /z2 ,   z1 = e1 − b3 /z3 .       4 Drafting assistance: OpenAI Codex [1].
+                 rb                                s                   These matrices satisfy U 3 = I3 and U T = U 2 .5 For real
+              Bb                                                       t > 0 and x ̸= 0, take A = −tU, D = −tU T , X = xI3 .
+                               Lc Cb                                   Write F (t, x) for the corresponding transfer matrix (6). Then
+        Original nodes wb               Added nodes wc
+                                                                                    F (t, x)−1 = x−1 (1 + t2 )I3 + tV ,
+                                                                                                      [︁              ]︁
+        Internal matrix Gb              Internal matrix J                                                                         (20)
+                               Bb K
+                                                                       so F (t, 1) = F (t−1 , t−2 ). The two base matrices coincide
+            yb = Cb wb                             wc                  at t = 1; denote this common matrix by Gb0 .
+                                                                          We design the added connections at this common point.
+Fig. 2.    Augmentation of the six-node network. Each box groups six   Seek K0 , L0 such that E+ = Gb0 + Bb K0 and E− = Gb0 −
+node equations. Every added node has its own input and measurement;
+the horizontal arrows specify the connections between the groups.      L0 Cb have zero squares, and set
+                                                                                          J0 = Gb0 + Bb K0 − L0 Cb .
+fiber consists of exactly the two base solutions with the same         This choice makes the equations in coordinates (wb , wb −wc )
+K, Lc , J.                                                             block upper triangular with diagonal blocks E+ , E− . Their
+      Proof: The node equations give                                   zero squares make the complete matrix’s fourth power zero.
+                                                                       Using U 3 = I3 , suitable choices are
+       yb = F (rb + Kwc ),         wc = Lc yb + Jwc + s.                                           (︃ T )︃          (︃ T        )︃
+                                                                              (︁         )︁          U                U      −V
+Thus                                                                    K0 = V −U , L0 =                   , J0 =                  .
+                                                                                                     −V                I3     U
+              (︃ )︃ (︃ −1                  )︃ (︃  )︃
+                rb    F            −K          yb
+                   =                                 .                                                                          (21)
+                s     −Lc         I6 − J       wc
+                                                                       Combining them with the varying base gives
+By well-posedness, (yb , wc ) is obtained from (rb , s) through                             ⎛                           ⎞
+the square matrix H. The displayed matrix is therefore a left                                 −tU      0      V    −U
+                                                                                            ⎜ xI3 −tU T       0      0 ⎟
+inverse of H, proving (19).                                                      M (t, x) = ⎜           T      T
+                                                                                                                        ⎟.      (22)
+   For any well-posed candidate producing this H, suppose
+                                                                                            ⎝ 0       U      U     −V ⎠
+Xξ = 0 for some nonzero ξ ∈ C3 . The node amplitudes                                            0     −V     I3     U
+(ξ, 0, 0), in groups of sizes three, three, and six, give zero         All blocks in this display have size 3 × 3. Use the nonzero
+output for input ((I3 − A)ξ, 0). Well-posedness makes this             positions in M (t, x) as the permitted edge set for G. This
+input nonzero, contradicting invertibility of H. Thus X is             pattern does not depend on the chosen nonzero values of t, x.
+invertible. Eliminating the first three node amplitudes makes          Assign a separate independent unknown coefficient to every
+the upper left block of H −1 equal to (I3 − A)X −1 (I3 − D).           permitted position. There are nine in Gb , nine in K, nine
+That block is the original invertible F −1 , so I3 − A and             in Lc , and fifteen in J, giving m = 42. Thus the repeated
+I3 − D are also invertible. Every candidate therefore satisfies        numerical values in (22) specify particular parameter choices
+the lemma’s assumptions.                                               in a class with forty-two independent complex coefficients.
+   Proposition 1 leaves exactly two base candidates on Db .               The selections B, C in (17) excite nodes 1–3 and 7–12
+For either, (19) determines (yb , wc ) from the inputs, and            and measure nodes 4–12. There are no diagonal edges. Let
+X −1 (I3 − D)yb gives the first three node amplitudes. Both            θ ∈ C42 collect the independent coefficients of this structure,
+augmented candidates are therefore well posed.                         and apply (3) to G(θ).
+   This identity also preserves the rank information needed               Theorem 1: For every 0 < ε ≤ 1, this twelve-node
+for local identifiability. If qc entries of K, Lc , J are in-          structure is generically locally identifiable in Ωε . There is
+dependently unknown and the remaining entries are fixed                a nonempty open set Wε ⊂ Ωε such that every θ ∈ Wε has
+zeros, their derivatives occupy positions in (19) disjoint from        a distinct alternative θ˜︁ ∈ Ωε with the same transfer matrix
+those of F −1 . The augmented Jacobian rank is therefore               H. Both alternatives are locally identifiable. Consequently,
+qc + 9 wherever the base Jacobian has rank nine. The choice            the structure is not generically globally identifiable in Ωε .
+below makes both compatible augmented matrices satisfy                 The same conclusions hold on the real parameter domain
+the spectral-radius restriction. Moreover, (13) shows that Tb          Ωε ∩ R42 .
+changes every base coefficient on Db . Knowing any one of                   Proof: We first give equal transfer matrices, then make
+these coefficients selects one of the two solutions, for both          both spectral radii small, and finally establish ambiguity on
+constructions.                                                         an open set of all forty-two parameters.
+ V. A MBIGUITY W ITH A RBITRARILY S MALL S PECTRAL                        Equal transfer matrices: The two augmented matrices
+                      R ADIUS                                                   G1 (t) = M (t, 1),         G2 (t) = M (t−1 , t−2 )   (23)
+   Use superscript T for transpose. Define the cyclic permu-
+tation matrix U , and then V , by                                      use the same K0 , L0 , J0 . By Lemma 1, their transfer matrices
+                ⎛          ⎞                                           agree whenever both augmented networks are well posed.
+                   0 0 1                                               They are distinct for t ̸= 1.
+           U = ⎝1 0 0⎠ ,            V = U + UT .
+                                                                         5 Drafting assistance: OpenAI Codex [1].
+                   0 1 0
+ Small spectral radii: At t = 1, both matrices in (23) equal       is real and T preserves real coefficients. The neighborhood
+M (1, 1). The design above gives                                   contains a real open set, and the same nonzero Jacobian
+                                 (︃ T         )︃                   minor establishes generic local identifiability there.
+                                   U     −U
+           E+ = Gb0 + Bb K0 =                    ,                 A. An explicit pair with rational constant coefficients
+                                   I3 −U T
+                                                        (24)
+                                  −U −U T                             For ε = 1, choose t = 99/100 in (23). The common
+                                (︃            )︃
+           E− = Gb0 − L0 Cb =                    .                 inverse transfer matrix, obtained from (19), is
+                                   I3     U
+                                                                                 (1 + t2 )I3 + tV
+                                                                               ⎛                                      ⎞
+                                                                                                      −V         U
+Changing coordinates from (wb , wc ) to (wb , wb − wc ) makes
+                                                                      H −1 = ⎝        −U T         I3 − U T      V ⎠ . (28)
+M (1, 1) similar to the block upper triangular matrix
+                      (︃             )︃                                                 V             −I3     I3 − U
+                         E+ −Bb K0                                 Exact multiplication of the rational matrices gives
+                                        .                (25)
+                          0    E−                                                                    33910001
+                                2       2
+                                                                               ∥G1 (99/100)4 ∥∞ =               < 1,
+The identities for U imply E+     = E−    = 0. Squaring (25)                                        100000000              (29)
+therefore gives a matrix whose only possibly nonzero block                                          16976126
+                                                                               ∥G2 (99/100)4 ∥∞ =              < 1.
+is the upper right block; its square is zero. Consequently                                          32019867
+                                                                   These inequalities certify admissibility through (27). Their
+                        M (1, 1)4 = 0.                     (26)    spectral radii are approximately 0.509563 and 0.404210,
+                                                   ∑︁d             respectively. The exact equalities (28) and (29) make the
+   For a d × d matrix Q, let ∥Q∥∞ = max1≤i≤d j=1 |Qij |,
+                                                                   pair directly checkable with rational arithmetic. Theorem 1
+its maximum absolute row sum. The standard eigenvalue
+                                                                   establishes the open-set conclusion independently of these
+bound gives
+                                                                   numerical values.
+                 ρ(Q)4 = ρ(Q4 ) ≤ ∥Q4 ∥∞ .                 (27)    B. Admissible solution counts and conditioning
+Both matrices in (23) converge to M (1, 1) as t → 1.                  There are also open subsets of Ωε on which the network
+Their fourth-power norms consequently tend to zero. For any        is globally identifiable relative to that domain. To see this,
+prescribed 0 < ε ≤ 1, choose t ̸= 1 sufficiently close to          choose 0 < t < ε with x = 1, initially setting K = Lc =
+one that both norms are below ε4 . Equation (27) then places       J = 0. The full network and its alternative have spectral
+both distinct matrices in Ωε , so their transfer matrices are      radii t and t−1 , respectively. Both are well posed and the
+well defined and equal.                                            base parameters lie in Db . Lemma 1 gives exactly these
+   Local identifiability: The thirty-three independent added       two candidates. Small independent perturbations, with all
+coefficients are determined directly in (19). The base Jaco-       permitted added entries nonzero, keep the first radius below
+bian has rank nine by (12), since αδ = t6 at the first point of    ε and the second above it. Thus one admissible solution
+(23) and αδ = t−6 at the second. Both augmented Jacobians          persists on an open set, alongside the two-solution regions of
+therefore have rank 33+9 = 42. All their entries are rational      Theorem 1. Failure of generic global identifiability therefore
+functions of the forty-two parameters. A minor, meaning the        does not imply that almost every admissible network has an
+determinant of a square submatrix, that is nonzero at one of       admissible alternative.
+these points has a numerator that is a nonzero polynomial.            The spectral-radius bound concerns eigenvalues. At the
+Outside its zero set, the Jacobian of H has full column rank.      limit, ρ(M (1, 1)) = 0 while ∥M (1, 1)∥∞ = 4. Along
+This establishes generic local identifiability in Ωε .             M (t, 1), the reduced Jacobian in (12) is Jz = I3 − t2 U .
+   An open set of ambiguous parameters: Extend Tb to an            Writing σmin for the smallest singular value, the cyclic
+involution T on the forty-two parameters by leaving the            permutation gives
+thirty-three added coefficients unchanged. At the first point                   σmin (Jz ) = |1 − t2 | −→ 0     (t → 1).
+of (23), one has ki = t2 , hi = 1 + t2 + t4 , and ηi = t2 ;
+thus T maps it to the second point. All denominators are           Its inverse therefore amplifies some perturbations by |1 −
+nonzero there. The transformation is rational and continuous       t2 |−1 . The theorem supplies no uniform sensitivity bound or
+in a neighborhood, and preserves H by Lemma 1.                     neighborhood size as ε decreases.
+   At these two points the fourth-power bounds are strict,              VI. T RANSFER F UNCTIONS AND C ONCLUSIONS
+the alternatives are distinct, and both Jacobians have full        A. Algebraic identifiability over rational functions
+column rank. These properties persist in a sufficiently small
+                                                                      Let λ be a symbolic complex frequency variable and let
+open neighborhood Wε of the first point and its image under
+                                                                   K = C(λ) be the field of ratios of polynomials in λ with
+T . Shrink the neighborhood further, if necessary, so that the
+                                                                   complex coefficients. We now replace the scalar edge coeffi-
+base inverses in the lemma exist and all permitted coefficients
+                                                                   cients by elements of K, keeping the same network structures
+remain nonzero. Then every θ ∈ Wε and its alternative T (θ)
+                                                                   and formulas for the transfer matrices. Each coordinate of
+belong to Ωε , have equal transfer matrices, and are distinct
+                                                                   θ ∈ Km is then a rational function of λ. Equality of transfer
+and locally identifiable. The neighborhood is open in C42 , so
+                                                                   matrices means an identity of rational functions.6
+it has positive volume in the real and imaginary coordinates
+of R84 . This disproves generic global identifiability. The pair     6 Drafting assistance: OpenAI Codex [1].
+   We use the algebraic framework of [6, Sec. V]. For the         vanishing throughout the box has infinitely many roots in
+algebraic calculation, the edge coordinates are independent       the remaining coordinate, so each of its coefficients is zero.
+variables over K. Solutions are counted in an algebraic           Repeating this argument for the other coordinates proves that
+closure K, a field containing K in which every nonconstant        the polynomial is zero. Thus no proper algebraic exceptional
+polynomial has a root. An algebraic set is a set defined by       set can contain all these admissible ambiguous networks.
+polynomial equations in these coordinates. An algebraically       Their transfer matrices are also Zariski dense in the image of
+generic property holds outside a proper algebraic subset,         the map θ ↦→ H(θ). Indeed, suppose a polynomial vanishes
+meaning one smaller than the full parameter domain or the         on all these transfer matrices but not on the full image.
+image of the map θ ↦→ Φ(θ), as appropriate. Generic local         Substituting H(θ) and clearing denominators gives a nonzero
+identifiability in the algebraic sense means that the generic     polynomial that vanishes on the real open set, a contradiction.
+fiber has dimension zero, equivalently that it consists of           This density statement uses whole transfer functions as
+finitely many isolated points. Generic global identifiability     coordinates. In a family parameterized by numerator and
+requires one point. Admissibility here excludes zeros of          denominator coefficients at a prescribed positive order, con-
+the determinants and denominators required by the network         stants may be excluded or form a lower-dimensional subset.
+equations.                                                        The parameter spaces differ. Preservation of properness,
+   In the notation of [6], the matrices P, Qr , Ry , Syr define   stability, or a prescribed order by T for arbitrary nonconstant
+the closed-loop transfer function Ry P −1 Qr + Syr from           parameters requires a separate argument. The strictly proper
+external inputs to measured outputs. Our augmented network        case also remains open.
+is its specialization                                             C. Reproducibility and conclusions
+  P = I12 − G,        Qr = B,       Ry = C,        Syr = 0.          Verification code, dependencies, and exact outputs are
+                                                                  available from the author on request. The code checks the
+   Proposition 2: Over K, the six-node structure (5) and
+                                                                  symbolic involution, nonsymmetric examples, equality of
+the twelve-node structure of Theorem 1 each have exactly
+                                                                  the transfer matrices, and the power bounds. The Jacobian
+two points in the generic algebraic fiber. Both are therefore
+                                                                  checks use all forty-two independent edge positions. It also
+generically locally identifiable in the algebraic sense and
+                                                                  verifies an explicit example with only one spectrally admissi-
+fail generic global identifiability. If one generic parameter
+                                                                  ble solution. The constructions show that derivative rank tests
+vector has coordinates in K, its distinct alternative also has
+                                                                  establish local recovery without ensuring global uniqueness
+coordinates in K.
+                                                                  for this network class, even under a common spectral-radius
+     Proof: The identities and solution counts in Proposi-
+                                                                  bound.
+tion 1 and Lemma 1 use only field operations and apply over
+K. They give exactly two solutions on the nonempty domain                                 ACKNOWLEDGMENT
+(8), with well-posedness also imposed for the augmented             OpenAI Codex [1] assisted in developing the construction
+network. Formula (9) is rational, so it preserves K-valued        and proofs, writing symbolic verification code, and drafting
+coordinates; the added coefficients remain unchanged.             and editing the abstract and Sections I–VI. The citations in
+B. Proper constant networks                                       section footnotes identify text drafted with this assistance.
+   A rational transfer function is proper if its numerator                                     R EFERENCES
+degree does not exceed its denominator degree, and strictly       [1] OpenAI, “Codex,” software. [Online]. Available: https://openai.
+proper if the inequality is strict. Each real coefficient in          com/codex/. Accessed: Oct. 8, 2026.
+(23) defines a constant proper rational transfer function. The    [2] A. Legat and J. M. Hendrickx, “Local network identifiability with
+                                                                      partial excitation and measurement,” in Proc. 59th IEEE Conf. Decision
+matrix (I12 − G)−1 , which maps additive inputs at all nodes          Control, 2020, pp. 4342–4347, doi: 10.1109/CDC42340.2020.9303890.
+to the node signals, is also constant. It maps bounded inputs     [3] A. Legat and J. M. Hendrickx, “Identifiability in networked systems:
+to bounded signals, so the network is stable in this input-           Algebraic and combinatorial conditions,” manuscript, 2024. [Online].
+                                                                      Available: https://perso.uclouvain.be/antoine.legat/
+output sense. Both networks have identical transfer matrices          _static/TAC24.pdf.
+and satisfy the spectral-radius restriction at every frequency.   [4] A. Legat and J. M. Hendrickx, “Combinatorial characterization for
+   Algebraically generic uniqueness also fails after imposing         global identifiability of separable networks with partial excitation and
+                                                                      measurement,” in Proc. 62nd IEEE Conf. Decision Control, 2023,
+properness, stability, and the spectral-radius bound. Indeed,         pp. 2471–2476, doi: 10.1109/CDC49753.2023.10383708.
+Wε ∩ R42 from Theorem 1 contains a nonempty real open             [5] A. Legat, “Generic local identifiability in dynamical networks: From
+set of ambiguous constant networks. This set is Zariski               algebraic characterization to algorithms for signal selection,” Ph.D.
+                                                                      dissertation, UCLouvain, Louvain-la-Neuve, Belgium, 2025. [Online].
+dense over K, meaning that no nonzero polynomial in the               Available: https://hdl.handle.net/2078.5/256546.
+forty-two edge coordinates vanishes on all of it. To see          [6] A. Hansson, J. V. Galvão da Mata, and M. S. Andersen, “Informa-
+this, take a real open box contained in the set. Fix all but          tivity and identifiability for identification of networks of dynamical
+                                                                      systems,” arXiv:2602.20107, 2026. [Online]. Available: https://
+one coordinate in their respective intervals. A polynomial            arxiv.org/abs/2602.20107v3.
+

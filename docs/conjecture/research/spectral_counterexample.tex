@@ -1,0 +1,272 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\rad}{\rho}
+\title{Generic local identifiability does not imply generic global identifiability\texorpdfstring{\\}{ }even when $\rho(G)<1$}
+\author{Research note prepared with Codex}
+\date{8 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+We give a twelve-node network with zero diagonal and forty-two independently
+unknown edge entries. Nine nodes are excited and nine are measured by fixed
+selection matrices. The observation map $G\mapsto C(I-G)^{-1}B$ is generically
+locally identifiable. A nonempty open subset of the admissible parameter
+space has two distinct compatible networks, both satisfying $\rho(G)<1$.
+The counterexample therefore disproves generic local implying generic global
+identifiability even with this spectral-radius restriction. An explicit
+rational pair and exact matrix-power bounds certify the claim. The model
+uses no prescribed equalities between unknown edges, no known nonzero
+edges, and no self-loops.
+\end{abstract}
+
+\paragraph{Scope and the meaning of generic.}
+We consider $w=Gw+Br$, $y=Cw$, with known binary node selections $B,C$,
+zero diagonal of $G$, and independently unknown entries at its permitted
+off-diagonal positions. Impose $\rho(G)<1$ on every admissible candidate,
+including any alternative network. The stronger assumption appears in
+the later Legat--Hendrickx manuscript \cite{LH24}.
+The matrices in the explicit pair are real constants, so they also give
+proper, stable rational transfer functions satisfying the spectral-radius
+restriction at every frequency. In the supplied paper's notation,
+$P=I-G$, $Q=B$, $R=C$, $S=0$.
+
+Generic local identifiability means that the observation Jacobian has full
+column rank outside a proper algebraic subset. Generic global identifiability
+on the restricted domain would require uniqueness for almost every
+admissible parameter. A nonempty Euclidean open set of ambiguous admissible
+parameters disproves this property. We do not claim that every stable
+parameter in the structure has two stable alternatives.
+
+\paragraph{The six-node ambiguity used in the construction.}
+Let
+\[
+ A=\begin{pmatrix}0&0&a_3\\a_1&0&0\\0&a_2&0\end{pmatrix},\quad
+ D=\begin{pmatrix}0&d_1&0\\0&0&d_2\\d_3&0&0\end{pmatrix},\quad
+ X=\diag(x_1,x_2,x_3),
+\]
+and
+\[
+ G_b=\begin{pmatrix}A&0\\X&D\end{pmatrix},\qquad
+ B_b=\begin{pmatrix}I_3\\0\end{pmatrix},\qquad
+ C_b=\begin{pmatrix}0&I_3\end{pmatrix}.
+\]
+The nine quantities $a_i,d_i,x_i$ are independent. Its observation is
+\[
+ F=C_b(I_6-G_b)^{-1}B_b=(I_3-D)^{-1}X(I_3-A)^{-1}.
+\]
+Set $u_i=a_i/x_i$, $v_i=d_i/x_i$, $z_i=1/x_i$.
+The six off-diagonal entries of $F^{-1}$ determine $u_i,v_i$ directly,
+and its diagonal entries are
+\begin{equation}\label{eq:diags}
+ e_i=z_i+\frac{u_{i-1}v_{i-1}}{z_{i-1}},\qquad i\pmod 3.
+\end{equation}
+With $u,v$ fixed, the determinant of the Jacobian of these three equations
+with respect to $z$ is
+\begin{equation}\label{eq:local}
+ \det J_z=1-\prod_{i=1}^3 a_id_i.
+\end{equation}
+It is nonzero generically. The three equations in \eqref{eq:diags} compose
+to a M\"obius fixed-point equation, hence a quadratic for $z_1$.
+
+For completeness, a rational formula for the alternative is
+\begin{equation}\label{eq:branch}
+ k_i=a_id_i\frac{x_{i+1}}{x_i},\quad
+ h_i=1+k_i+k_ik_{i+1},\quad
+ \eta_i=\frac{k_ih_{i+1}}{h_i},\quad
+ (a_i',d_i',x_i')=\frac{(a_i,d_i,x_i)}{\eta_i}.
+\end{equation}
+The transformation leaves $u_i,v_i$ fixed and sends $z_i$ to $\eta_i z_i$.
+Writing $L=\prod_i k_i=\prod_i a_id_i$, the identities
+\[
+ \eta_i-1=\frac{L-1}{h_i},\qquad
+ \eta_i+\frac{k_{i-1}}{\eta_{i-1}}=1+k_{i-1}
+\]
+show that it preserves all observations and gives a distinct second point
+when $L\ne1$. It is well-defined and continuous near the points used below.
+
+\paragraph{Augmentation that preserves all fibers.}
+Add six nodes with signal $h$, all of which are excited and measured.
+Allow feedback through matrices $K\in\mathbb R^{3\times6}$,
+$L_c\in\mathbb R^{6\times3}$ and $J\in\mathbb R^{6\times6}$:
+\begin{equation}\label{eq:aug}
+ \mathcal G=\begin{pmatrix}G_b&B_bK\\L_cC_b&J\end{pmatrix},\qquad
+ \mathcal B=\begin{pmatrix}B_b&0\\0&I_6\end{pmatrix},\qquad
+ \mathcal C=\begin{pmatrix}C_b&0\\0&I_6\end{pmatrix}.
+\end{equation}
+Thus $\mathcal B$ excites nodes $1,2,3,7,8,9,10,11,12$, and
+$\mathcal C$ measures nodes $4,5,6,7,8,9,10,11,12$.
+
+\begin{lemma}\label{lem:inverse}
+Where the displayed inverses exist, the augmented observation
+$H=\mathcal C(I_{12}-\mathcal G)^{-1}\mathcal B$ satisfies
+\begin{equation}\label{eq:inverse}
+ H^{-1}=\begin{pmatrix}F^{-1}&-K\\-L_c&I_6-J\end{pmatrix}.
+\end{equation}
+Consequently, the observation determines every permitted entry of
+$K,L_c,J$, and its remaining ambiguity is precisely the ambiguity in $G_b$.
+\end{lemma}
+\begin{proof}
+Let the original and new excitations be $r$ and $s$. The node equations imply
+$y=F(r+Kh)$ and $h=L_cy+Jh+s$. Rearranging gives
+\[
+ \begin{pmatrix}r\\s\end{pmatrix}
+ =\begin{pmatrix}F^{-1}&-K\\-L_c&I_6-J\end{pmatrix}
+  \begin{pmatrix}y\\h\end{pmatrix},
+\]
+which proves the identity and its identifiability consequences.
+\end{proof}
+
+\paragraph{An explicit pair with small spectral radii.}
+Let
+\[
+ U=\begin{pmatrix}0&0&1\\1&0&0\\0&1&0\end{pmatrix},\qquad
+ V=U+U^T,\qquad I=I_3.
+\]
+Choose the numerical values
+\[
+ K_0=\begin{pmatrix}V&-U\end{pmatrix},\qquad
+ L_0=\begin{pmatrix}U^T\\-V\end{pmatrix},\qquad
+ J_0=\begin{pmatrix}U^T&-V\\I&U\end{pmatrix}.
+\]
+For scalars $r,x$, define the following matrix in $3\times3$ blocks:
+\begin{equation}\label{eq:explicit}
+ M(r,x)=\begin{pmatrix}
+ -rU&0&V&-U\\
+ xI&-rU^T&0&0\\
+ 0&U^T&U^T&-V\\
+ 0&-V&I&U
+ \end{pmatrix}.
+\end{equation}
+Now take
+\begin{equation}\label{eq:pair}
+ r=\frac{99}{100},\qquad
+ \mathcal G_1=M(r,1),\qquad
+ \mathcal G_2=M(r^{-1},r^{-2}).
+\end{equation}
+Both matrices have exactly the same zero pattern and zero diagonal. The
+model assigns a separate independent unknown to \emph{each} of the forty-two
+permitted entries of this pattern: nine in $G_b$, nine in $K$, nine in $L_c$
+and fifteen in $J$. The block notation in \eqref{eq:explicit} gives convenient
+values for two points of this full model; it imposes no equality constraints
+on the model's unknowns and fixes no nonzero edge in advance.
+
+\begin{theorem}\label{thm:main}
+The forty-two-parameter network structure just defined is generically
+locally identifiable but is not generically globally identifiable on the
+domain $\rho(\mathcal G)<1$.
+\end{theorem}
+\begin{proof}
+\emph{Equality of observations.}
+For the original six-node block in $M(r,x)$,
+\[
+ F(r,x)^{-1}=x^{-1}(I+rU)(I+rU^T)
+ =x^{-1}\big[(1+r^2)I+rV\big].
+\]
+Therefore $F(r,1)=F(r^{-1},r^{-2})$. Since both augmented networks use
+the same $K_0,L_0,J_0$, Lemma~\ref{lem:inverse} proves that their complete
+$9\times9$ observations are equal. In fact their common inverse observation is
+\[
+ H^{-1}=\begin{pmatrix}
+ (1+r^2)I+rV&-V&U\\
+ -U^T&I-U^T&V\\
+ V&-I&I-U
+ \end{pmatrix}.
+\]
+
+\emph{Exact spectral-radius certificates.}
+Direct rational multiplication of the explicit matrices gives
+\begin{equation}\label{eq:norms}
+ \|\mathcal G_1^4\|_\infty=\frac{33910001}{100000000}<1,
+ \qquad
+ \|\mathcal G_2^4\|_\infty=\frac{16976126}{32019867}<1.
+\end{equation}
+Here $\|\cdot\|_\infty$ is the maximum absolute row sum. Hence
+\[
+ \rho(\mathcal G_i)^4=\rho(\mathcal G_i^4)
+ \le\|\mathcal G_i^4\|_\infty<1,
+\]
+proving the required restriction for both candidates without relying on
+floating-point eigenvalues. Their numerical spectral radii are approximately
+$0.509563$ and $0.404210$, respectively.
+
+\emph{Generic local identifiability.}
+In \eqref{eq:inverse}, the thirty-three controller entries occur separately
+and linearly. The remaining $3\times3$ block $F^{-1}$ has generic Jacobian
+rank nine by \eqref{eq:local}. Consequently the full observation Jacobian
+has generic rank $9+33=42$. It has rank forty-two at both explicit points,
+since $\prod_i a_id_i=r^6$ or $r^{-6}$, neither of which is one.
+
+\emph{The ambiguity occurs on an open admissible set.}
+Apply \eqref{eq:branch} to the nine independent entries of $G_b$, and keep
+the thirty-three independent entries of $K,L_c,J$ unchanged. At the first
+point in \eqref{eq:pair}, this maps to the second point. The formulas are
+rational and continuous on a neighborhood of that point. The two networks
+are distinct and both inequalities \eqref{eq:norms} are strict, so a
+sufficiently small open neighborhood in the full forty-two-dimensional
+parameter space consists of distinct pairs satisfying $\rho<1$ and having
+identical observations. This set has positive measure and cannot be
+contained in a proper algebraic subset. Thus generic global identifiability
+fails even after restricting both candidates to $\rho<1$.
+\end{proof}
+
+\paragraph{Why the augmentation can make both branches stable.}
+The two six-node branches coalesce at $r=1$. Their common augmented matrix
+satisfies
+\begin{equation}\label{eq:nilpotent}
+ M(1,1)^4=0.
+\end{equation}
+This can be understood without multiplying twelve-dimensional matrices.
+At $r=x=1$, let $G_{b0}$ denote the six-node block. The controller satisfies
+$J_0=G_{b0}+B_bK_0-L_0C_b$. A change of coordinates from $(w,h)$ to
+$(w,w-h)$ makes the augmented matrix block upper triangular, with diagonal
+blocks
+\[
+ G_{b0}+B_bK_0=\begin{pmatrix}U^T&-U\\I&-U^T\end{pmatrix},\qquad
+ G_{b0}-L_0C_b=\begin{pmatrix}-U&-U^T\\I&U\end{pmatrix}.
+\]
+Each of these squares to zero, proving \eqref{eq:nilpotent}. By continuity,
+both $M(r,1)$ and $M(r^{-1},r^{-2})$ have arbitrarily small spectral radii
+when $r\ne1$ is sufficiently close to one. The ambiguity can therefore
+occur with $\rho<\varepsilon$ for any prescribed $\varepsilon>0$.
+At $r=1$ the local rank drops; the counterexamples use $r\ne1$.
+
+\paragraph{Reproducible checks.}
+The script \texttt{verify\_spectral\_counterexample.py} checks:
+the common zero-diagonal pattern and edge count;
+equality of the complete rational $9\times9$ observations;
+the block inverse identity;
+the exact norms in \eqref{eq:norms}; and nilpotence in \eqref{eq:nilpotent}.
+It also forms the full $81\times42$ observation Jacobian and certifies rank
+forty-two at both points by elimination modulo the prime $1000003$.
+A nonzero minor modulo this prime certifies a nonzero rational minor.
+All denominators used in this certificate are invertible modulo the prime.
+
+As a check against accidental equality constraints, the script independently
+perturbs all forty-two edge values to distinct rational numbers, applies
+the rational alternative formula, and verifies exact observation equality
+and both strict matrix-power bounds again. The detailed results and explicit
+matrices are saved in \texttt{spectral\_verification\_results.json}.
+The proof above is independent of the numerical search used while exploring
+other possible constructions. No minimality or literature-priority claim
+is made.
+
+\begin{thebibliography}{9}
+\bibitem{LH20}
+A. Legat and J. M. Hendrickx,
+``Local Network Identifiability with Partial Excitation and Measurement,''
+\emph{59th IEEE Conference on Decision and Control}, 2020, pp. 4342--4347.
+\href{https://perso.uclouvain.be/julien.hendrickx/availablepublications/LH2020_CDC.pdf}{Author's PDF}.
+
+\bibitem{LH24}
+A. Legat and J. M. Hendrickx,
+``Identifiability in Networked Systems: Algebraic and Combinatorial
+Conditions,'' manuscript listed by the author as submitted in August 2024.
+\href{https://perso.uclouvain.be/antoine.legat/_static/TAC24.pdf}{Author's PDF}.
+\end{thebibliography}
+\end{document}

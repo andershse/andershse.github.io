@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "Please cite the Zenodo software record when using these verification scripts."
+type: software
+title: "Verification code for generic local and global identifiability in linear networks"
+version: 1.0.0
+authors:
+  - family-names: Hansson
+    given-names: Anders
+    affiliation: "Division of Automatic Control, Linköping University"
+license: MIT
+keywords:
+  - network identifiability
+  - local identifiability
+  - global identifiability
+  - exact arithmetic
+  - rational involution

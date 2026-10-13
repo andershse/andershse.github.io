@@ -1,0 +1,150 @@
+Revision notes for the supplied referee report
+=============================================
+Manuscript: Generic Local Identifiability Does Not Imply Generic Global
+Identifiability in Linear Networks
+Author: Anders Hansson
+Date: October 8, 2026
+Current PDF: local_global_identifiability_submission.pdf
+
+The changes below follow the report's numbered concerns. The main theorem
+and its independent-parameter setting are retained. All added identities
+and numerical certificates were checked with exact arithmetic. The paper
+remains six pages in the official IEEE Control Systems Letters format.
+
+3. Separate the notions of genericity
+------------------------------------
+The abstract and introduction now state the scalar setting and the scope
+of the extension using whole rational transfer functions as coordinates.
+The introduction distinguishes this from varying numerator and denominator
+coefficients at a prescribed dynamic order and identifies the strictly
+proper case as a separate question. Section II defines scalar genericity
+through zero-volume exceptional sets. Section VI-A defines algebraic
+fibers, the algebraic closure, and algebraic genericity; Section VI-B
+separately explains the density of admissible constant witnesses.
+The positive-order coefficient-family limitation is repeated in VI-B.
+
+4. Failure of generic global identifiability versus generic ambiguity
+--------------------------------------------------------------------
+Section II explicitly states that an open ambiguity region disproves
+generic global identifiability without asserting ambiguity almost
+everywhere. Theorem 1 keeps its original precise quantifiers.
+Section V-B now proves that, for every allowed epsilon, open regions with
+exactly one spectrally admissible solution also exist. The proof starts
+with t < epsilon and zero added couplings, then perturbs all permitted
+entries independently. Lemma 1 rules out hidden additional candidates.
+
+The reviewer's exact one-admissible-solution witness was added to the
+verification script and archive. With t = 1/2 and added coefficients
+scaled by 1/1000, the code verifies:
+  ||G1^4||_infinity = 564741/1000000 < 1,
+  |trace(G2^3)|/12 = 3999994001/1000000000 > 1.
+These certificates and the exact matrices are in the supplied JSON output.
+The manuscript includes the general argument; the longer exact witness
+is documented in the archive.
+
+5. Consolidate the exceptional domain and identify the involution
+----------------------------------------------------------------
+Section III introduces one domain, D_b, in equation (8), before stating
+the result. It excludes zero x_i, alpha, delta, h_i and the three singular
+factors 1-alpha, 1-delta, and 1-alpha*delta. Proposition 1 states that every
+point in this domain has exactly two well-posed candidates, both locally
+identifiable. It identifies T_b as a rational involution preserving D_b.
+The proof supplies explicit transformed h_i and reciprocal eta_i formulas
+in equation (15), proves invariance, and identifies the quadratic leading
+coefficient as -z_2*z_3*h_1. These new identities are checked symbolically.
+
+6. Explain the augmentation and move the arbitrary-candidate argument
+--------------------------------------------------------------------
+Section IV now explains the purpose of the added excited and measured
+nodes. New Figure 2 shows the two groups, their connections, and inputs
+and measurements. Lemma 1 includes the arbitrary-candidate invertibility
+argument: an invertible measured transfer matrix forces X to be invertible,
+and its inverse's upper-left block forces both internal resolvents to be
+invertible. The lemma therefore preserves the exact two-point fiber.
+This argument has been removed from the rational-function section.
+
+Section V explains the design before displaying M(t,x). The base
+alternatives meet at t = 1. The choices K_0 and L_0 make two matrices have
+zero squares; the identity J_0 = G_b0 + B_b*K_0 - L_0*C_b then produces
+the upper triangular representation whose fourth power vanishes.
+The proof retains the explicit matrices and nilpotence calculation.
+
+7. Explain the conditioning limitation
+--------------------------------------
+Section V-B now states ||M(1,1)||_infinity = 4 despite spectral radius zero.
+It gives J_z = I_3 - t^2*U and sigma_min(J_z) = |1-t^2|, which tends to
+zero at the common limit. The paper states that neither a uniform inverse
+sensitivity bound nor a uniform ambiguous neighborhood size is obtained
+as epsilon decreases. The norm and Gram-matrix identity are verified in
+code. No robustness or noisy-estimation claim has been introduced.
+
+8. Explain why the separable-network theorem does not apply
+----------------------------------------------------------
+The introduction lists the relevant assumptions: fixed topology,
+independent edges, partial excitation and measurement, direct feedthrough,
+and the same spectral admissibility bound for both candidates.
+Section III explicitly contrasts the unknown within-part matrices A,D
+with the known internal matrices in the cited separable-network theorem.
+The cited primary source was checked for this assumption.
+
+9. Package the rational-function extension carefully
+---------------------------------------------------
+Section VI is divided into the algebraic extension, proper constant
+networks, and reproducibility/conclusions. Proposition 2 proves the
+algebraic two-point-fiber claim and preservation of K-valued coordinates.
+The following subsection proves the properness and input-output stability
+of the constants, followed by the algebraic density argument. It then
+states that preservation of arbitrary proper, stable, prescribed-order
+families has not been established. The strictly proper case remains open.
+The verification archive retains an optional nonconstant proper base
+example, without claiming two spectrally admissible networks for it.
+
+10. Supply reproducibility material
+-----------------------------------
+The prepared archive identifiability-verification.zip contains the two
+scripts, exact outputs, pinned dependencies, instructions, citation
+metadata, license, and checksum manifest. It reconstructs all matrices
+and selections, verifies transfer equality and exact power bounds, and
+checks the Jacobian with respect to all 42 independent edge positions.
+Rank 42 is certified by exact arithmetic modulo a prime, not a floating
+point threshold. Nonsymmetric base values and a full distinct-edge
+perturbation guard against indexing mistakes.
+
+Section VI-C states that code, dependencies, and exact outputs are available
+from the author on request. The submission PDF has no pending archive
+citation. A Zenodo deposit is prepared, with a locally checked uploader and
+metadata, but publication has been deferred after repeated connection
+timeouts. No public availability is claimed. The software citation is
+included automatically only when a public DOI is supplied. L-CSS accepts
+only the manuscript PDF at initial submission and does not require a public
+code archive. The proofs are self-contained, so submission can proceed.
+
+11. Presentation and interpretive corollary
+-------------------------------------------
+- Adopted the suggested, more specific title.
+- Reduced the abstract to 174 words and emphasized the result and scope.
+- Stated the real-domain conclusion in the abstract and Theorem 1.
+- Clarified in the introduction that node/edge counts are constructive
+  upper bounds and that minimality remains open.
+- Renamed Section V-A to specify rational constant coefficients.
+- Moved software citations from section headings to short section
+  footnotes. The detailed acknowledgment remains; current L-CSS guidance
+  requires a citation in each section containing AI-generated text.
+- Added the consequence after Lemma 1 that knowledge of any one base
+  coefficient selects one of the two alternatives on D_b. Every base
+  coefficient changes under T_b; the added coefficients remain fixed.
+
+Checks and optional archive publication
+--------------------------------------
+Both exact verification scripts passed. The manuscript was audited against
+EDITORIAL_RULES.md and compiled twice. The final PDF has six US Letter pages
+with embedded Type 1 fonts and two vector diagrams. All pages were visually
+checked. The LaTeX log has no unresolved references or layout/package
+warnings. MiKTeX reports only its environment update-maintenance notice.
+
+The uploader passed offline and simulated create, resume, publish, and
+repeat-publication checks. No live upload has occurred. The optional
+archive can be published later by authenticating to Zenodo and running the
+prepared uploader, then rebuilding the paper and rechecking its layout.
+The archive is not a prerequisite for journal submission.
+The journal manuscript itself has not been submitted.
