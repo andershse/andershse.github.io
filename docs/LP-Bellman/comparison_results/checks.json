@@ -1,0 +1,13 @@
+{
+  "max_lp_objective_difference": 8.8817841970012523E-16,
+  "max_interpolation_identity_error": 1.1102230246251565E-16,
+  "max_constraint_violation": 1.1102230246251565E-16,
+  "max_positive_residual": 0,
+  "max_tail_bound": 9.99484467050264E-11,
+  "max_lp_bound_width": 4.7287120597915955E-9,
+  "optimal_value_lower_bound_error": 4.6286996170196826E-9,
+  "cost_tolerance": 1E-10,
+  "matlab_version": "25.1.0.2943329 (R2025a)",
+  "computer": "PCWIN64",
+  "seed": 271828
+}

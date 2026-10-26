@@ -1,0 +1,14 @@
+{
+  "gamma": 0.9,
+  "rho": 1,
+  "horizon": 18,
+  "kappa": 0.55088185136516743,
+  "axis_coefficient_x1": 1.1671765639416916,
+  "axis_coefficient_x2": 2.0504589075475224,
+  "max_bound_width": 0.0003557905015056928,
+  "max_gradient_norm": 6.2892752728330655E-5,
+  "gradient_check": 4.4163942782785709E-10,
+  "hessian_check": 1.6079404474567127E-10,
+  "matlab_version": "25.1.0.2943329 (R2025a)",
+  "platform": "PCWIN64"
+}

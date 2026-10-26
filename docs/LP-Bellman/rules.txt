@@ -1,0 +1,32 @@
+[CRITICAL CONSTRAINTS - ALWAYS OBEY]
+0. Lower-numbered constraints have higher priority.
+
+1. Do not use acronyms in an abstract.
+
+2. Define an acronym the first time the words it abbreviates appear outside the abstract. After an acronym has been defined, use the acronym instead of the full words for the same concept.
+
+3. Write concise text.
+
+4. Do not use mathematical concepts that have not been defined unless they are part of a typical engineering curriculum at master's level.
+
+5. Do not use a name, label, compound phrase, or special term as a technical term unless it has been explicitly defined and is needed later. Prefer descriptive wording for one-time constructions.
+
+6. Avoid broad mathematical nouns such as space, object, structure, family, map, representation, framework, or model unless they have been defined in the paper or are immediately specified by a concrete formula. Prefer explicit phrases such as linear span of the displayed matrices, set of matrices of the form ..., or collection of subsets.
+
+7. Do not redefine a symbol, matrix, set, assumption, construction, term, abbreviation, or equation name that has already been defined. Refer back to the original displayed equation, definition, theorem, assumption, or first definition. Restate a definition only when necessary for readability, and explicitly say it is a recall.
+
+8. After a term, abbreviation, or equation name has been defined for a concept, use that defined wording for the concept throughout the rest of the paper. Do not switch to a broader synonym, a component word, or a partially expanded phrase when referring to the same concept, unless the text explicitly defines a new distinct concept.
+
+9. Lemma, theorem, proposition, corollary, definition, and assumption statements must contain only the hypotheses and conclusions needed later or needed for the stated result. Put auxiliary, irrelevant, explanatory, or one-time observations in the proof or surrounding text instead.
+
+10. Do not prove anything inside a lemma, theorem, proposition, corollary, definition, or assumption statement. Avoid proof-signaling words such as consequently, hence, therefore, or this implies in formal statements; put derivations in the proof.
+
+11. Remarks and explanatory comments about a lemma, theorem, proposition, corollary, definition, or assumption must appear after its proof, not between the formal statement and the proof.
+
+12. When referring to a displayed equation, formula, matrix, system, or identity that has an equation number, cite its equation number. Do not use vague references such as the equation above, the previous display, or this formula when an equation label is available.
+
+13. Do not make references forward in the document. A reference to an equation, definition, assumption, lemma, theorem, proposition, corollary, section, subsection, figure, table, or named construction must point to material that has already appeared. If later material is relevant, describe it without a numbered or named forward reference, or move the definition earlier.
+
+14. Every proof must carry out each step in detail. Each nontrivial implication must either be shown by a displayed calculation or justified by a precise reference to a previous lemma, proposition, theorem, assumption, definition, or equation number. Do not use vague proof phrases such as clearly, obviously, by similar arguments, it follows directly, or one can show unless the missing calculation is written out immediately.
+
+15. maximize, minimize, subject to should never be in italic font. 

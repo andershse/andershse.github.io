@@ -1,0 +1,2207 @@
+\documentclass{article}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{bbm}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\bibliographystyle{plain}
+\input{defs}
+\renewcommand{\maximize}{\mathop{\mathrm{maximize}}}
+\renewcommand{\minimize}{\mathop{\mathrm{minimize}}}
+\renewcommand{\st}{\mathop{\mathrm{subject\ to}}}
+
+\newtheorem{assumption}{Assumption}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{example}{Example}
+
+\title{Maximal Bellman Subsolutions for Exact and Approximate Optimal Control}
+\author{Anders Hansson}
+\date{Draft, June 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Bellman inequalities define an ordered feasible set whose largest element is the value function. This observation is classical in finite dynamic programming and approximate dynamic programming, but it is often hidden when exact formulas are derived for special control problems. This paper develops the largest-element viewpoint as a method for explaining exact finite-dimensional conic formulations. The main idea is to ask when a chosen collection of candidate functions contains the largest Bellman subsolution, and when the corresponding Bellman inequality has a finite conic description. The paper explains how cone-constrained linear control and linear quadratic control fit this viewpoint, and it identifies directions where the viewpoint can lead to new exact solvability results.
+\end{abstract}
+
+\section{Introduction}
+
+Dynamic programming (DP) gives a conceptually simple solution to infinite-horizon optimal control: find a function that satisfies the Bellman equation \cite{bellman-1957,bertsekas-2007}. The difficulty is that the unknown is a function. Classical exact solutions avoid this difficulty by proving that the value function has a special finite-dimensional form. The linear quadratic regulator is the most important example: linear dynamics and quadratic cost give a quadratic value function and the algebraic Riccati equation \cite{kalman-1960}. Shortest-path problems give another exact class, where the Bellman equation is a finite set of scalar equations on graph nodes \cite{dijkstra-1959}. These examples show that exact DP becomes practical when the Bellman equation preserves a small collection of candidate functions.
+
+A second line of literature uses Bellman inequalities instead of Bellman equations. For finite Markov decision processes, the value function solves a linear programming (LP) problem whose constraints are Bellman inequalities \cite{manne-1960,bertsekas-2007}. Approximate LP methods replace the full set of value functions by a linear span of basis functions and optimize a weighted integral or weighted sum of the candidate function \cite{de-farias-van-roy-2003,powell-2022}. Wang, O'Donoghue, and Boyd made this direction much more systematic by using iterated Bellman inequalities to compute lower bounds and policies through LP and semidefinite programming (SDP) formulations \cite{wang-odonoghue-boyd-2015}. Thus the approximate Bellman-inequality program is not the novelty sought here.
+
+Convex optimization gives another source of related work. Linear matrix inequalities and SDP have long been used to certify dissipation, stability, and quadratic performance for control systems \cite{boyd-vandenberghe-2004}. In linear quadratic control, the Bellman inequality for a quadratic candidate function is exactly a linear matrix inequality. Thus the Riccati inequality can be interpreted as the search for a largest quadratic Bellman subsolution. This interpretation is close to relaxed DP, where Bellman inequalities give lower bounds that may be optimized over tractable parameterizations \cite{rantzer-2006}.
+
+Positive systems provide a recent exact class between finite-state DP and linear quadratic control. Rantzer derived an explicit Bellman solution for positive linear systems with linear cost \cite{rantzer-2022}. Li and Rantzer extended this exact DP viewpoint for positive systems \cite{li-rantzer-2024}. Related exact formulas also appear for compartmental and positive bilinear dynamics \cite{blanchini-2023}. These results are important here because they show that linear value functions can be exact for nontrivial infinite-state control problems.
+
+Pates and Rantzer unified several of these examples by studying optimal control on positive cones \cite{pates-rantzer-cdc}. Their Conference on Decision and Control paper proves that, under a condition that makes minimization over the control variable linear in the state, the value function is linear and can be computed by a convex program. Their examples include the positive-semidefinite cone, which recovers linear quadratic control, and a polyhedral cone, which recovers positive-system control with bounds of the form $|u|\leq Ex$. Their result explains when value iteration remains inside the set of linear functions on a cone.
+
+The purpose of this draft is to isolate a complementary principle. The Bellman equation need not be the starting point. Instead, the Bellman inequality defines a set of subsolutions. If the optimal value is finite, then the optimal value is the largest element of this set. The proposed focus is not to repeat the approximate lower-bound method in \cite{wang-odonoghue-boyd-2015}. The proposed focus is to characterize when the largest element has a finite-dimensional conic description and when that description gives the exact value function.
+
+This viewpoint suggests a research program with two parts. The first part is exact: find collections of candidate functions for which the largest Bellman subsolution can be computed by convex optimization and coincides with the optimal value. The second part is structural: find candidate functions for which the Bellman subsolution inequality has a finite conic certificate even when applying the Bellman operator does not preserve the candidate functions.
+
+The largest-subsolution property is already implicit in the LP literature. In an exact LP formulation for a finite Markov decision process, the feasible functions satisfy Bellman inequalities and the objective maximizes a positive weighted sum of their values; positive weights select the pointwise largest feasible function when it exists \cite{manne-1960,bertsekas-2007}. Approximate LP methods and iterated Bellman inequalities use the same fact to compute certified lower bounds from restricted candidate functions \cite{de-farias-van-roy-2003,wang-odonoghue-boyd-2015}. The contribution sought in this draft is narrower: use the largest-subsolution property to explain exact conic reductions, including the cone formulations in \cite{pates-rantzer-cdc}, and to identify conditions under which new candidate functions give exact finite-dimensional conic programs.
+
+\section{Bellman Subsolutions}
+
+Let $X$ be a nonempty set of states. For every $x\in X$, let $U(x)$ be a nonempty set of controls. Let $F:X\times U(x)\rightarrow X$ be the transition function, and let $f:X\times U(x)\rightarrow\reals_+$ be the one-step cost. Let $0<\gamma\leq 1$. The infinite-horizon cost of a control sequence is
+\BEQ
+\sum_{k=0}^{\infty}\gamma^k f(x_k,u_k),
+\quad x_{k+1}=F(x_k,u_k),
+\quad u_k\in U(x_k).
+\label{eq:cost}
+\EEQ
+The value function $J^\textrm{opt}:X\rightarrow[0,+\infty]$ is the infimum of \eqref{eq:cost} over all admissible control sequences.
+
+For a function $V:X\rightarrow\reals$, define the Bellman operator
+\BEQ
+(TV)(x)=\inf_{u\in U(x)}\left(f(x,u)+\gamma V(F(x,u))\right).
+\label{eq:bellman-operator}
+\EEQ
+The order relation used in this paper is pointwise order: $V\leq W$ means $V(x)\leq W(x)$ for all $x\in X$.
+
+\begin{definition}
+A function $V:X\rightarrow\reals$ is a Bellman subsolution if
+\BEQ
+V(x)\leq f(x,u)+\gamma V(F(x,u))
+\label{eq:bellman-inequality}
+\EEQ
+for every $x\in X$ and every $u\in U(x)$.
+\end{definition}
+
+Condition \eqref{eq:bellman-inequality} is equivalent to $V\leq TV$. It is also the constraint used in the LP formulation of DP for finite state and control sets.
+
+\begin{assumption}
+\label{ass:proper-policy}
+For every nonnegative Bellman subsolution $V$, every $x\in X$ with $J^\textrm{opt}(x)<+\infty$, and every $\epsilon>0$, there is an admissible control sequence starting at $x$ whose cost is at most $J^\textrm{opt}(x)+\epsilon$ and for which $\liminf_{N\to\infty}\gamma^{N+1}V(x_{N+1})=0$.
+\end{assumption}
+
+Assumption \ref{ass:proper-policy} includes a condition on the terminal term. For $0<\gamma<1$, it holds when every nonnegative Bellman subsolution under consideration is bounded on $X$ and finite-cost admissible sequences exist. For $\gamma=1$, a sufficient condition is that an arbitrarily near-optimal sequence reaches a zero-cost terminal state at which every nonnegative Bellman subsolution is zero. The condition is needed even for discounted problems on unbounded state sets.
+
+For example, take $X=\reals_+$, one admissible control at each state, $F(x,u)=2x$, $f(x,u)=0$, and $\gamma=1/2$. Then $V(x)=x$ satisfies \eqref{eq:bellman-inequality}, but $J^\textrm{opt}(x)=0$ and $\gamma^{N+1}V(x_{N+1})=x$ on every trajectory. Thus the terminal condition in Assumption \ref{ass:proper-policy} cannot be omitted.
+
+\begin{lemma}
+\label{lem:subsolution-lower-bound}
+Let Assumption \ref{ass:proper-policy} hold. If $V$ is a Bellman subsolution and $V\geq 0$, then $V\leq J^\textrm{opt}$ on the set where $J^\textrm{opt}$ is finite.
+\end{lemma}
+
+\begin{proof}
+Fix $x_0\in X$ such that $J^\textrm{opt}(x_0)<+\infty$ and fix $\epsilon>0$. Assumption \ref{ass:proper-policy} gives an admissible control sequence with cost at most $J^\textrm{opt}(x_0)+\epsilon$ and a sequence of indices $N_j\to\infty$ for which $\gamma^{N_j+1}V(x_{N_j+1})\to0$. Let $(x_0,x_1,\ldots)$ be the corresponding state sequence. From \eqref{eq:bellman-inequality},
+\BEQ
+V(x_k)\leq f(x_k,u_k)+\gamma V(x_{k+1})
+\label{eq:one-step-bound}
+\EEQ
+for every $k\geq 0$. Multiplying \eqref{eq:one-step-bound} by $\gamma^k$ and summing from $k=0$ to $N$ gives
+\BEQ
+\sum_{k=0}^N \gamma^k V(x_k)
+\leq
+\sum_{k=0}^N \gamma^k f(x_k,u_k)
++
+\sum_{k=0}^N \gamma^{k+1} V(x_{k+1}).
+\label{eq:summed-subsolution}
+\EEQ
+Canceling common terms in \eqref{eq:summed-subsolution} gives
+\BEQ
+V(x_0)\leq \sum_{k=0}^N \gamma^k f(x_k,u_k)+\gamma^{N+1}V(x_{N+1}).
+\label{eq:finite-horizon-lower}
+\EEQ
+Set $N=N_j$ in \eqref{eq:finite-horizon-lower} and let $j\to\infty$. The terminal term tends to zero by Assumption \ref{ass:proper-policy}, while the partial sums converge to the cost of the selected sequence because $f\geq0$. Thus
+\BEQ
+V(x_0)\leq \sum_{k=0}^{\infty}\gamma^k f(x_k,u_k).
+\label{eq:path-lower}
+\EEQ
+The selected cost is at most $J^\textrm{opt}(x_0)+\epsilon$ by Assumption \ref{ass:proper-policy}. Since $\epsilon>0$ was arbitrary, $V(x_0)\leq J^\textrm{opt}(x_0)$.
+\end{proof}
+
+\begin{assumption}
+\label{ass:bellman-value}
+The value function is finite and satisfies the Bellman equation $J^\textrm{opt}=TJ^\textrm{opt}$.
+\end{assumption}
+
+\begin{theorem}
+\label{thm:maximal-subsolution}
+Let Assumptions \ref{ass:proper-policy} and \ref{ass:bellman-value} hold. If $J^\textrm{opt}\geq 0$, then $J^\textrm{opt}$ is the largest nonnegative Bellman subsolution.
+\end{theorem}
+
+\begin{proof}
+Since $J^\textrm{opt}=TJ^\textrm{opt}$, the definition of $T$ in \eqref{eq:bellman-operator} gives
+\BEQ
+J^\textrm{opt}(x)\leq f(x,u)+\gamma J^\textrm{opt}(F(x,u))
+\label{eq:value-is-subsolution}
+\EEQ
+for every $x\in X$ and every $u\in U(x)$. Thus $J^\textrm{opt}$ is a nonnegative Bellman subsolution. Lemma \ref{lem:subsolution-lower-bound} shows that every nonnegative Bellman subsolution $V$ satisfies $V\leq J^\textrm{opt}$. Hence $J^\textrm{opt}$ is the largest nonnegative Bellman subsolution.
+\end{proof}
+
+Theorem \ref{thm:maximal-subsolution} applies only when Assumption \ref{ass:proper-policy} holds for the subsolutions being compared. In particular, the Bellman inequality alone does not give a lower bound when its terminal term can persist along near-optimal trajectories.
+
+\begin{example}
+Let the state set be $[0,1]\cup\{\Delta\}$, where $\Delta$ is terminal. At $x\in[0,1]$, the controls are stop and continue. Stopping has cost $|x-1/2|$ and sends the state to $\Delta$. Continuing has cost $\delta>0$ and leaves the state equal to $x$. At $\Delta$, the only cost is zero. Suppose $D=\delta/(1-\gamma)<1/2$.
+
+The Bellman equation gives $J^\textrm{opt}(\Delta)=0$ and, for $x\in[0,1]$,
+\BEQ
+J^\textrm{opt}(x)=\min\{|x-1/2|,\delta+\gamma J^\textrm{opt}(x)\}.
+\label{eq:stopping-example-bellman-equation}
+\EEQ
+Let $s=|x-1/2|$ and $y=J^\textrm{opt}(x)$. If the first term is active in \eqref{eq:stopping-example-bellman-equation}, then $y=s$ and $s\leq \delta+\gamma s$, which is equivalent to $s\leq D$. If the second term is active in \eqref{eq:stopping-example-bellman-equation}, then $y=\delta+\gamma y$, so $y=D$, and this term is active exactly when $D\leq s$. Hence solving the Bellman equation gives
+\BEQ
+J^\textrm{opt}(x)=\min\{|x-1/2|,D\},
+\quad x\in[0,1],
+\qquad
+J^\textrm{opt}(\Delta)=0.
+\label{eq:stopping-example-value}
+\EEQ
+The value function in \eqref{eq:stopping-example-value} follows more directly from Bellman subsolutions. The Bellman subsolution inequalities are
+\BEQ
+V(x)\leq |x-1/2|,
+\qquad
+V(x)\leq\delta+\gamma V(x),
+\quad x\in[0,1],
+\label{eq:stopping-example-raw-inequalities}
+\EEQ
+The inequalities in \eqref{eq:stopping-example-raw-inequalities} are equivalent to
+\BEQ
+V(x)\leq |x-1/2|,
+\qquad
+(1-\gamma)V(x)\leq\delta,
+\quad x\in[0,1].
+\label{eq:stopping-example-inequalities}
+\EEQ
+The largest nonnegative function satisfying \eqref{eq:stopping-example-inequalities} is exactly \eqref{eq:stopping-example-value}. The Bellman equation requires a case split for the active term in \eqref{eq:stopping-example-bellman-equation}; the Bellman subsolution inequalities reduce the computation to the pointwise largest function below two explicit upper bounds.
+\end{example}
+
+\section{Restricted Largest Subsolutions}
+
+Let $\mathcal V$ be a collection of nonnegative real-valued functions on $X$. Define the restricted Bellman subsolution set
+\BEQ
+\mathcal S(\mathcal V)=\{V\in\mathcal V\mid V\textrm{ satisfies }\eqref{eq:bellman-inequality}\}.
+\label{eq:restricted-subsolutions}
+\EEQ
+
+\begin{definition}
+An element $\widehat V\in\mathcal S(\mathcal V)$ is the restricted largest subsolution in $\mathcal V$ if $V\leq\widehat V$ for every $V\in\mathcal S(\mathcal V)$.
+\end{definition}
+
+The restricted largest subsolution may exist even when $J^\textrm{opt}$ is not in $\mathcal V$. In that case, it is the best lower bound certified by the candidate functions in $\mathcal V$. In this draft, the main question is the exact case: when does $\mathcal V$ contain $J^\textrm{opt}$, and when can the restricted largest subsolution be computed by a finite conic program?
+
+Let $\rho$ be a positive measure on $X$. For any measurable $V:X\rightarrow\reals_+$, write
+\BEQ
+\langle \rho,V\rangle=\int_X V(x)d\rho(x).
+\label{eq:rho-pairing}
+\EEQ
+
+\begin{assumption}
+\label{ass:positive-measure}
+The measure $\rho$ has the following positivity property: if $W:X\rightarrow\reals_+$ is measurable and $W(x)>0$ at some point in a set that has positive $\rho$-measure, then $\langle\rho,W\rangle>0$.
+\end{assumption}
+
+\begin{proposition}
+\label{prop:objective-selects-largest}
+Let Assumption \ref{ass:positive-measure} hold. Suppose that $\widehat V$ is the restricted largest subsolution in $\mathcal V$ and that $\langle\rho,\widehat V\rangle<+\infty$. Then $\widehat V$ solves
+\BEQ
+\begin{aligned}
+\maximize\quad & \langle\rho,V\rangle\\
+\st\quad & V\in\mathcal S(\mathcal V).
+\end{aligned}
+\label{eq:restricted-lp}
+\EEQ
+If $V\in\mathcal S(\mathcal V)$ and $\langle\rho,V\rangle=\langle\rho,\widehat V\rangle$, then $V=\widehat V$ except on a set of zero $\rho$-measure.
+\end{proposition}
+
+\begin{proof}
+For every $V\in\mathcal S(\mathcal V)$, the definition of restricted largest subsolution gives $V\leq\widehat V$. Therefore $\widehat V-V\geq 0$. By monotonicity of the integral,
+\BEQ
+\langle\rho,V\rangle\leq\langle\rho,\widehat V\rangle.
+\label{eq:objective-comparison}
+\EEQ
+Thus $\widehat V$ solves \eqref{eq:restricted-lp}. If equality holds in \eqref{eq:objective-comparison}, then
+\BEQ
+\langle\rho,\widehat V-V\rangle=0.
+\label{eq:zero-integral}
+\EEQ
+Assumption \ref{ass:positive-measure} applied to $W=\widehat V-V$ implies that $\widehat V-V$ cannot be positive on a set of positive $\rho$-measure. Hence $V=\widehat V$ except on a set of zero $\rho$-measure.
+\end{proof}
+
+Proposition \ref{prop:objective-selects-largest} explains why an arbitrary positive weighting can recover a largest element. The weighting is not a modeling assumption about the control problem. It is only a scalarization of the pointwise order.
+
+\section{Finite-Dimensional Candidate Functions}
+
+Let $\psi_1,\ldots,\psi_N:X\rightarrow\reals$ be fixed nonnegative measurable functions. Define
+\BEQ
+\mathcal V_N=\left\{V_a:X\rightarrow\reals_+\mid V_a(x)=\sum_{i=1}^N a_i\psi_i(x),\; a\in\reals^N\right\}.
+\label{eq:linear-candidate-functions}
+\EEQ
+The vector $a$ is the parameter vector for $V_a$.
+
+For each $x\in X$ and $u\in U(x)$, the Bellman inequality for $V_a$ is
+\BEQ
+\sum_{i=1}^N a_i\psi_i(x)
+\leq
+f(x,u)+\gamma\sum_{i=1}^N a_i\psi_i(F(x,u)).
+\label{eq:parameter-bellman-inequality}
+\EEQ
+Thus the feasible set for $a$ is the intersection of affine halfspaces indexed by $(x,u)$.
+
+\begin{proposition}
+\label{prop:finite-parametric-lp}
+Let Assumptions \ref{ass:proper-policy}, \ref{ass:bellman-value}, and \ref{ass:positive-measure} hold. Suppose that all integrals $b_i=\langle\rho,\psi_i\rangle$ are finite. Then every feasible solution of
+\BEQ
+\begin{aligned}
+\maximize\quad & b^Ta\\
+\st\quad & \sum_{i=1}^N a_i\psi_i(x)
+\leq
+f(x,u)+\gamma\sum_{i=1}^N a_i\psi_i(F(x,u)),\quad x\in X,\; u\in U(x),\\
+& \sum_{i=1}^N a_i\psi_i(x)\geq 0,\quad x\in X
+\end{aligned}
+\label{eq:parametric-lp}
+\EEQ
+defines a lower bound on $J^\textrm{opt}$. If \eqref{eq:parametric-lp} has an optimizer $a^\star$ and $V_{a^\star}$ is the restricted largest subsolution in $\mathcal V_N$, then $V_{a^\star}$ is the best lower bound in $\mathcal V_N$ in the pointwise order.
+\end{proposition}
+
+\begin{proof}
+Let $a$ be feasible for \eqref{eq:parametric-lp}. The first constraint in \eqref{eq:parametric-lp} is exactly \eqref{eq:bellman-inequality} with $V=V_a$. The second constraint in \eqref{eq:parametric-lp} gives $V_a\geq 0$. Lemma \ref{lem:subsolution-lower-bound} gives $V_a\leq J^\textrm{opt}$. This proves the lower-bound claim.
+
+If $V_{a^\star}$ is the restricted largest subsolution in $\mathcal V_N$, then the definition of restricted largest subsolution gives $V_a\leq V_{a^\star}$ for every feasible $a$. This is exactly the claim that $V_{a^\star}$ is the best lower bound in $\mathcal V_N$ in the pointwise order.
+\end{proof}
+
+Proposition \ref{prop:finite-parametric-lp} is elementary, but it is useful because it separates two questions. The first question is computational: can the infinitely many inequalities in \eqref{eq:parametric-lp} be represented by finitely many conic constraints? The second question is exactness: when does the restricted largest subsolution equal $J^\textrm{opt}$? The second question is the intended distinction from approximate Bellman-inequality methods.
+
+
+\section{Cone-Constrained Linear Control}
+
+This section states the positive-cone result of Pates and Rantzer in the language of Bellman subsolutions. Let $K\subseteq\reals^{n+m}$ be a proper cone. Let
+\BEQ
+X_K=\{x\in\reals^n\mid \textrm{there exists }u\in\reals^m\textrm{ such that }(x,u)\in K\}.
+\label{eq:cone-state-set}
+\EEQ
+For $x\in X_K$, define
+\BEQ
+U_K(x)=\{u\in\reals^m\mid (x,u)\in K\}.
+\label{eq:cone-control-set}
+\EEQ
+Consider the dynamics and cost
+\BEQ
+x_{k+1}=Ax_k+Bu_k,
+\quad
+f(x_k,u_k)=s^Tx_k+r^Tu_k,
+\quad
+u_k\in U_K(x_k).
+\label{eq:cone-linear-control}
+\EEQ
+Let $K^\star$ denote the dual cone of $K$,
+\BEQ
+K^\star=\{(y,z)\in\reals^{n+m}\mid y^Tx+z^Tu\geq 0\textrm{ for all }(x,u)\in K\}.
+\label{eq:dual-cone}
+\EEQ
+Use the linear candidate functions
+\BEQ
+V_p(x)=p^Tx.
+\label{eq:linear-value-candidate}
+\EEQ
+Substitution of \eqref{eq:cone-linear-control} and \eqref{eq:linear-value-candidate} into \eqref{eq:bellman-inequality} gives
+\BEQ
+(s-p+\gamma A^Tp)^Tx+(r+\gamma B^Tp)^Tu\geq 0
+\label{eq:cone-linear-inequality}
+\EEQ
+for all $(x,u)\in K$. By \eqref{eq:dual-cone}, condition \eqref{eq:cone-linear-inequality} is equivalent to
+\BEQ
+(s-p+\gamma A^Tp,r+\gamma B^Tp)\in K^\star.
+\label{eq:cone-linear-dual-condition}
+\EEQ
+The nonnegativity condition for \eqref{eq:linear-value-candidate} is
+\BEQ
+(p,0)\in K^\star.
+\label{eq:cone-linear-nonnegative-condition}
+\EEQ
+Thus the Bellman-subsolution program is
+\BEQ
+\begin{array}{ll}
+\maximize & p^Tx_0\\
+\st & (p,0)\in K^\star,\\
+& (s-p+\gamma A^Tp,r+\gamma B^Tp)\in K^\star.
+\end{array}
+\label{eq:cone-linear-program}
+\EEQ
+
+For fixed $\mu\in\reals^m$, define the dual slice
+\BEQ
+C_\mu=\{\lambda\in\reals^n\mid (\lambda,\mu)\in K^\star\}.
+\label{eq:cone-dual-slice}
+\EEQ
+A vector $\bar\lambda\in C_\mu$ is a minimum element of \eqref{eq:cone-dual-slice} if
+\BEQ
+(\lambda-\bar\lambda,0)\in K^\star
+\quad \textrm{for every }\lambda\in C_\mu.
+\label{eq:cone-dual-slice-minimum}
+\EEQ
+
+\begin{theorem}
+\label{thm:pates-rantzer-cone}
+Assume that for every $(x,u)\in K$ there is a $v\in\reals^m$ such that $(Ax+Bu,v)\in K$. Assume that $(s,r)$ is an interior point of $K^\star$. Assume that there is a function $\phi:\reals^m\rightarrow\reals^n$ such that, for every $\mu$ with $C_\mu\neq\emptyset$,
+\BEQ
+\inf_{u\in U_K(x)}\mu^Tu=\phi(\mu)^Tx,
+\quad x\in X_K.
+\label{eq:fiber-linearity}
+\EEQ
+Then the following statements are equivalent:
+\begin{enumerate}
+\item The optimal cost for \eqref{eq:cone-linear-control} is finite for every $x_0\in X_K$.
+\item There is a vector $p^\star$ such that $(p^\star,0)\in K^\star$ and
+\BEQ
+p^\star=s+\gamma A^Tp^\star+\phi(r+\gamma B^Tp^\star).
+\label{eq:cone-linear-fixed-point}
+\EEQ
+\item The program \eqref{eq:cone-linear-program} is bounded for every $x_0\in X_K$.
+\end{enumerate}
+If \eqref{eq:cone-linear-fixed-point} holds, then the value function is $J^\textrm{opt}(x)=p^{\star T}x$. An optimal feedback is obtained by minimizing $(r+\gamma B^Tp^\star)^Tu$ over $U_K(x)$.
+\end{theorem}
+
+\begin{proof}
+This is the result of Pates and Rantzer \cite{pates-rantzer-cdc}, with the notation of \eqref{eq:cone-state-set}--\eqref{eq:cone-linear-program}. Their proof applies to the discounted Bellman recursion by inserting the factors $\gamma A^T$ and $\gamma B^T$ in \eqref{eq:cone-linear-fixed-point} and \eqref{eq:cone-linear-program}.
+\end{proof}
+
+Theorem \ref{thm:pates-rantzer-cone} explains exactness. The Bellman-subsolution interpretation explains why \eqref{eq:cone-linear-program} has the form of a conic program: \eqref{eq:cone-linear-dual-condition} is exactly the Bellman inequality, and \eqref{eq:cone-linear-nonnegative-condition} is exactly nonnegativity of \eqref{eq:linear-value-candidate}. If \eqref{eq:cone-linear-fixed-point} holds, then the optimizer of \eqref{eq:cone-linear-program} is the largest feasible linear Bellman subsolution.
+
+\begin{proposition}
+\label{prop:pates-rantzer-dual-slice}
+Assume that \eqref{eq:cone-dual-slice} has nonempty interior. The fiber minimization
+\BEQ
+x\mapsto \inf_{u\in U_K(x)}\mu^Tu
+\label{eq:cone-fiber-map}
+\EEQ
+is linear on \eqref{eq:cone-state-set} if and only if \eqref{eq:cone-dual-slice} has a minimum element. If $\bar\lambda$ is the minimum element, then
+\BEQ
+\inf_{u\in U_K(x)}\mu^Tu=-\bar\lambda^Tx,
+\quad x\in X_K.
+\label{eq:cone-fiber-minimum-element}
+\EEQ
+\end{proposition}
+
+\begin{proof}
+This is the dual-slice theorem of Pates and Rantzer \cite{pates-rantzer-cdc}, written with \eqref{eq:cone-control-set} and \eqref{eq:cone-dual-slice}. Their minimum-element condition is \eqref{eq:cone-dual-slice-minimum}, and their formula for the linear form is \eqref{eq:cone-fiber-minimum-element}.
+\end{proof}
+
+Proposition \ref{prop:pates-rantzer-dual-slice} is the condition behind \eqref{eq:fiber-linearity}: if \eqref{eq:cone-dual-slice} has a minimum element $\bar\lambda(\mu)$ for each relevant $\mu$, then \eqref{eq:fiber-linearity} holds with
+\BEQ
+\phi(\mu)=-\bar\lambda(\mu).
+\label{eq:cone-phi-minimum-element}
+\EEQ
+
+\section{Quadratic Control as a Maximal Matrix Subsolution}
+
+Consider the undiscounted or discounted linear quadratic problem
+\BEQ
+x_{k+1}=Ax_k+Bu_k,
+\quad
+f(x_k,u_k)=
+\BBM x_k\\u_k\EBM^T
+Q
+\BBM x_k\\u_k\EBM,
+\quad Q\succeq 0.
+\label{eq:lqr-problem}
+\EEQ
+Use the quadratic candidate functions
+\BEQ
+V_P(x)=x^TPx,
+\quad P\in\symm^n.
+\label{eq:quadratic-candidate}
+\EEQ
+The Bellman inequality for \eqref{eq:lqr-problem} and \eqref{eq:quadratic-candidate} is
+\BEQ
+x^TPx\leq
+\BBM x\\u\EBM^T
+Q
+\BBM x\\u\EBM
++
+\gamma
+\BBM x\\u\EBM^T
+\BBM A&B\EBM^TP\BBM A&B\EBM
+\BBM x\\u\EBM
+\label{eq:quadratic-bellman-inequality}
+\EEQ
+for all $x\in\reals^n$ and all $u\in\reals^m$. Condition \eqref{eq:quadratic-bellman-inequality} is equivalent to
+\BEQ
+\BBM P&0\\0&0\EBM
+\preceq
+Q+
+\gamma
+\BBM A&B\EBM^TP\BBM A&B\EBM.
+\label{eq:lqr-sdp-constraint}
+\EEQ
+If $\rho$ has zero mean and second moment
+\BEQ
+\Sigma=\int_{\reals^n}xx^T d\rho(x),
+\label{eq:second-moment}
+\EEQ
+then $\langle\rho,V_P\rangle=\Tr(\Sigma P)$. The restricted largest quadratic subsolution is therefore obtained from the SDP
+\BEQ
+\begin{aligned}
+\maximize\quad & \Tr(\Sigma P)\\
+\st\quad & \BBM P&0\\0&0\EBM
+\preceq
+Q+
+\gamma
+\BBM A&B\EBM^TP\BBM A&B\EBM,\\
+& P\succeq 0.
+\end{aligned}
+\label{eq:lqr-maximal-sdp}
+\EEQ
+When the usual stabilizability and detectability assumptions make the quadratic value function finite, \eqref{eq:lqr-maximal-sdp} selects the Riccati solution as the largest feasible matrix in the Loewner order. This is the same phenomenon as in \eqref{eq:cone-linear-program}, with the pointwise order on quadratic functions represented by the Loewner order on symmetric matrices.
+
+
+\section{Polynomial Candidates on Semialgebraic Constraints}
+
+This section gives one candidate collection that is not covered by the linear cone result in \cite{pates-rantzer-cdc}. Specialize the state set $X$ and the state-control graph to polynomial inequalities
+\BEQ
+X=\{x\in\reals^n\mid h_j(x)\geq 0,\quad j=1,\ldots,M\},
+\label{eq:polynomial-state-set}
+\EEQ
+and
+\BEQ
+G=\{(x,u)\in\reals^{n+m}\mid g_i(x,u)\geq 0,\quad i=1,\ldots,L\},
+\label{eq:semialgebraic-graph}
+\EEQ
+where each $h_j$ and $g_i$ is a polynomial. Let $F$ and $f$ be polynomials, and define $U(x)=\{u\mid (x,u)\in G\}$. For a fixed integer $d$, let $\mathcal P_d$ be the collection of polynomials $V:\reals^n\rightarrow\reals$ of degree at most $2d$. This collection contains nonlinear candidate functions, and it is not the collection of linear functions on a cone.
+
+A polynomial $s$ is a sum of squares if there are polynomials $q_1,\ldots,q_M$ such that
+\BEQ
+s(x,u)=\sum_{j=1}^M q_j(x,u)^2.
+\label{eq:sum-of-squares-definition}
+\EEQ
+For fixed degree bounds, the condition that $s$ is a sum of squares is equivalent to the existence of a positive semidefinite Gram matrix whose entries give the coefficients of $s$. Hence the search for such an $s$ is a semidefinite constraint.
+
+For $V\in\mathcal P_d$, the Bellman subsolution condition is
+\BEQ
+f(x,u)+\gamma V(F(x,u))-V(x)\geq 0,
+\quad (x,u)\in G.
+\label{eq:polynomial-bellman-nonnegativity}
+\EEQ
+A finite semidefinite certificate for \eqref{eq:polynomial-bellman-nonnegativity} is
+\BEQ
+f(x,u)+\gamma V(F(x,u))-V(x)
+=
+\sigma_0(x,u)+\sum_{i=1}^L \sigma_i(x,u)g_i(x,u),
+\label{eq:polynomial-certificate}
+\EEQ
+where each $\sigma_i$ is a sum of squares with a prescribed degree bound. Since $g_i(x,u)\geq 0$ on $G$ and each $\sigma_i$ is nonnegative, \eqref{eq:polynomial-certificate} implies \eqref{eq:polynomial-bellman-nonnegativity}.
+
+Let $\mathcal P_{d,r}$ denote the set of polynomials $V\in\mathcal P_d$ for which \eqref{eq:polynomial-certificate} holds and for which
+\BEQ
+V(x)=\tau_0(x)+\sum_{j=1}^M\tau_j(x)h_j(x),
+\label{eq:polynomial-nonnegative-certificate}
+\EEQ
+where each $\tau_j$ is a sum of squares. The degree bound $2r$ is prescribed for each product $\sigma_i g_i$ in \eqref{eq:polynomial-certificate} and each product $\tau_jh_j$ in \eqref{eq:polynomial-nonnegative-certificate}. The restricted largest subsolution in $\mathcal P_{d,r}$ is computed by the semidefinite program
+\BEQ
+\begin{aligned}
+\maximize\quad & \langle\rho,V\rangle\\
+\st\quad & V\in\mathcal P_d,\\
+& \eqref{eq:polynomial-certificate}\textrm{ and }\eqref{eq:polynomial-nonnegative-certificate}\textrm{ hold with degree bound }2r.
+\end{aligned}
+\label{eq:polynomial-sdp}
+\EEQ
+The variables in \eqref{eq:polynomial-sdp} are the coefficients of $V$ and the Gram matrices defining the sum-of-squares polynomials in \eqref{eq:polynomial-certificate} and \eqref{eq:polynomial-nonnegative-certificate}. The polynomial equalities in \eqref{eq:polynomial-certificate} and \eqref{eq:polynomial-nonnegative-certificate} are enforced by matching coefficients, so all constraints in \eqref{eq:polynomial-sdp} are affine equations and positive semidefinite constraints.
+
+\begin{example}
+Let $X=\reals$, let $G=\reals^2$, let $U(x)=\reals$, and let $0<\gamma<1$. Fix scalars $\chi,\upsilon\in\reals$ and $\omega,\psi>0$. For the degree parameter $d$ in $\mathcal P_d$, define
+\BEQ
+F(x,u)=\chi x+\upsilon u,
+\qquad
+f(x,u)=\omega x^{2d}+\psi u^{2d}.
+\label{eq:homogeneous-polynomial-class}
+\EEQ
+This is the polynomial setting of \eqref{eq:polynomial-state-set} and \eqref{eq:semialgebraic-graph} with no defining inequalities. If a control sequence for $x$ is multiplied by a scalar $\alpha$, then the state sequence is multiplied by $\alpha$ and the cost is multiplied by $\alpha^{2d}$. Hence the value has the form
+\BEQ
+V_p(x)=p x^{2d}
+\label{eq:homogeneous-polynomial-candidate}
+\EEQ
+for an unknown parameter $p\geq0$.
+
+Substituting \eqref{eq:homogeneous-polynomial-candidate} into the Bellman equation gives, for $x\neq0$ and $u=tx$,
+\BEQ
+p=\min_{t\in\reals}\left(\omega+\psi t^{2d}+\gamma p(\chi+\upsilon t)^{2d}\right).
+\label{eq:homogeneous-polynomial-bellman-equation}
+\EEQ
+Solving \eqref{eq:homogeneous-polynomial-bellman-equation} requires the minimizing $t$ and $p$ to satisfy a coupled nonlinear system. The Bellman subsolution route uses \eqref{eq:polynomial-bellman-nonnegativity}. For \eqref{eq:homogeneous-polynomial-candidate}, this condition is
+\BEQ
+\omega x^{2d}+\psi u^{2d}+\gamma p(\chi x+\upsilon u)^{2d}-px^{2d}\geq0,
+\quad x,u\in\reals.
+\label{eq:homogeneous-polynomial-subsolution}
+\EEQ
+Because $G=\reals^2$, the certificate \eqref{eq:polynomial-certificate} reduces to requiring the polynomial in \eqref{eq:homogeneous-polynomial-subsolution} to be a sum of squares. By homogeneity, \eqref{eq:homogeneous-polynomial-subsolution} is equivalent to
+\BEQ
+\omega+\psi t^{2d}+\gamma p(\chi+\upsilon t)^{2d}-p\geq0,
+\quad t\in\reals.
+\label{eq:homogeneous-polynomial-univariate}
+\EEQ
+Thus \eqref{eq:polynomial-sdp} maximizes $p$ subject to the sum-of-squares certificate for \eqref{eq:homogeneous-polynomial-subsolution}. The special case $d=2$, $\chi=\upsilon=\omega=\psi=1$, and $\gamma=9/10$ gives the previous quartic example. Its optimizer is $p\approx1.125824$, and the minimizing coefficient in \eqref{eq:homogeneous-polynomial-bellman-equation} is $t\approx -0.501096$.
+\end{example}
+
+
+
+\begin{example}
+Let $X=\reals$, let $\gamma=1/2$, and define
+\BEQ
+G=\{(x,u)\in\reals^2\mid x^2/16-u^2\geq0\},
+\quad
+U(x)=\{u\mid (x,u)\in G\},
+\label{eq:bounded-control-graph}
+\EEQ
+with
+\BEQ
+F(x,u)=x+u,
+\quad
+f(x,u)=x^2+u^2.
+\label{eq:bounded-control-data}
+\EEQ
+As in \eqref{eq:homogeneous-polynomial-candidate}, search over
+\BEQ
+V_p(x)=p x^2,
+\quad p\geq0.
+\label{eq:bounded-control-candidate}
+\EEQ
+Substituting \eqref{eq:bounded-control-candidate} into the Bellman equation gives, for $x\neq0$ and $u=tx$,
+\BEQ
+p=\min_{-1/4\leq t\leq1/4}\left(1+t^2+\frac12p(1+t)^2\right).
+\label{eq:bounded-control-bellman-equation}
+\EEQ
+Solving \eqref{eq:bounded-control-bellman-equation} requires checking whether the minimizer is inside the interval or at an endpoint. The Bellman subsolution route uses \eqref{eq:polynomial-bellman-nonnegativity}. For \eqref{eq:bounded-control-candidate}, this condition is
+\BEQ
+x^2+u^2+\frac12p(x+u)^2-px^2\geq0,
+\quad (x,u)\in G.
+\label{eq:bounded-control-subsolution}
+\EEQ
+Because the constraint in \eqref{eq:bounded-control-graph} gives $u=tx$ with $-1/4\leq t\leq1/4$ when $x\neq0$, and because $x=0$ gives no additional condition, \eqref{eq:bounded-control-subsolution} is equivalent to
+\BEQ
+1+t^2+\frac12p(1+t)^2-p\geq0,
+\quad -1/4\leq t\leq1/4.
+\label{eq:bounded-control-univariate}
+\EEQ
+Every successor in \eqref{eq:bounded-control-data} belongs to $X=\reals$. Substituting $t=-1/4$ in \eqref{eq:bounded-control-univariate} gives $p\leq34/23$. At this value, the residual in \eqref{eq:bounded-control-subsolution} has the sum-of-squares certificate
+\BEQ
+x^2+u^2+\frac{17}{23}(x+u)^2-\frac{34}{23}x^2
+=\frac{17}{92}(x+4u)^2+\frac{28}{23}(x^2/16-u^2).
+\label{eq:bounded-control-sos-certificate}
+\EEQ
+The second term in \eqref{eq:bounded-control-sos-certificate} is nonnegative on \eqref{eq:bounded-control-graph}, so $p=34/23$ is feasible and optimal in \eqref{eq:polynomial-sdp} for this candidate. Along every finite-cost trajectory, $\gamma^k V_p(x_k)\leq(34/23)\gamma^k f(x_k,u_k)\to0$ by \eqref{eq:bounded-control-data}. Thus \eqref{eq:bounded-control-subsolution} gives $V_p\leq J^\textrm{opt}$. The control $u=-x/4$ leaves the next state at $3x/4$ and gives equality in \eqref{eq:bounded-control-sos-certificate}; summing this equality gives $J^\textrm{opt}\leq V_p$. Therefore $V_p=J^\textrm{opt}$.
+\end{example}
+
+\begin{proposition}
+\label{prop:polynomial-exactness}
+Let Assumptions \ref{ass:proper-policy}, \ref{ass:bellman-value}, and \ref{ass:positive-measure} hold. Suppose $J^\textrm{opt}\in\mathcal P_d$ and $J^\textrm{opt}\in\mathcal P_{d,r}$. Then $J^\textrm{opt}$ is the restricted largest subsolution in $\mathcal P_{d,r}$. If \eqref{eq:polynomial-sdp} has an optimizer, then the polynomial $V$ in every optimizer is equal to $J^\textrm{opt}$ except on a set of zero $\rho$-measure.
+\end{proposition}
+
+\begin{proof}
+Since $J^\textrm{opt}\in\mathcal P_{d,r}$, the value function is feasible for \eqref{eq:polynomial-sdp}. Let $V\in\mathcal P_{d,r}$. By the definition of $\mathcal P_{d,r}$, the polynomial $V$ satisfies \eqref{eq:polynomial-certificate}. Since each $\sigma_i$ in \eqref{eq:polynomial-certificate} is a sum of squares, \eqref{eq:sum-of-squares-definition} gives $\sigma_i(x,u)\geq 0$ for all $(x,u)$. Since $(x,u)\in G$ gives $g_i(x,u)\geq 0$ by \eqref{eq:semialgebraic-graph}, \eqref{eq:polynomial-certificate} gives
+\BEQ
+f(x,u)+\gamma V(F(x,u))-V(x)\geq 0,
+\quad (x,u)\in G.
+\label{eq:polynomial-proof-nonnegative}
+\EEQ
+Condition \eqref{eq:polynomial-proof-nonnegative} is exactly \eqref{eq:bellman-inequality} for $U(x)=\{u\mid (x,u)\in G\}$. Hence $V$ is a Bellman subsolution. Since each $\tau_j$ in \eqref{eq:polynomial-nonnegative-certificate} is a sum of squares, \eqref{eq:sum-of-squares-definition} gives $\tau_j(x)\geq 0$ for all $x$. Since $x\in X$ gives $h_j(x)\geq 0$ by \eqref{eq:polynomial-state-set}, \eqref{eq:polynomial-nonnegative-certificate} gives $V(x)\geq 0$ for all $x\in X$. Lemma \ref{lem:subsolution-lower-bound} gives $V\leq J^\textrm{opt}$. Since this holds for every $V\in\mathcal P_{d,r}$ and $J^\textrm{opt}\in\mathcal P_{d,r}$, the value function is the restricted largest subsolution in $\mathcal P_{d,r}$. Proposition \ref{prop:objective-selects-largest} gives the final claim about the polynomial $V$ in each optimizer of \eqref{eq:polynomial-sdp}.
+\end{proof}
+
+Proposition \ref{prop:polynomial-exactness} separates the finite certificate from the exactness proof. Under Assumption \ref{ass:proper-policy}, the semidefinite program \eqref{eq:polynomial-sdp} gives a certified lower bound whenever \eqref{eq:polynomial-certificate} and \eqref{eq:polynomial-nonnegative-certificate} hold. Exactness requires an additional argument that the value function belongs to $\mathcal P_{d,r}$; without that argument, polynomial variants remain lower-bound formulations rather than exact reductions.
+
+
+\section{Piecewise-Affine Candidates on Polyhedral Cells}
+
+This section gives a second candidate collection outside the linear cone result in \cite{pates-rantzer-cdc}. Let $X$ be the disjoint union of polyhedra
+\BEQ
+X_\ell=\{x\in\reals^n\mid S_\ell x\leq s_\ell\},
+\quad \ell=1,\ldots,N.
+\label{eq:polyhedral-state-cells}
+\EEQ
+A piecewise-affine candidate function is a function of the form
+\BEQ
+V_{a,b}(x)=a_\ell^Tx+b_\ell,
+\quad x\in X_\ell,
+\quad \ell=1,\ldots,N.
+\label{eq:piecewise-affine-candidate}
+\EEQ
+This candidate collection is not a collection of linear functions on one cone, because the affine coefficients may change from one cell $X_\ell$ to another cell $X_j$.
+
+Assume that, for each ordered pair $(\ell,j)$, the set of state-control pairs in $X_\ell$ whose successor lies in $X_j$ is the polyhedron
+\BEQ
+C_{\ell j}=\{(x,u)\in\reals^{n+m}\mid R_{\ell j}\BBM x\\u\EBM\leq r_{\ell j}\}.
+\label{eq:transition-cell}
+\EEQ
+Assume also that, on $C_{\ell j}$,
+\BEQ
+F(x,u)=A_{\ell j}x+B_{\ell j}u+c_{\ell j},
+\quad
+f(x,u)=q_{\ell j}^Tx+t_{\ell j}^Tu+e_{\ell j}.
+\label{eq:affine-cell-data}
+\EEQ
+Then the Bellman subsolution inequality for \eqref{eq:piecewise-affine-candidate} on $C_{\ell j}$ is the affine inequality
+\BEQ
+q_{\ell j}^Tx+t_{\ell j}^Tu+e_{\ell j}
++\gamma\left(a_j^T(A_{\ell j}x+B_{\ell j}u+c_{\ell j})+b_j\right)
+-a_\ell^Tx-b_\ell\geq 0.
+\label{eq:piecewise-affine-residual}
+\EEQ
+By Farkas' lemma, a finite certificate for \eqref{eq:piecewise-affine-residual} on $C_{\ell j}$ is the existence of $\lambda_{\ell j}\geq 0$ and $\eta_{\ell j}\geq 0$ such that
+\BEQ
+q_{\ell j}^Tx+t_{\ell j}^Tu+e_{\ell j}
++\gamma\left(a_j^T(A_{\ell j}x+B_{\ell j}u+c_{\ell j})+b_j\right)
+-a_\ell^Tx-b_\ell
+=
+\lambda_{\ell j}^T\left(r_{\ell j}-R_{\ell j}\BBM x\\u\EBM\right)+\eta_{\ell j}.
+\label{eq:piecewise-affine-certificate}
+\EEQ
+The nonnegativity condition $V_{a,b}(x)\geq 0$ on $X_\ell$ has the finite certificate
+\BEQ
+a_\ell^Tx+b_\ell=\alpha_\ell^T(s_\ell-S_\ell x)+\beta_\ell,
+\quad \alpha_\ell\geq 0,
+\quad \beta_\ell\geq 0.
+\label{eq:piecewise-affine-nonnegative-certificate}
+\EEQ
+The certificates \eqref{eq:piecewise-affine-certificate} and \eqref{eq:piecewise-affine-nonnegative-certificate} are linear constraints in the coefficients $a_\ell,b_\ell$ and in the multipliers.
+
+Let $\mathcal A$ denote the set of piecewise-affine candidate functions \eqref{eq:piecewise-affine-candidate} for which \eqref{eq:piecewise-affine-certificate} and \eqref{eq:piecewise-affine-nonnegative-certificate} hold for all relevant cells. If the first moments
+\BEQ
+m_\ell=\int_{X_\ell}x\,d\rho(x),
+\quad
+w_\ell=\rho(X_\ell)
+\label{eq:piecewise-affine-moments}
+\EEQ
+are finite, the restricted largest subsolution in $\mathcal A$ is computed by the linear program
+\BEQ
+\begin{aligned}
+\maximize\quad & \sum_{\ell=1}^N(a_\ell^Tm_\ell+b_\ell w_\ell)\\
+\st\quad & \eqref{eq:piecewise-affine-certificate}\textrm{ and }\eqref{eq:piecewise-affine-nonnegative-certificate}\textrm{ hold for all relevant cells.}
+\end{aligned}
+\label{eq:piecewise-affine-lp}
+\EEQ
+The variables in \eqref{eq:piecewise-affine-lp} are the affine coefficients and the nonnegative multipliers in \eqref{eq:piecewise-affine-certificate} and \eqref{eq:piecewise-affine-nonnegative-certificate}.
+
+\begin{proposition}
+\label{prop:piecewise-affine-exactness}
+Let Assumptions \ref{ass:proper-policy}, \ref{ass:bellman-value}, and \ref{ass:positive-measure} hold. Suppose $J^\textrm{opt}\in\mathcal A$. Then $J^\textrm{opt}$ is the restricted largest subsolution in $\mathcal A$. If \eqref{eq:piecewise-affine-lp} has an optimizer, then the function $V_{a,b}$ in every optimizer is equal to $J^\textrm{opt}$ except on a set of zero $\rho$-measure.
+\end{proposition}
+
+\begin{proof}
+Let $V_{a,b}\in\mathcal A$. By the definition of $\mathcal A$, condition \eqref{eq:piecewise-affine-certificate} holds for each relevant pair $(\ell,j)$. Since $\lambda_{\ell j}\geq 0$, $\eta_{\ell j}\geq 0$, and $(x,u)\in C_{\ell j}$ gives $r_{\ell j}-R_{\ell j}\BBM x\\u\EBM\geq 0$ by \eqref{eq:transition-cell}, equation \eqref{eq:piecewise-affine-certificate} gives \eqref{eq:piecewise-affine-residual} on $C_{\ell j}$. Thus $V_{a,b}$ satisfies \eqref{eq:bellman-inequality}. Since \eqref{eq:piecewise-affine-nonnegative-certificate} holds, $\alpha_\ell\geq 0$, $\beta_\ell\geq 0$, and $x\in X_\ell$ gives $s_\ell-S_\ell x\geq 0$ by \eqref{eq:polyhedral-state-cells}, equation \eqref{eq:piecewise-affine-nonnegative-certificate} gives $V_{a,b}(x)\geq 0$ on $X$. Lemma \ref{lem:subsolution-lower-bound} gives $V_{a,b}\leq J^\textrm{opt}$. Since this holds for every $V_{a,b}\in\mathcal A$ and $J^\textrm{opt}\in\mathcal A$, the value function is the restricted largest subsolution in $\mathcal A$. Proposition \ref{prop:objective-selects-largest} gives the final claim about optimizers of \eqref{eq:piecewise-affine-lp}.
+\end{proof}
+
+Proposition \ref{prop:piecewise-affine-exactness} gives a finite certificate based on the nonnegative orthant rather than the semidefinite cone. The exactness assumptions require the value function to be affine on each polyhedron in \eqref{eq:polyhedral-state-cells}, and require the Bellman residuals to admit the Farkas certificates \eqref{eq:piecewise-affine-certificate}. These assumptions are different from the linear-in-state condition in \cite{pates-rantzer-cdc}.
+
+The next two examples are constructed for this paper. The first is a finite-state discounted problem, whose Bellman-inequality linear program is standard \cite{manne-1960,bertsekas-2007}. The second embeds the same coefficient calculation in the piecewise-affine form \eqref{eq:piecewise-affine-candidate}.
+
+\begin{example}
+Let $X=\{x_1,x_2,x_3\}\subset\reals$, written as the disjoint union of the singleton polyhedra $X_i=\{x_i\}$. Let $x_3$ be terminal, and let $0<\gamma<1$. At $x_1$, the two controls send the state to $x_2$ and $x_3$ with costs $1$ and $4$. At $x_2$, the two controls send the state to $x_2$ and $x_3$ with costs $1/2$ and $2$. At $x_3$, the only control has cost zero and leaves the state at $x_3$.
+
+Every function on $X$ has the form \eqref{eq:piecewise-affine-candidate}, because each $X_i$ contains one point. This proves the candidate form without determining the values $v_i=V(x_i)$. The Bellman equation would require solving
+\BEQ
+v_1=\min\{1+\gamma v_2,4+\gamma v_3\},
+\quad
+v_2=\min\{1/2+\gamma v_2,2+\gamma v_3\},
+\quad
+v_3=\gamma v_3.
+\label{eq:singleton-example-bellman-equation}
+\EEQ
+The Bellman subsolution inequalities avoid the active-control choice in \eqref{eq:singleton-example-bellman-equation}:
+\BEQ
+v_1\leq 1+\gamma v_2,
+\quad
+v_1\leq 4+\gamma v_3,
+\quad
+v_2\leq 1/2+\gamma v_2,
+\quad
+v_2\leq 2+\gamma v_3,
+\quad
+v_3\leq \gamma v_3.
+\label{eq:singleton-example-inequalities}
+\EEQ
+With $v_i\geq0$, maximizing any positive weighted sum of $v_1,v_2,v_3$ subject to \eqref{eq:singleton-example-inequalities} is the singleton-cell instance of \eqref{eq:piecewise-affine-lp}. Proposition \ref{prop:piecewise-affine-exactness} identifies its optimizer with the value function. Thus \eqref{eq:piecewise-affine-lp} determines the unknown values after the candidate form has been fixed by the singleton cells.
+\end{example}
+
+\begin{example}
+Let the state set be the disjoint union of the vertical line segments
+\BEQ
+X_i=\{(i,\theta)\in\reals^2\mid 0\leq\theta\leq1\},
+\quad i=1,2,3.
+\label{eq:interpolation-example-cells}
+\EEQ
+Let $0<\gamma<1$. At $(1,\theta)$, the two controls send the state to $(2,\theta)$ and $(3,\theta)$ with costs $1-\theta$ and $4(1-\theta)$. At $(2,\theta)$, the two controls send the state to $(2,\theta)$ and $(3,\theta)$ with costs $(1-\theta)/2$ and $2(1-\theta)$. At $(3,\theta)$, the only control has cost zero and leaves the state at $(3,\theta)$.
+
+For any control sequence, the discounted cost starting from $(i,\theta)$ is $1-\theta$ times the discounted cost of the same index sequence starting from $(i,0)$. Hence the value has the form
+\BEQ
+V(i,\theta)=(1-\theta)z_i,
+\quad i=1,2,3,
+\quad 0\leq\theta\leq1,
+\label{eq:interpolation-example-form}
+\EEQ
+for unknown parameters $z_1,z_2,z_3$. Equation \eqref{eq:interpolation-example-form} has the form \eqref{eq:piecewise-affine-candidate} on the vertical line segments \eqref{eq:interpolation-example-cells}. Substituting \eqref{eq:interpolation-example-form} into the Bellman equation gives
+\BEQ
+z_1=\min\{1+\gamma z_2,4+\gamma z_3\},
+\quad
+z_2=\min\{1/2+\gamma z_2,2+\gamma z_3\},
+\quad
+z_3=\gamma z_3.
+\label{eq:interpolation-example-bellman-equation}
+\EEQ
+Solving \eqref{eq:interpolation-example-bellman-equation} requires deciding which term attains each minimum, and the decisions are coupled through the unknown parameters. The Bellman subsolution inequalities for \eqref{eq:interpolation-example-form} avoid this choice and reduce to
+\BEQ
+z_1\leq 1+\gamma z_2,
+\quad
+z_1\leq 4+\gamma z_3,
+\quad
+z_2\leq 1/2+\gamma z_2,
+\quad
+z_2\leq 2+\gamma z_3,
+\quad
+z_3\leq \gamma z_3.
+\label{eq:interpolation-example-inequalities}
+\EEQ
+With $z_i\geq0$, maximizing any positive weighted sum of $z_1,z_2,z_3$ subject to \eqref{eq:interpolation-example-inequalities} is the instance of \eqref{eq:piecewise-affine-lp} for the vertical line segments \eqref{eq:interpolation-example-cells}. Proposition \ref{prop:piecewise-affine-exactness} identifies its optimizer with the value function. Thus \eqref{eq:piecewise-affine-lp} determines the parameters in \eqref{eq:interpolation-example-form} without solving the Bellman equation on the vertical line segments.
+\end{example}
+
+
+\section{Face-Linear Candidates on a Cone}
+
+This section gives a third candidate collection outside the linear cone result in \cite{pates-rantzer-cdc}. Fix a cone $K\subseteq\reals^n$ and choose faces $F_1,\ldots,F_m$ of $K$. A face-linear candidate function is a function of the form
+\BEQ
+V_a(x)=\sum_{i=1}^m a_i^T x\,\mathbbm{1}_{F_i}(x),
+\quad x\in K.
+\label{eq:face-linear-candidate}
+\EEQ
+The vectors $a_1,\ldots,a_m$ are the decision variables. The Bellman subsolution inequality for \eqref{eq:face-linear-candidate} is
+\BEQ
+\sum_{i=1}^m a_i^T x\,\mathbbm{1}_{F_i}(x)
+\leq
+f(x,u)+\gamma\sum_{i=1}^m a_i^T F(x,u)\,\mathbbm{1}_{F_i}(F(x,u)),
+\quad x\in K,\quad u\in U(x).
+\label{eq:face-linear-bellman-inequality}
+\EEQ
+The finite-dimensional task is to describe \eqref{eq:face-linear-bellman-inequality} by conic constraints on $a_1,\ldots,a_m$. This would allow different vectors $a_i$ on different faces of $K$ without requiring $TV_a$ to have the form \eqref{eq:face-linear-candidate}.
+
+Let $\mathcal C$ denote the set of face-linear candidate functions \eqref{eq:face-linear-candidate} that satisfy \eqref{eq:face-linear-bellman-inequality} and are nonnegative on $K$. If the moments
+\BEQ
+z_i=\int_{F_i}x\,d\rho(x),
+\quad i=1,\ldots,m,
+\label{eq:face-linear-moments}
+\EEQ
+are finite, the restricted largest subsolution in $\mathcal C$ is selected by the optimization problem
+\BEQ
+\begin{aligned}
+\maximize\quad & \sum_{i=1}^m a_i^T z_i\\
+\st\quad & V_a\in\mathcal C.
+\end{aligned}
+\label{eq:face-linear-program}
+\EEQ
+When membership in $\mathcal C$ has a finite conic description, \eqref{eq:face-linear-program} is a finite conic program.
+
+\begin{proposition}
+\label{prop:face-linear-exactness}
+Let Assumptions \ref{ass:proper-policy}, \ref{ass:bellman-value}, and \ref{ass:positive-measure} hold. Suppose $J^\textrm{opt}\in\mathcal C$. Then $J^\textrm{opt}$ is the restricted largest subsolution in $\mathcal C$. If \eqref{eq:face-linear-program} has an optimizer, then the function $V_a$ in every optimizer is equal to $J^\textrm{opt}$ except on a set of zero $\rho$-measure.
+\end{proposition}
+
+\begin{proof}
+Let $V_a\in\mathcal C$. By the definition of $\mathcal C$, the function $V_a$ satisfies \eqref{eq:face-linear-bellman-inequality} and is nonnegative on $K$. Since \eqref{eq:face-linear-bellman-inequality} is \eqref{eq:bellman-inequality} with $V=V_a$ and $X=K$, $V_a$ is a nonnegative Bellman subsolution. Lemma \ref{lem:subsolution-lower-bound} gives $V_a\leq J^\textrm{opt}$. Since this holds for every $V_a\in\mathcal C$ and $J^\textrm{opt}\in\mathcal C$, the value function is the restricted largest subsolution in $\mathcal C$. For $V_a\in\mathcal C$, \eqref{eq:face-linear-candidate} and \eqref{eq:face-linear-moments} give
+\BEQ
+\int_K V_a(x)\,d\rho(x)
+=
+\sum_{i=1}^m a_i^T\int_{F_i}x\,d\rho(x)
+=
+\sum_{i=1}^m a_i^T z_i.
+\label{eq:face-linear-objective-integral}
+\EEQ
+Thus the objective in \eqref{eq:face-linear-program} equals the integral objective in Proposition \ref{prop:objective-selects-largest}. Proposition \ref{prop:objective-selects-largest} gives the final claim about optimizers of \eqref{eq:face-linear-program}.
+\end{proof}
+
+Proposition \ref{prop:face-linear-exactness} is an exactness statement, not a certificate. A nontrivial finite certificate should come from nonpolyhedral cones. For example, let $K$ be the cone of positive-semidefinite matrices and let
+\BEQ
+F_i=\{X\succeq0\mid \operatorname{range}(X)\subseteq L_i\},
+\quad i=1,\ldots,m,
+\label{eq:semidefinite-face}
+\EEQ
+where each $L_i$ is a fixed subspace. In matrix notation, write the coefficient on $F_i$ as a symmetric matrix $A_i$, so that the term $a_i^Tx$ in \eqref{eq:face-linear-candidate} becomes $\operatorname{tr}(A_iX)$. Suppose the state-control pairs with $X\in F_i$ and $F(X,u)\in F_j$ have the semidefinite description
+\BEQ
+E_{ij}=\{(X,u)\mid X\in F_i,\ F(X,u)\in F_j,\ M_{ij}(X,u)\succeq0\},
+\label{eq:semidefinite-transition-set}
+\EEQ
+where $M_{ij}(X,u)$ is an affine symmetric matrix pencil. Suppose also that $f$ and $F$ are affine on $E_{ij}$, and define the affine residual
+\BEQ
+r_{ij}(X,u)=f(X,u)+\gamma\operatorname{tr}(A_jF(X,u))-\operatorname{tr}(A_iX).
+\label{eq:semidefinite-face-residual}
+\EEQ
+A finite semidefinite description of membership in $\mathcal C$ is then
+\BEQ
+\begin{aligned}
+\maximize\quad & \sum_{i=1}^m \operatorname{tr}(A_iP_i)\\
+\st\quad & r_{ij}(X,u)=\operatorname{tr}(Y_{ij}M_{ij}(X,u))\textrm{ as affine functions of }(X,u),\quad i,j=1,\ldots,m,\\
+& Y_{ij}\succeq0,\quad i,j=1,\ldots,m,\\
+& B_i^TA_iB_i\succeq0,\quad i=1,\ldots,m.
+\end{aligned}
+\label{eq:semidefinite-face-sdp}
+\EEQ
+Here $P_i=\int_{F_i}X\,d\rho(X)$, the columns of $B_i$ span $L_i$, and the variables are $A_i$ and $Y_{ij}$. The first constraint in \eqref{eq:semidefinite-face-sdp} is enforced by matching coefficients in \eqref{eq:semidefinite-face-residual}. The constraints $Y_{ij}\succeq0$ certify \eqref{eq:face-linear-bellman-inequality} on \eqref{eq:semidefinite-transition-set}, and $B_i^TA_iB_i\succeq0$ certifies nonnegativity of \eqref{eq:face-linear-candidate} on \eqref{eq:semidefinite-face}. Thus \eqref{eq:semidefinite-face-sdp} is an SDP for this class, which is different from the polyhedral-cell linear program in \eqref{eq:piecewise-affine-lp}.
+
+The following numerical data are constructed for this paper. The example uses the faces in \eqref{eq:semidefinite-face} to illustrate Proposition \ref{prop:face-linear-exactness}; it is not taken from a published solved example.
+
+\begin{example}
+Let $K$ be the cone of $2\times2$ positive-semidefinite matrices. Let $E_1=e_1e_1^T$, $E_2=e_2e_2^T$, and let the state set be the union of the two faces $F_i=\{zE_i\mid z\geq0\}$. At $zE_1$, the controls are stay and switch, with the following costs and successors
+\BEQ
+\begin{array}{c|cc}
+ & f(zE_1,u) & F(zE_1,u)\\ \hline
+\textrm{stay} & z & \frac12 zE_1\\
+\textrm{switch} & 2z & \frac1{10}zE_2,
+\end{array}
+\label{eq:face-example-face-one}
+\EEQ
+and at $zE_2$ the costs and successors are
+\BEQ
+\begin{array}{c|cc}
+ & f(zE_2,u) & F(zE_2,u)\\ \hline
+\textrm{stay} & \frac32 z & \frac25 zE_2\\
+\textrm{switch} & \frac15 z & \frac3{10}zE_1.
+\end{array}
+\label{eq:face-example-face-two}
+\EEQ
+Let $\gamma=9/10$. Homogeneity of \eqref{eq:face-example-face-one} and \eqref{eq:face-example-face-two} shows that the candidate \eqref{eq:face-linear-candidate} has the form
+\BEQ
+V_a(zE_i)=\kappa_i z,
+\quad i=1,2,
+\quad z\geq0,
+\label{eq:face-example-candidate}
+\EEQ
+for unknown parameters $\kappa_1,\kappa_2$. Substituting \eqref{eq:face-example-candidate} into the Bellman equation gives
+\BEQ
+\kappa_1=\min\left\{1+\frac9{20}\kappa_1,\;2+\frac9{100}\kappa_2\right\},
+\quad
+\kappa_2=\min\left\{\frac32+\frac9{25}\kappa_2,\;\frac15+\frac{27}{100}\kappa_1\right\}.
+\label{eq:face-example-bellman-equation}
+\EEQ
+Solving \eqref{eq:face-example-bellman-equation} requires identifying the active control on each face. The Bellman subsolution inequalities for \eqref{eq:face-example-candidate} avoid this active-control choice:
+\BEQ
+\begin{aligned}
+\kappa_1&\leq 1+\frac9{20}\kappa_1,&
+ \kappa_1&\leq 2+\frac9{100}\kappa_2,\\
+\kappa_2&\leq \frac32+\frac9{25}\kappa_2,&
+ \kappa_2&\leq \frac15+\frac{27}{100}\kappa_1.
+\end{aligned}
+\label{eq:face-example-inequalities}
+\EEQ
+Maximizing any positive weighted sum of $\kappa_1$ and $\kappa_2$ subject to \eqref{eq:face-example-inequalities} is the instance of \eqref{eq:face-linear-program} for the two faces in \eqref{eq:face-example-face-one} and \eqref{eq:face-example-face-two}. Proposition \ref{prop:face-linear-exactness} identifies its optimizer with the value function. The optimizer is $\kappa_1=20/11$ and $\kappa_2=38/55$. Thus \eqref{eq:face-linear-program} determines the parameters in \eqref{eq:face-example-candidate} without solving \eqref{eq:face-example-bellman-equation}.
+\end{example}
+
+
+
+\section{Second-Order Cone State Problems}
+
+This section uses the second-order cone as the state cone itself. For an integer $m\geq1$, define
+\BEQ
+\mathcal L_m=\{(t,z)\in\reals\times\reals^m\mid t\geq\|z\|_2\}.
+\label{eq:soc-state-cone}
+\EEQ
+The cone in \eqref{eq:soc-state-cone} is self-dual. The state is $x=(t,z)\in\mathcal L_m$, and the value candidate is linear,
+\BEQ
+V_p(x)=p^Tx,
+\quad p\in\mathcal L_m.
+\label{eq:soc-linear-value-candidate}
+\EEQ
+The condition $p\in\mathcal L_m$ is exactly the nonnegativity condition $V_p(x)\geq0$ for all $x\in\mathcal L_m$.
+
+Consider linear dynamics and linear cost
+\BEQ
+x_{k+1}=Ax_k+Bu_k,
+\quad
+f(x_k,u_k)=c^Tx_k+d^Tu_k,
+\label{eq:soc-state-linear-problem}
+\EEQ
+with $x_k\in\mathcal L_m$. Let the admissible pairs form a cone
+\BEQ
+G\subseteq\mathcal L_m\times\reals^r,
+\quad
+(x,u)\in G.
+\label{eq:soc-state-admissible-cone}
+\EEQ
+For the candidate \eqref{eq:soc-linear-value-candidate}, the Bellman inequality is
+\BEQ
+p^Tx\leq c^Tx+d^Tu+\gamma p^T(Ax+Bu),
+\quad (x,u)\in G.
+\label{eq:soc-state-bellman-inequality}
+\EEQ
+Since \eqref{eq:soc-state-bellman-inequality} is linear in $(x,u)$, it is equivalent to
+\BEQ
+(c-p+\gamma A^Tp,
+ d+\gamma B^Tp)\in G^\star.
+\label{eq:soc-state-dual-condition}
+\EEQ
+This gives the conic program
+\BEQ
+\begin{array}{ll}
+\maximize & w^Tp\\
+\st & p\in\mathcal L_m,\\
+& (c-p+\gamma A^Tp,
+ d+\gamma B^Tp)\in G^\star,
+\end{array}
+\label{eq:soc-state-linear-program}
+\EEQ
+where $w\in\mathcal L_m$ is a positive weighting. If the feasible set of \eqref{eq:soc-state-linear-program} has a largest element in pointwise order, Proposition \ref{prop:objective-selects-largest} explains why positive weights select it.
+
+To use Theorem \ref{thm:pates-rantzer-cone} with $K=G$, the state set in \eqref{eq:cone-state-set} must equal \eqref{eq:soc-state-cone}. This requires
+\BEQ
+\{x\in\mathcal L_m\mid \textrm{there exists }u\in\reals^r\textrm{ such that }(x,u)\in G\}=\mathcal L_m.
+\label{eq:soc-state-projection-condition}
+\EEQ
+The first hypothesis of Theorem \ref{thm:pates-rantzer-cone} becomes
+\BEQ
+\textrm{for every }(x,u)\in G\textrm{ there is a }v\in\reals^r\textrm{ such that }(Ax+Bu,v)\in G.
+\label{eq:soc-state-successor-condition}
+\EEQ
+The cost hypothesis is
+\BEQ
+(c,d)\in\operatorname{int}G^\star.
+\label{eq:soc-state-cost-interior}
+\EEQ
+For fixed $\nu\in\reals^r$, the dual slice from \eqref{eq:cone-dual-slice} becomes
+\BEQ
+C_\nu=\{\lambda\in\reals^{m+1}\mid (\lambda,\nu)\in G^\star\}.
+\label{eq:soc-state-dual-slice}
+\EEQ
+The condition \eqref{eq:fiber-linearity} holds if Proposition \ref{prop:pates-rantzer-dual-slice} applies to \eqref{eq:soc-state-dual-slice} for each vector of the form $\nu=d+\gamma B^Tp$. If $\bar\lambda(\nu)$ is the minimum element of \eqref{eq:soc-state-dual-slice}, then
+\BEQ
+\inf_{u:(x,u)\in G}\nu^Tu=-\bar\lambda(\nu)^Tx,
+\quad x\in\mathcal L_m.
+\label{eq:soc-state-fiber-duality}
+\EEQ
+Substituting $\nu=d+\gamma B^Tp$ in \eqref{eq:soc-state-fiber-duality} gives the second-order cone fixed-point equation
+\BEQ
+p=c+\gamma A^Tp-\bar\lambda(d+\gamma B^Tp).
+\label{eq:soc-state-fixed-point}
+\EEQ
+Under \eqref{eq:soc-state-projection-condition}--\eqref{eq:soc-state-cost-interior} and the fiber-linearity condition certified by \eqref{eq:soc-state-fiber-duality}, Theorem \ref{thm:pates-rantzer-cone} applies to \eqref{eq:soc-state-linear-problem} and \eqref{eq:soc-state-admissible-cone}.
+
+\begin{lemma}
+\label{lem:soc-block-preservation}
+Let $x=(t,z)\in\mathcal L_m$ and $u=(s,v)\in\mathcal L_r$. Let
+\BEQ
+A=\BBM \alpha&0\\0&M\EBM,
+\quad
+B=\BBM \beta&0\\0&N\EBM,
+\label{eq:soc-block-dynamics-matrices}
+\EEQ
+where $M\in\reals^{m\times m}$, $N\in\reals^{m\times r}$, $\alpha\geq0$, $\beta\geq0$, $\|M\|_2\leq\alpha$, and $\|N\|_2\leq\beta$. Then $Ax+Bu\in\mathcal L_m$.
+\end{lemma}
+
+\begin{proof}
+The first component of $Ax+Bu$ is $\alpha t+\beta s$, and the last $m$ components are $Mz+Nv$. Since $x\in\mathcal L_m$ and $u\in\mathcal L_r$,
+\BEQ
+\|z\|_2\leq t,
+\quad
+\|v\|_2\leq s.
+\label{eq:soc-block-cone-bounds}
+\EEQ
+Using \eqref{eq:soc-block-dynamics-matrices} and \eqref{eq:soc-block-cone-bounds},
+\BEQ
+\|Mz+Nv\|_2
+\leq \|M\|_2\|z\|_2+\|N\|_2\|v\|_2
+\leq \alpha t+\beta s.
+\label{eq:soc-block-preservation-bound}
+\EEQ
+The inequality in \eqref{eq:soc-block-preservation-bound} is the defining inequality in \eqref{eq:soc-state-cone} for $Ax+Bu$.
+\end{proof}
+
+\subsection{Cone Interval Controls}
+
+Recall the second-order cone $\mathcal L_m$ in \eqref{eq:soc-state-cone}. A cone interval control graph is
+\BEQ
+G=\{(x,u):x\in\mathcal L_m,
+u\in\mathcal L_m,
+Hx-u\in\mathcal L_m\},
+\label{eq:cone-interval-control-graph}
+\EEQ
+where $H$ is a linear map satisfying $Hx\in\mathcal L_m$ for every $x\in\mathcal L_m$. Thus the admissible controls satisfy $0\leq_{\mathcal L_m}u\leq_{\mathcal L_m}Hx$. This is the direct analogue of interval bounds for positive systems, with the nonnegative orthant replaced by \eqref{eq:soc-state-cone}.
+
+For a linear candidate \eqref{eq:soc-linear-value-candidate}, the fiber minimization in \eqref{eq:soc-state-fiber-duality} is minimization of a linear function over the cone interval in \eqref{eq:cone-interval-control-graph}. An endpoint is optimal when the coefficient of $u$ has the sign specified below.
+
+For the graph in \eqref{eq:cone-interval-control-graph}, the dual slice in \eqref{eq:soc-state-dual-slice} is
+\BEQ
+C_\nu=\{\lambda:\lambda^Tx+\nu^Tu\geq0
+\text{ for every }(x,u)\in G\}.
+\label{eq:cone-interval-dual-slice}
+\EEQ
+Any pair in \eqref{eq:cone-interval-control-graph} can be written as
+\BEQ
+u=Hx-s,
+\quad x\in\mathcal L_m,
+\quad s\in\mathcal L_m,
+\quad Hx-s\in\mathcal L_m.
+\label{eq:cone-interval-slack-form}
+\EEQ
+Thus \eqref{eq:cone-interval-dual-slice} is equivalent to
+\BEQ
+\lambda^Tx+\nu^Tu
+=(\lambda+H^T\nu)^Tx-\nu^Ts\geq0,
+\quad x\in\mathcal L_m,
+\quad s\in\mathcal L_m,
+\quad Hx-s\in\mathcal L_m.
+\label{eq:cone-interval-dual-inequality}
+\EEQ
+If $-\nu\in\mathcal L_m$, the minimum element of \eqref{eq:cone-interval-dual-slice} is
+\BEQ
+\bar\lambda=-H^T\nu.
+\label{eq:cone-interval-minimum-element}
+\EEQ
+To verify membership, use \eqref{eq:cone-interval-slack-form} to obtain $\bar\lambda^Tx+\nu^Tu=-\nu^Ts\geq0$. For any $\lambda\in C_\nu$, evaluating \eqref{eq:cone-interval-dual-slice} at the admissible pair $(x,Hx)$ gives $(\lambda+H^T\nu)^Tx\geq0$ for every $x\in\mathcal L_m$. Self-duality of \eqref{eq:soc-state-cone} gives $\lambda-\bar\lambda\in\mathcal L_m$. If $\nu\in\mathcal L_m$, the minimum element is instead zero: $(0,\nu)\in G^\star$, and evaluating at $(x,0)\in G$ gives $\lambda\in\mathcal L_m$ for every $\lambda\in C_\nu$. No minimum-element formula is asserted here when neither sign condition holds.
+
+Consider the linear dynamics and linear cost
+\BEQ
+x_{k+1}=Ax_k-u_k,
+\quad
+f(x_k,u_k)=c^Tx_k+h^Tu_k,
+\label{eq:cone-interval-linear-problem}
+\EEQ
+with admissible pairs in \eqref{eq:cone-interval-control-graph}.
+
+\begin{theorem}
+\label{prop:cone-interval-exactness}
+Consider \eqref{eq:cone-interval-linear-problem} with admissible pairs in \eqref{eq:cone-interval-control-graph}. Let $0<\gamma\leq1$. Assume that
+\BEQ
+Hx\in\mathcal L_m,
+\quad x\in\mathcal L_m,
+\label{eq:cone-interval-map-invariance}
+\EEQ
+and
+\BEQ
+(A-H)x\in\mathcal L_m,
+\quad x\in\mathcal L_m.
+\label{eq:cone-interval-state-invariance}
+\EEQ
+Assume that
+\BEQ
+c+H^Th\in\operatorname{int}\mathcal L_m,
+\quad
+-h\in\operatorname{int}\mathcal L_m.
+\label{eq:cone-interval-cost-interior}
+\EEQ
+Assume the feasibility problem of finding $p\in\mathcal L_m$ satisfying
+\BEQ
+p=c+H^Th+\gamma(A-H)^Tp,
+\label{eq:cone-interval-value-vector}
+\EEQ
+and
+\BEQ
+\gamma p-h\in\mathcal L_m.
+\label{eq:cone-interval-endpoint-condition}
+\EEQ
+has a solution $p$. Then $J^\textrm{opt}(x)=p^Tx$ on \eqref{eq:soc-state-cone}. An optimal feedback is $u=Hx$.
+\end{theorem}
+
+\begin{proof}
+Let $G$ denote the cone in \eqref{eq:cone-interval-control-graph}. Equation \eqref{eq:cone-interval-map-invariance} gives $(x,0)\in G$ for every $x\in\mathcal L_m$, so the state set in \eqref{eq:cone-state-set} equals \eqref{eq:soc-state-cone}.
+
+Let $(x,u)\in G$. By \eqref{eq:cone-interval-control-graph}, there is an $s\in\mathcal L_m$ such that
+\BEQ
+u=Hx-s.
+\label{eq:cone-interval-proof-slack}
+\EEQ
+Using \eqref{eq:cone-interval-state-invariance} and \eqref{eq:cone-interval-proof-slack},
+\BEQ
+Ax-u=(A-H)x+s\in\mathcal L_m.
+\label{eq:cone-interval-proof-successor-state}
+\EEQ
+Equation \eqref{eq:cone-interval-map-invariance} gives $H(Ax-u)\in\mathcal L_m$, so $(Ax-u,0)\in G$.
+
+Equations \eqref{eq:cone-interval-cost-interior} and \eqref{eq:cone-interval-proof-slack} give
+\BEQ
+f(x,u)=(c+H^Th)^Tx-h^Ts\geq0,
+\quad (x,u)\in G.
+\label{eq:cone-interval-nonnegative-cost}
+\EEQ
+For the proposed value $V(x)=p^Tx$, equations \eqref{eq:cone-interval-value-vector} and \eqref{eq:cone-interval-proof-slack} give
+\BEQ
+f(x,u)+\gamma p^T(Ax-u)-p^Tx
+=(\gamma p-h)^Ts\geq0.
+\label{eq:cone-interval-bellman-residual}
+\EEQ
+The inequality uses \eqref{eq:cone-interval-endpoint-condition} and self-duality of \eqref{eq:soc-state-cone}. At $u=Hx$ we have $s=0$, so equality holds in \eqref{eq:cone-interval-bellman-residual}.
+
+It remains to show that the terminal term vanishes. Write $x=(t,z)$ and $p=(p_0,p_z)$. Let $\varepsilon_c=(c+H^Th)_0-\|(c+H^Th)_z\|_2>0$, where the subscripts denote the first component and the remaining components. Its positivity follows from \eqref{eq:cone-interval-cost-interior}. For $x\in\mathcal L_m$, $\|z\|_2\leq t$, so \eqref{eq:cone-interval-nonnegative-cost} gives
+\BEQ
+f(x,u)\geq(c+H^Th)^Tx\geq\varepsilon_c t,
+\quad
+0\leq p^Tx\leq(p_0+\|p_z\|_2)t
+\leq\frac{p_0+\|p_z\|_2}{\varepsilon_c}f(x,u).
+\label{eq:cone-interval-tail-bound}
+\EEQ
+Along any admissible trajectory with finite cost, $\gamma^k f(x_k,u_k)\to0$ because the nonnegative series in \eqref{eq:cost} converges. Equation \eqref{eq:cone-interval-tail-bound} then gives $\gamma^k p^Tx_k\to0$. Multiplying \eqref{eq:cone-interval-bellman-residual} by $\gamma^k$ and summing from $k=0$ to $N$ gives
+\BEQ
+p^Tx_0\leq\sum_{k=0}^N\gamma^k f(x_k,u_k)
++\gamma^{N+1}p^Tx_{N+1}.
+\label{eq:cone-interval-telescope}
+\EEQ
+Taking $N\to\infty$ in \eqref{eq:cone-interval-telescope} gives $p^Tx_0\leq\sum_{k=0}^\infty\gamma^k f(x_k,u_k)$. The same inequality holds for trajectories with infinite cost. Hence $p^Tx\leq J^\textrm{opt}(x)$.
+
+Under $u=Hx$, equality holds in \eqref{eq:cone-interval-bellman-residual} and hence in \eqref{eq:cone-interval-telescope}. The resulting partial costs are at most $p^Tx_0$, since $p\in\mathcal L_m$ and the terminal term is nonnegative. Thus the feedback has finite cost, and \eqref{eq:cone-interval-tail-bound} makes its terminal term vanish. Taking the limit in the equality in \eqref{eq:cone-interval-telescope} gives cost $p^Tx_0$, so $J^\textrm{opt}(x)\leq p^Tx$. The two bounds prove the claim. Equation \eqref{eq:cone-interval-value-vector} can also be written as
+\BEQ
+p=c+\gamma A^Tp+H^T(h-\gamma p).
+\label{eq:cone-interval-fixed-point-form}
+\EEQ
+Equation \eqref{eq:cone-interval-value-vector} is equivalent to \eqref{eq:cone-interval-fixed-point-form}. Set $\nu=h-\gamma p$. By \eqref{eq:cone-interval-endpoint-condition}, $-\nu\in\mathcal L_m$. For any admissible $u$,
+\BEQ
+\nu^Tu=\nu^THx-\nu^T(Hx-u)\geq \nu^THx,
+\label{eq:cone-interval-endpoint-optimality}
+\EEQ
+where \eqref{eq:cone-interval-control-graph} gives $Hx-u\in\mathcal L_m$ and self-duality of \eqref{eq:soc-state-cone} gives $-\nu^T(Hx-u)\geq0$. Equality holds at $u=Hx$.
+\end{proof}
+
+The conditions in Theorem \ref{prop:cone-interval-exactness} can be checked by finite conic tests. Let
+\BEQ
+S=\begin{bmatrix}1&0\\0&-I\end{bmatrix},
+\quad
+e=(1,0,\ldots,0)^T.
+\label{eq:cone-interval-lorentz-matrix}
+\EEQ
+For a matrix $M$, the condition $Mx\in\mathcal L_m$ for every $x\in\mathcal L_m$ is equivalent to
+\BEQ
+M^Te\in\mathcal L_m,
+\quad
+M^TSM-\tau S\succeq0
+\quad\textrm{for some }\tau\geq0.
+\label{eq:cone-interval-map-test}
+\EEQ
+Thus \eqref{eq:cone-interval-map-invariance} is checked by applying \eqref{eq:cone-interval-map-test} with $M=H$, and \eqref{eq:cone-interval-state-invariance} is checked by applying \eqref{eq:cone-interval-map-test} with $M=A-H$. Check \eqref{eq:cone-interval-cost-interior} by testing strict cone membership of $c+H^Th$ and $-h$, for example by requiring the first component to exceed the norm of the remaining components by a positive numerical tolerance. Finally, solve the linear equation \eqref{eq:cone-interval-value-vector} for $p$, or solve it together with \eqref{eq:cone-interval-endpoint-condition} as a feasibility problem. The theorem applies when the computed $p$ belongs to \eqref{eq:soc-state-cone} and satisfies \eqref{eq:cone-interval-endpoint-condition} with the chosen tolerance.
+
+\begin{example}
+Let $m=2$ and interpret $x=(t,z)\in\mathcal L_2$ as a landing state. The scalar $t$ is altitude and $z\in\reals^2$ is horizontal displacement. The constraint $t\geq\|z\|_2$ says that the vehicle remains inside a glide cone whose apex is the landing point.
+
+Let $0<\eta<\alpha<1$. The control $u\in\mathcal L_2$ is a descent command constrained by
+\BEQ
+u\in\mathcal L_2,
+\quad
+\eta x-u\in\mathcal L_2.
+\label{eq:soc-landing-control-set}
+\EEQ
+The second condition in \eqref{eq:soc-landing-control-set} says that $u$ is no larger than $\eta x$ in the order induced by \eqref{eq:soc-state-cone}. The dynamics and cost are
+\BEQ
+x_{k+1}=\alpha x_k-u_k,
+\quad
+f(x_k,u_k)=c^Tx_k+h^Tu_k.
+\label{eq:soc-landing-controlled-dynamics}
+\EEQ
+This is \eqref{eq:cone-interval-linear-problem} with $A=\alpha I$ and $H=\eta I$. Conditions \eqref{eq:cone-interval-map-invariance} and \eqref{eq:cone-interval-state-invariance} hold because $\eta x\in\mathcal L_2$ and $(\alpha-\eta)x\in\mathcal L_2$ for every $x\in\mathcal L_2$.
+
+Assume that
+\BEQ
+c+\eta h\in\operatorname{int}\mathcal L_2,
+\quad
+-h\in\operatorname{int}\mathcal L_2,
+\label{eq:soc-landing-cost-interior}
+\EEQ
+and define
+\BEQ
+p=\frac{c+\eta h}{1-\gamma(\alpha-\eta)}.
+\label{eq:soc-landing-controlled-value-vector}
+\EEQ
+If
+\BEQ
+p\in\mathcal L_2,
+\quad
+\gamma p-h\in\mathcal L_2,
+\label{eq:soc-landing-control-cost-condition}
+\EEQ
+then \eqref{eq:cone-interval-value-vector} and \eqref{eq:cone-interval-endpoint-condition} hold. Theorem \ref{prop:cone-interval-exactness} gives
+\BEQ
+J^\textrm{opt}(x)=p^Tx,
+\quad x\in\mathcal L_2,
+\label{eq:soc-landing-controlled-value-function}
+\EEQ
+and the optimal feedback is
+\BEQ
+u^\textrm{fb}(x)=\eta x.
+\label{eq:soc-landing-feedback}
+\EEQ
+Here $\eta I$ is a known upper-bound map in \eqref{eq:soc-landing-control-set}; Theorem \ref{prop:cone-interval-exactness} proves that the optimal descent command saturates this bound. This example solves a restricted cone-ordered landing problem, not arbitrary vehicle dynamics.
+\end{example}
+
+
+
+\subsection{Graphs Designed for Fiber Linearity}
+
+For \eqref{eq:cone-interval-control-graph}, the minimum element in \eqref{eq:cone-interval-minimum-element} is known when $-\nu\in\mathcal L_m$. Theorem \ref{prop:cone-interval-exactness} uses this endpoint condition and a direct cost comparison. A closer analogue of the Pates--Rantzer proof is to start from the desired fiber-minimization property in \eqref{eq:fiber-linearity}. The design problem is to choose a conic graph $G$ for which the dual slice in \eqref{eq:soc-state-dual-slice} has a computable minimum element for every coefficient required by that condition. Then Proposition \ref{prop:pates-rantzer-dual-slice} gives \eqref{eq:soc-state-fiber-duality}, and Theorem \ref{thm:pates-rantzer-cone} gives the fixed-point equation for a linear value function.
+
+One general form keeps the second-order cone state and introduces an auxiliary cone $\mathcal K$:
+\BEQ
+G=\{(x,u):x\in\mathcal L_m,
+u=H_0x+Rz,
+Ex+Dz\in\mathcal K\}.
+\label{eq:fiber-linear-auxiliary-graph}
+\EEQ
+Here $H_0$, $R$, $E$, and $D$ are linear maps, and $\mathcal K$ is chosen so that membership in $\mathcal K$ and $\mathcal K^\star$ has a finite conic description. The variable $z$ selects the correction to the nominal control $H_0x$. The cone membership in \eqref{eq:fiber-linear-auxiliary-graph} includes any desired cone constraint on $z$. The useful case is not merely feasibility of \eqref{eq:fiber-linear-auxiliary-graph}; the useful case is when the dual slice induced by \eqref{eq:fiber-linear-auxiliary-graph} has a minimum element that can be written as a function of $\nu$. If that minimum element is $\bar\lambda(\nu)$, then the Bellman minimization becomes
+\BEQ
+\inf_{u:(x,u)\in G}\nu^Tu=-\bar\lambda(\nu)^Tx,
+\quad x\in\mathcal L_m,
+\label{eq:fiber-linear-auxiliary-minimization}
+\EEQ
+which has the form needed in \eqref{eq:soc-state-fiber-duality}. The remaining task is to find choices of $\mathcal K$, $R$, $E$, and $D$ for which \eqref{eq:fiber-linear-auxiliary-minimization} can be verified.
+
+Take $\mathcal K=\reals_+^s$ in \eqref{eq:fiber-linear-auxiliary-graph}. For fixed $x$, the minimization of $\nu^Tu$ becomes the linear program
+\BEQ
+\begin{array}{ll}
+\minimize & \nu^TRz+\nu^TH_0x\\
+\st & Ex+Dz\geq0.
+\end{array}
+\label{eq:fiber-linear-polyhedral-fiber-lp}
+\EEQ
+This is close to the polyhedral examples in \cite{pates-rantzer-cdc}: the active inequalities can select a feedback law rather than verify a prescribed endpoint. A numerical search for active sets can be done as follows.
+\begin{enumerate}
+\item Choose sample points $x_j\in\mathcal L_m$ and the relevant vector $\nu$.
+\item Solve \eqref{eq:fiber-linear-polyhedral-fiber-lp} for each $x_j$, preferably by the simplex method.
+\item Record the active row set $I$ returned by the optimal basis.
+\item For each recorded $I$, solve $D_IZ_I=-E_I$, where $D_I$ and $E_I$ are the rows indexed by $I$.
+\item Keep $I$ only if $Ex+DZ_Ix\geq0$ for every $x\in\mathcal L_m$ and the dual optimality conditions for \eqref{eq:fiber-linear-polyhedral-fiber-lp} hold for the relevant $\nu$.
+\end{enumerate}
+This procedure proposes active sets. It proves exactness only after the checks in the last item, successor-state invariance, and a fixed-point condition.
+
+The first specialization is to require one active set found by this procedure. Let $I$ be a set of row indices. If the rows indexed by $I$ determine a matrix $Z_I$ such that
+\BEQ
+z=Z_Ix,
+\quad
+Ex+DZ_Ix=0 \textrm{ on rows } I,
+\quad
+Ex+DZ_Ix\geq0,
+\label{eq:fiber-linear-polyhedral-fixed-active-set}
+\EEQ
+for every $x\in\mathcal L_m$, and if the corresponding dual variables certify optimality for the relevant $\nu$, then the fiber minimizer has the feedback form
+\BEQ
+u=(H_0+RZ_I)x.
+\label{eq:fiber-linear-polyhedral-fixed-feedback}
+\EEQ
+In that case the Bellman minimization is linear in $x$ for that $\nu$.
+
+A less restrictive specialization allows finitely many active sets $I=I_1,\ldots,I_N$. Each set gives a candidate matrix $Z_i$ and a cone region
+\BEQ
+\mathcal R_i=\{x\in\mathcal L_m: Ex+DZ_ix\geq0,
+\quad \textrm{the dual conditions for } I_i \textrm{ hold}\}.
+\label{eq:fiber-linear-polyhedral-regions}
+\EEQ
+The desired outcome is that the regions in \eqref{eq:fiber-linear-polyhedral-regions} cover \eqref{eq:soc-state-cone} and that, on each region,
+\BEQ
+z=Z_ix,
+\quad
+u=(H_0+RZ_i)x.
+\label{eq:fiber-linear-polyhedral-active-feedback}
+\EEQ
+If the resulting minimum can be written as in \eqref{eq:fiber-linear-auxiliary-minimization}, then the proof can follow the same route as Theorem \ref{thm:pates-rantzer-cone}.
+
+Equation \eqref{eq:fiber-linear-auxiliary-graph} is not an exactness result yet. It is a proposed graph design. The proof still requires the active-set optimality conditions for \eqref{eq:fiber-linear-polyhedral-fiber-lp}, successor-state invariance for each feedback in \eqref{eq:fiber-linear-polyhedral-active-feedback}, and a fixed-point equation of the form \eqref{eq:soc-state-fixed-point}.
+\subsection{Product Cone Controls}
+
+A product cone control graph uses a second cone $K$ for the control variable and keeps the state in \eqref{eq:soc-state-cone}:
+\BEQ
+G=\{(x,u):x\in\mathcal L_m,
+u\in K,
+Hx-Bu\in\mathcal L_m\}.
+\label{eq:product-cone-control-graph}
+\EEQ
+The maps are chosen so that $Hx\in\mathcal L_m$ for $x\in\mathcal L_m$ and $Bu\in\mathcal L_m$ for $u\in K$. The constraint in \eqref{eq:product-cone-control-graph} gives $Bu\leq_{\mathcal L_m}Hx$, while $u\in K$ keeps any additional control positivity or shape restriction.
+
+This graph separates the cone used for controls from the cone used for states. It is a promising finite test when membership in $K^\star$ and membership in $\mathcal L_m$ both have tractable conic descriptions. It gives only the Bellman lower bound from \eqref{eq:soc-state-linear-program} until \eqref{eq:soc-state-fiber-duality} and a fixed-point condition are verified.
+
+\subsection{Affine-in-State Cone Budgets}
+
+An affine-in-state cone budget has the form
+\BEQ
+G=\{(x,u):x\in\mathcal L_m,
+Du+Ex\in K\},
+\label{eq:affine-state-cone-budget-graph}
+\EEQ
+where $K$ is a cone. The term $Ex$ shifts the feasible controls as the state changes, while the conic membership in \eqref{eq:affine-state-cone-budget-graph} keeps a finite certificate when $K^\star$ is tractable.
+
+This is the closest form to the dual-slice condition in \eqref{eq:soc-state-dual-slice}. If the slice induced by \eqref{eq:affine-state-cone-budget-graph} has a computable minimum element, then the Pates--Rantzer argument can be repeated for the linear candidate \eqref{eq:soc-linear-value-candidate}. If that minimum element is not available, \eqref{eq:affine-state-cone-budget-graph} supplies only the restricted Bellman subsolution test in \eqref{eq:soc-state-linear-program}.
+
+\section{How the Viewpoint Could Move the Frontier}
+
+The previous sections recover known exact formulations. The research opportunity is to use the same ordering idea to find new exact finite-dimensional conic formulations. This section states three directions as precise mathematical tasks.
+
+\subsection{Beyond exact invariance}
+
+The condition \eqref{eq:fiber-linearity} is strong. It makes linear candidate functions invariant under $T$. Exactness may still be possible under a weaker condition if the largest feasible element of the Bellman inequality belongs to the candidate functions. This suggests the following task.
+
+\begin{quote}
+Find cones $K$ and candidate functions $V_a$ for which $V_a\leq TV_a$ has a finite conic description and the largest feasible $V_a$ equals the value function, even though $TV_a$ does not belong to the same candidate collection.
+\end{quote}
+
+This task differs from the exact cone result in \cite{pates-rantzer-cdc}. It does not try to prove that value iteration remains inside a finite-dimensional collection. It tries to prove exactness from maximality and from a tractable certificate for the subsolution inequality.
+
+The polynomial, piecewise-affine, and face-linear sections give three examples of this distinction.
+
+\subsection{Nested exactness tests}
+
+Let $\mathcal V_1\subseteq\mathcal V_2\subseteq\cdots$ be nested collections of nonnegative candidate functions. Let $\widehat V_N$ be the restricted largest subsolution in $\mathcal V_N$ when it exists. The purpose of the nesting here is not to propose another approximate dynamic programming method, but to create tests for exactness.
+
+\begin{proposition}
+\label{prop:monotone-nested}
+Let Assumptions \ref{ass:proper-policy} and \ref{ass:bellman-value} hold. If $\mathcal V_N\subseteq\mathcal V_{N+1}$ and restricted largest subsolutions $\widehat V_N$ and $\widehat V_{N+1}$ exist, then
+\BEQ
+\widehat V_N\leq \widehat V_{N+1}\leq J^\textrm{opt}.
+\label{eq:nested-monotonicity}
+\EEQ
+\end{proposition}
+
+\begin{proof}
+Since $\mathcal V_N\subseteq\mathcal V_{N+1}$, every element of $\mathcal S(\mathcal V_N)$ is also an element of $\mathcal S(\mathcal V_{N+1})$. Since $\widehat V_N\in\mathcal S(\mathcal V_N)$, we have $\widehat V_N\in\mathcal S(\mathcal V_{N+1})$. The definition of $\widehat V_{N+1}$ gives $\widehat V_N\leq\widehat V_{N+1}$. Lemma \ref{lem:subsolution-lower-bound} gives $\widehat V_{N+1}\leq J^\textrm{opt}$.
+\end{proof}
+
+Proposition \ref{prop:monotone-nested} gives a basic order test. The restricted Bellman inequalities produce the candidates $\widehat V_N$. A separate verification step, such as an explicit policy attaining the cost of a stabilized candidate, can then prove exactness by Theorem \ref{thm:maximal-subsolution}. The missing research step is to find candidate functions for which both the restricted inequalities and the verification step have finite conic descriptions.
+
+
+\begin{example}
+Let $X=\reals\cup\{\Delta\}$, where $\Delta$ is terminal. At $x\in\reals$, one action stops with cost $1$ and sends the state to $\Delta$. The other actions are indexed by $u\in\reals$ and have
+\BEQ
+F(x,u)=x+u,
+\quad
+f(x,u)=x^2+u^2,
+\quad
+\gamma=\frac12.
+\label{eq:nested-stopping-data}
+\EEQ
+At $\Delta$ the cost is zero and the state remains $\Delta$. For reference, the Bellman equation is
+\BEQ
+J(x)=\min\left\{1,\inf_{u\in\reals}\left(x^2+u^2+\frac12J(x+u)\right)\right\}.
+\label{eq:nested-stopping-bellman}
+\EEQ
+Consider the nested collections
+\BEQ
+\begin{aligned}
+\mathcal V_0&=\{0\},\\
+\mathcal V_1&=\{x\mapsto \min\{1,px^2\}\mid p\geq0\},\\
+\mathcal V_2&=\{x\mapsto \min\{1,px^2+qx^4\}\mid p\geq0,
+q\geq0\}.
+\end{aligned}
+\label{eq:nested-stopping-candidates}
+\EEQ
+The first collection gives $\widehat V_0=0$. The Bellman inequality first restricts $p$ without solving \eqref{eq:nested-stopping-bellman}. For $V_p(x)=\min\{1,px^2\}$, points near the origin force
+\BEQ
+px^2\leq x^2+u^2+\frac12p(x+u)^2,
+\quad x,u\in\reals.
+\label{eq:nested-stopping-continuation-inequality}
+\EEQ
+The largest $p$ allowed by \eqref{eq:nested-stopping-continuation-inequality} is found by setting $u=tx$ and minimizing the right side of \eqref{eq:nested-stopping-continuation-inequality} over $t$. The minimizer is
+\BEQ
+t^*(p)=-\frac{p}{p+2}.
+\label{eq:nested-stopping-minimizer}
+\EEQ
+Substitution of \eqref{eq:nested-stopping-minimizer} into \eqref{eq:nested-stopping-continuation-inequality} gives $p=1+p/(p+2)$, hence $p=\sqrt2$. Thus
+\BEQ
+\widehat V_1(x)=\min\{1,\sqrt2x^2\}.
+\label{eq:nested-stopping-value-candidate}
+\EEQ
+The stopping inequality holds because \eqref{eq:nested-stopping-value-candidate} is at most $1$. The continuation inequality holds by \eqref{eq:nested-stopping-continuation-inequality} with $p=\sqrt2$. Hence \eqref{eq:nested-stopping-value-candidate} is a Bellman subsolution.
+
+The inequality search has now identified the largest candidate in $\mathcal V_1$. It remains only to verify tightness. If $\sqrt2x^2\geq1$, stopping gives the cost in \eqref{eq:nested-stopping-value-candidate}. If $\sqrt2x^2\leq1$, choose
+\BEQ
+u=(1-\sqrt2)x.
+\label{eq:nested-stopping-feedback}
+\EEQ
+Then $x+u=(2-\sqrt2)x$, so the next state also satisfies $\sqrt2(x+u)^2\leq1$. Direct substitution gives
+\BEQ
+x^2+(1-\sqrt2)^2x^2+\frac{\sqrt2}{2}(2-\sqrt2)^2x^2
+=\sqrt2x^2.
+\label{eq:nested-stopping-equality}
+\EEQ
+Thus the policy defined by stopping outside the set $\sqrt2x^2\leq1$ and by \eqref{eq:nested-stopping-feedback} inside it attains the cost in \eqref{eq:nested-stopping-value-candidate}. Combining this upper bound with the Bellman subsolution lower bound gives $\widehat V_1=J^\textrm{opt}$ by Theorem \ref{thm:maximal-subsolution}. Since $\mathcal V_1\subseteq\mathcal V_2$, Proposition \ref{prop:monotone-nested} gives
+\BEQ
+\widehat V_0\leq\widehat V_1=\widehat V_2=J^\textrm{opt},
+\quad \widehat V_0\neq\widehat V_1.
+\label{eq:nested-stopping-stabilization}
+\EEQ
+This example is not globally quadratic: the stopping action creates the flat part of \eqref{eq:nested-stopping-value-candidate}. The calculation uses \eqref{eq:nested-stopping-bellman} only after the largest restricted subsolution has been identified, so the Bellman equation serves as a policy verification rather than as the search principle.
+\end{example}
+
+\subsection{Nonunique Bellman equations}
+
+When $\gamma=1$, the Bellman equation may have several nonnegative solutions. The value function need not dominate them: a zero-cost self-loop admits every positive constant as a Bellman subsolution while its value is zero. A useful research question is the following.
+
+\begin{quote}
+Give conditions under which the value function is the largest nonnegative Bellman subsolution even when the Bellman equation has several nonnegative solutions.
+\end{quote}
+
+Lemma \ref{lem:subsolution-lower-bound} gives one side when Assumption \ref{ass:proper-policy} holds. The remaining task is to derive that terminal-term condition from checkable problem data and prove that the value function is finite and satisfies the Bellman equation. This question is relevant for undiscounted positive systems, stochastic shortest-path problems, and stability-constrained control.
+
+\section{Conclusion}
+
+The largest-subsolution viewpoint gives a common explanation for LP formulations of finite DP, cone programs for positive systems, and SDP formulations of linear quadratic control. Its value as a research direction is not the approximate lower-bound method developed in \cite{wang-odonoghue-boyd-2015}. Its value is the possibility of proving exactness and finite-dimensional conic structure for candidate functions that are not covered by existing cone results.
+
+The polynomial candidate functions in Proposition \ref{prop:polynomial-exactness} and the piecewise-affine candidate functions in Proposition \ref{prop:piecewise-affine-exactness} give two such collections beyond the linear cone result of Pates and Rantzer. The remaining task is to find control problems for which the polynomial exactness assumptions in Proposition \ref{prop:polynomial-exactness} can be verified without already knowing the value function. Such a result would turn the maximal-element viewpoint from an interpretation into a method.
+
+
+\appendix
+
+\section{Cone-First Search for Exact Classes}
+
+The preceding sections start from known control problems and explain their finite conic descriptions. A more systematic search can reverse this direction. Start from a cone and its dual cone. Then ask which Bellman residuals can be certified by membership in the dual cone, and which dynamics and costs make that certificate tight.
+
+For a candidate function $V$, the Bellman residual is
+\BEQ
+R_V(x,u)=f(x,u)+\gamma V(F(x,u))-V(x).
+\label{eq:cone-first-residual}
+\EEQ
+The Bellman inequality is the condition $R_V(x,u)\geq0$ for all admissible pairs $(x,u)$. A cone-first search replaces this scalar nonnegativity condition by a finite certificate: represent \eqref{eq:cone-first-residual} using variables constrained to a chosen dual cone. The chosen cone then determines both the candidate functions and the algebraic form of admissible costs and dynamics.
+
+This gives the following discovery procedure. First, choose a cone with a tractable dual cone. Second, choose candidate functions whose parameters enter \eqref{eq:cone-first-residual} linearly. Third, characterize the costs and dynamics for which nonnegativity of \eqref{eq:cone-first-residual} has a finite dual-cone certificate. Fourth, maximize a positive linear objective over the feasible parameters. Fifth, prove exactness by giving an admissible policy whose cost equals the largest restricted Bellman subsolution.
+
+Several cones give concrete starting points. The next subsections separate these starting points. Each subsection states only the finite certificate or exactness test supplied by the chosen cone.
+
+The potential new class is therefore not defined by a single guessed value-function formula. It is defined by a cone, a finite dual-cone certificate for \eqref{eq:cone-first-residual}, and a policy verification that closes the gap between the largest restricted Bellman subsolution and the admissible cost. If this program fails, the result is only the known approximate Bellman-inequality method. If it succeeds for one of the cones below, it gives an exact solvable class.
+
+\subsection{Nonnegative Orthant Search}
+
+The simplest cone is the nonnegative orthant $\reals_+^r$. Its dual cone is again $\reals_+^r$, so a finite certificate is only a list of scalar nonnegative multipliers. This is the cone-first analogue of the linear program in \cite{pates-rantzer-cdc}: choose a cone of admissible state-control pairs, choose linear candidate functions, and require the Bellman residual \eqref{eq:cone-first-residual} to be nonnegative on that cone.
+
+Let $G\subseteq\reals^{n+m}$ be a polyhedral cone,
+\BEQ
+G=\{(x,u):H_xx+H_uu\geq0\},
+\label{eq:orthant-graph-cone}
+\EEQ
+and let $X_o=\{x:\hbox{ there is }u\hbox{ with }(x,u)\in G\}$. Consider linear dynamics and linear cost,
+\BEQ
+F(x,u)=Ax+Bu,
+\quad
+f(x,u)=c^Tx+d^Tu,
+\label{eq:orthant-linear-data}
+\EEQ
+on admissible pairs in \eqref{eq:orthant-graph-cone}. For a linear candidate $V_p(x)=p^Tx$, \eqref{eq:cone-first-residual} becomes
+\BEQ
+R_p(x,u)=(c+\gamma A^Tp-p)^Tx+(d+\gamma B^Tp)^Tu.
+\label{eq:orthant-linear-residual}
+\EEQ
+The finite certificate for \eqref{eq:orthant-linear-residual} is the existence of a multiplier $\lambda\geq0$ such that
+\BEQ
+\BBM c+\gamma A^Tp-p\\ d+\gamma B^Tp\EBM
+=
+\BBM H_x^T\\ H_u^T\EBM\lambda.
+\label{eq:orthant-dual-certificate}
+\EEQ
+Thus the restricted largest subsolution is computed by the linear program
+\BEQ
+\begin{array}{ll}
+\maximize & w^Tp\\
+\st & \lambda\geq0,\\
+& \BBM c+\gamma A^Tp-p\\ d+\gamma B^Tp\EBM
+=
+\BBM H_x^T\\ H_u^T\EBM\lambda,\\
+& p^Tx\geq0,\quad x\in X_o,
+\end{array}
+\label{eq:orthant-linear-program}
+\EEQ
+where $w$ is chosen in the interior of the dual cone of $X_o$. The last constraint in \eqref{eq:orthant-linear-program} is the dual-cone condition $p\in X_o^\star$.
+
+This parallels the Pates--Rantzer development in the simplest cone. The finite certificate \eqref{eq:orthant-dual-certificate} proves only that $V_p$ is a Bellman subsolution. Exactness still requires an admissible feedback $u=Kx$ satisfying $(x,Kx)\in G$ and
+\BEQ
+p^Tx=c^Tx+d^TKx+\gamma p^T(A+BK)x,
+\quad x\in X_o,
+\label{eq:orthant-feedback-equality}
+\EEQ
+together with $\gamma^{N+1}p^Tx_{N+1}\rightarrow0$ along $x_{k+1}=(A+BK)x_k$. Under these two conditions, summing \eqref{eq:orthant-feedback-equality} gives an admissible cost equal to $V_p(x_0)$. If Assumption \ref{ass:proper-policy} also holds, Lemma \ref{lem:subsolution-lower-bound} gives $V_p\leq J^\textrm{opt}$, and the feedback gives $J^\textrm{opt}\leq V_p$. Hence $V_p=J^\textrm{opt}$ on $X_o$.
+
+\subsection{Positive-Semidefinite Cone Search}
+
+The positive-semidefinite cone gives linear matrix inequalities. This cone has already appeared in the quadratic-control section: a quadratic candidate has a Bellman residual that is a quadratic form, and nonnegativity of that form is equivalent to a positive-semidefinite matrix constraint. Therefore the search based on this cone recovers quadratic value functions and Riccati inequalities rather than a new class. A new result would require costs or constraints whose residuals still have finite positive-semidefinite certificates but are not reduced to the quadratic program already described.
+
+\subsection{Second-Order Cone Search}
+
+The second-order cone in $\reals\times\reals^q$ is
+\BEQ
+\mathcal Q_{q+1}=\{(t,z)\mid t\geq \|z\|_2\}.
+\label{eq:second-order-cone}
+\EEQ
+It is self-dual, so a residual certificate based on \eqref{eq:second-order-cone} can use the same cone for primal and dual variables. This suggests candidate functions built from affine functions and Euclidean norms, for example
+\BEQ
+V_{a,b,C}(x)=a^Tx+b\|Cx\|_2,
+\quad b\geq0.
+\label{eq:soc-candidate}
+\EEQ
+For affine dynamics and costs containing terms of the form $\|D x+E u+d\|_2$, the residual \eqref{eq:cone-first-residual} for \eqref{eq:soc-candidate} is a linear expression plus a signed sum of Euclidean norms. A finite second-order cone certificate is possible when this residual can be written as a nonnegative linear combination of inequalities of the form \eqref{eq:second-order-cone}. The exactness question is then whether the largest feasible parameters in \eqref{eq:soc-candidate} admit an admissible policy that attains the same cost.
+
+This search is close to quadratic control but not identical. Quadratic control uses squared norms and gives semidefinite constraints. The second-order cone route keeps norms unsquared, so it may describe control problems with norm costs, robust bounds, or conic state constraints whose value functions are conic representable but not quadratic.
+
+The first case to test should use linear dynamics,
+\BEQ
+F(x,u)=Ax+Bu,
+\label{eq:soc-linear-dynamics}
+\EEQ
+and a norm cost such as
+\BEQ
+f(x,u)=\|Qx\|_2+\|Ru\|_2.
+\label{eq:soc-norm-cost}
+\EEQ
+For the candidate \eqref{eq:soc-candidate}, the residual \eqref{eq:cone-first-residual} then contains only affine terms and Euclidean norms of affine functions of $(x,u)$. This is the smallest departure from quadratic control: the dynamics in \eqref{eq:soc-linear-dynamics} remain linear, but the cost in \eqref{eq:soc-norm-cost} is not squared. If this case has an exact finite second-order cone certificate, it gives a clean new class. If it fails, nonlinear dynamics are unlikely to be the right first step.
+
+One sufficient certificate is obtained by eliminating the signed norm in \eqref{eq:cone-first-residual}. Suppose there are matrices $L_Q,L_R,L_F$ such that
+\BEQ
+Cx=L_QQx+L_RRu+L_FC(Ax+Bu)
+\label{eq:soc-factor-certificate}
+\EEQ
+for all $(x,u)$, and
+\BEQ
+b\|L_Q\|_2\leq1,
+\quad b\|L_R\|_2\leq1,
+\quad \|L_F\|_2\leq\gamma.
+\label{eq:soc-gain-certificate}
+\EEQ
+If the linear part of \eqref{eq:cone-first-residual} is nonnegative on the admissible pairs, then \eqref{eq:soc-factor-certificate} and \eqref{eq:soc-gain-certificate} certify the Bellman inequality for \eqref{eq:soc-candidate}. Indeed, the triangle inequality gives
+\BEQ
+b\|Cx\|_2\leq \|Qx\|_2+\|Ru\|_2+
+\gamma b\|C(Ax+Bu)\|_2,
+\label{eq:soc-triangle-certificate}
+\EEQ
+which is exactly the norm part of \eqref{eq:cone-first-residual}. To search over the matrices in \eqref{eq:soc-factor-certificate}, use the scaled variables $M_Q=bL_Q$, $M_R=bL_R$, and $N_F=bL_F$. The factorization condition becomes
+\BEQ
+bCx=M_QQx+M_RRu+N_FC(Ax+Bu)
+\label{eq:soc-scaled-factor-certificate}
+\EEQ
+for all $(x,u)$. The gain bounds in \eqref{eq:soc-gain-certificate} are implied by
+\BEQ
+\BBM I&M_Q\\ M_Q^T&I\EBM\succeq0,
+\quad
+\BBM I&M_R\\ M_R^T&I\EBM\succeq0,
+\quad
+\BBM \gamma b I&N_F\\ N_F^T&\gamma b I\EBM\succeq0.
+\label{eq:soc-scaled-gain-certificate}
+\EEQ
+To make the remaining condition finite, use the same dual-cone idea as in \eqref{eq:cone-linear-dual-condition}. Suppose the admissible pairs satisfy $(x,u)\in G$, where $G\subseteq\reals^{n+m}$ is a proper cone with dual cone $G^\star$. For \eqref{eq:soc-linear-dynamics} and \eqref{eq:soc-norm-cost}, the linear part of \eqref{eq:cone-first-residual} is $((\gamma A^T-I)a)^Tx+\gamma a^TBu$. Hence nonnegativity of this linear part on $G$ is certified by
+\BEQ
+((\gamma A^T-I)a,\gamma B^Ta)\in G^\star.
+\label{eq:soc-linear-part-dual-certificate}
+\EEQ
+The nonnegativity of \eqref{eq:soc-candidate} is certified by
+\BEQ
+(a,0)\in G^\star,
+\label{eq:soc-candidate-nonnegative-certificate}
+\EEQ
+because $b\|Cx\|_2\geq0$. For fixed $C$, choose the positive measure $\rho$ so that the integrals below are finite. The following SDP selects a certified candidate by its integral over $X$:
+\BEQ
+\begin{array}{ll}
+\maximize & \displaystyle a^T\int_X x\,d\rho(x)+b\int_X\|Cx\|_2\,d\rho(x)\\
+\st & \eqref{eq:soc-scaled-factor-certificate},\ \eqref{eq:soc-scaled-gain-certificate},\\
+& \eqref{eq:soc-linear-part-dual-certificate},\ \eqref{eq:soc-candidate-nonnegative-certificate},\\
+& b\geq0.
+\end{array}
+\label{eq:soc-search-program}
+\EEQ
+The constraints in \eqref{eq:soc-scaled-factor-certificate} are linear equalities obtained by matching the coefficients of $x$ and $u$, so they are constraints on $a$, $b$, $M_Q$, $M_R$, and $N_F$, not on a fixed state. The constraints in \eqref{eq:soc-scaled-gain-certificate} are linear matrix inequalities. Hence \eqref{eq:soc-search-program} is a single SDP when membership in $G^\star$ has a semidefinite description. Under Assumption \ref{ass:proper-policy}, the optimizer gives a certified lower bound by Lemma \ref{lem:subsolution-lower-bound}. It gives the value function only after a policy verification proves equality with the cost of an admissible trajectory.
+
+The analogue of \eqref{eq:fiber-linearity} is an invariance condition for norm-affine candidates. For each candidate \eqref{eq:soc-candidate}, define
+\BEQ
+(\mathcal T V_{a,b,C})(x)=\inf_{u:(x,u)\in G}
+\left(\|Qx\|_2+\|Ru\|_2+\gamma V_{a,b,C}(Ax+Bu)\right).
+\label{eq:soc-restricted-bellman-map}
+\EEQ
+The condition that \eqref{eq:soc-restricted-bellman-map} has the form \eqref{eq:soc-candidate} can be attacked by the cone argument used in \cite{pates-rantzer-cdc}. Introduce scalar variables $y_Q,y_R,y_C$ and replace the Euclidean norms in \eqref{eq:soc-restricted-bellman-map} by second-order cone constraints of the form \eqref{eq:second-order-cone} for $(y_Q,Qx)$, $(y_R,Ru)$, and $(y_C,C(Ax+Bu))$. For fixed $a,b,C$, the minimization in \eqref{eq:soc-restricted-bellman-map} is then the conic linear program
+\BEQ
+\inf \left\{y_Q+y_R+\gamma a^T(Ax+Bu)+\gamma b y_C:
+(x,u)\in G,
+(y_Q,Qx)\in \mathcal Q,
+(y_R,Ru)\in \mathcal Q,
+(y_C,C(Ax+Bu))\in \mathcal Q\right\},
+\label{eq:soc-lifted-linear-program}
+\EEQ
+In \eqref{eq:soc-lifted-linear-program}, each occurrence of $\mathcal Q$ has the dimension required by its second component and is defined by \eqref{eq:second-order-cone}. The dual of \eqref{eq:soc-lifted-linear-program} is the right way to state the invariance test. After the coefficients of $u,y_Q,y_R,y_C$ are fixed by dual feasibility, the dual objective is a function of $x$. If the dual feasible set has a minimum element in the $x$-coefficients, meaning an element dominated by every other feasible element in the dual-cone order, then Theorem 2 of \cite{pates-rantzer-cdc} and strong conic duality give a vector $\alpha$ such that \eqref{eq:soc-lifted-linear-program} equals $\alpha^Tx$. The expression $\alpha^Tx$ is of the form \eqref{eq:soc-candidate}: take $a_+=\alpha$, $b_+=0$, and any matrix $C_+$ with the required number of columns.
+
+For norm-affine invariance, the corresponding dual requirement is stronger. The dual optimal value of \eqref{eq:soc-lifted-linear-program} must have the form
+\BEQ
+ a_+^Tx+b_+\|C_+x\|_2
+\label{eq:soc-dual-norm-affine-value}
+\EEQ
+for some $a_+,b_+,C_+$. The condition in \cite{pates-rantzer-cdc} gives only the special case $b_+=0$ in \eqref{eq:soc-dual-norm-affine-value}. Thus the missing step is a finite dual condition that certifies \eqref{eq:soc-dual-norm-affine-value} with $b_+>0$. If Assumptions \ref{ass:proper-policy} and \ref{ass:bellman-value} hold, and the optimizer of \eqref{eq:soc-search-program} is a fixed point of \eqref{eq:soc-restricted-bellman-map}, then the constraints in \eqref{eq:soc-search-program} give $V_{a,b,C}\leq\mathcal T V_{a,b,C}$, the fixed-point equality gives $V_{a,b,C}=\mathcal T V_{a,b,C}$, and Theorem \ref{thm:maximal-subsolution} gives $V_{a,b,C}=J^\textrm{opt}$.
+
+The following specializations have different roles. The most promising route to a new norm-affine exact class is to constrain admissible controls by a second-order cone that uses the same vector as the norm terms, because the Bellman minimization reduces to a finite convex minimization over one vector. The simplest proof test is the case where all norms use the same matrix after minimization. The closest analogue of \cite{pates-rantzer-cdc} is the case where admissible controls are a linear function of the state plus a conic slack variable: it studies a conic fiber over each state and asks when minimization over that fiber has a simple expression in the state. Cases with separated state and control restrictions or with fixed feedback are baseline checks, and cases with finitely many feedback matrices suggest replacing one candidate by the pointwise minimum of several candidates.
+
+\subsection{Fixed Linear Feedback}
+
+A first specialization removes the minimization over $u$. Suppose admissible controls satisfy $u=Kx$. Then \eqref{eq:soc-restricted-bellman-map} becomes
+\BEQ
+(\mathcal T V_{a,b,C})(x)=
+\|Qx\|_2+\|RKx\|_2+
+\gamma a^T(A+BK)x+
+\gamma b\|C(A+BK)x\|_2.
+\label{eq:fixed-feedback-map}
+\EEQ
+The right side of \eqref{eq:fixed-feedback-map} has the form \eqref{eq:soc-candidate} if there are a matrix $D$ and scalars $q,r,h\geq0$ such that $Q=qD$, $RK=rD$, and $C(A+BK)=hD$. In that case \eqref{eq:fixed-feedback-map} equals
+\BEQ
+\gamma ((A+BK)^Ta)^Tx+(q+r+\gamma bh)\|Dx\|_2.
+\label{eq:fixed-feedback-common-factor}
+\EEQ
+This specialization is restrictive, but it gives a complete invariance check.
+
+\subsection{Common Norm Factor}
+
+A less restrictive specialization keeps the minimization in \eqref{eq:soc-restricted-bellman-map} but forces all norm terms to use one matrix after the control is chosen. Suppose $Q=qD$, $R=rE$, and $C(Ax+Bu)=hD x+s Eu$, with $q,r,h\geq0$ and $s\in\reals$. Then the norm part of \eqref{eq:soc-restricted-bellman-map} is
+\BEQ
+q\|Dx\|_2+r\|Eu\|_2+\gamma b\|hDx+sEu\|_2.
+\label{eq:common-factor-norm-part}
+\EEQ
+If a minimizer of \eqref{eq:soc-restricted-bellman-map} satisfies $Eu=\theta Dx$ and $Bu=Mx$, where $\theta$ and $M$ are independent of $x$, then \eqref{eq:common-factor-norm-part} equals $(q+r|\theta|+\gamma b|h+s\theta|)\|Dx\|_2$. The remaining term in \eqref{eq:soc-restricted-bellman-map} is $\gamma a^T(A+M)x$. Hence \eqref{eq:soc-restricted-bellman-map} has the form \eqref{eq:soc-candidate}. The gap is now explicit: one must prove $Eu=\theta Dx$ and $Bu=Mx$ for a minimizer at every feasible state.
+
+\subsection{Finite Prescribed Feedbacks}
+
+Another specialization lets the admissible controls have one of the forms $u=K_i x$, $i=1,\ldots,N$. For each $i$, \eqref{eq:soc-restricted-bellman-map} reduces to \eqref{eq:fixed-feedback-map} with $K$ replaced by $K_i$. If each $K_i$ satisfies the common-factor condition used in \eqref{eq:fixed-feedback-common-factor}, then each $K_i$ gives a function of the form \eqref{eq:soc-candidate}. The minimum over $i$ is generally the lower envelope of finitely many such functions, not a single function of the form \eqref{eq:soc-candidate}. This suggests either enlarging the candidate collection to finite lower envelopes, or imposing inequalities that make one $K_i$ active on all feasible states.
+
+
+\subsection{Product Cone Constraints}
+
+A product-cone specialization separates the state and control restrictions. Suppose
+\BEQ
+G=G_x\times G_u,
+\quad G_x\subseteq\reals^n,
+\quad G_u\subseteq\reals^m,
+\label{eq:product-cone-specialization}
+\EEQ
+and suppose $B=0$. Then the minimization in \eqref{eq:soc-restricted-bellman-map} separates into an $x$-dependent part and a constant
+\BEQ
+\inf_{u\in G_u}\|Ru\|_2.
+\label{eq:product-cone-control-term}
+\EEQ
+Since $G_u$ is a cone, the infimum in \eqref{eq:product-cone-control-term} is zero. Hence \eqref{eq:soc-restricted-bellman-map} becomes $\|Qx\|_2+\gamma a^TAx+\gamma b\|CAx\|_2$. This has the form \eqref{eq:soc-candidate} if $Q=q_pD_p$ and $CA=h_pD_p$ for some matrix $D_p$ and scalars $q_p,h_p\geq0$. If $B\neq0$, the same separation fails, so this case is mainly a baseline test.
+
+\subsection{Graph Cone Constraints}
+
+A graph-cone specialization makes the control a linear function plus a conic slack variable. Suppose admissible pairs satisfy
+\BEQ
+u=K_gx+v_g,
+\quad v_g\in H_g,
+\label{eq:graph-cone-specialization}
+\EEQ
+where $H_g\subseteq\reals^m$ is a cone. Substituting \eqref{eq:graph-cone-specialization} into \eqref{eq:soc-restricted-bellman-map} gives a minimization over $v_g\in H_g$. If the minimum is attained at $v_g=0$ for every feasible state, then \eqref{eq:soc-restricted-bellman-map} reduces to \eqref{eq:fixed-feedback-map} with $K$ replaced by $K_g$. The condition $v_g=0$ is plausible when both $\|R(K_gx+v_g)\|_2$ and $\|C(Ax+B(K_gx+v_g))\|_2$ increase for every nonzero $v_g\in H_g$. The required proof is an inequality on $H_g$, not a statement about an arbitrary cone $G$.
+
+\subsection{Aligned Second-Order Cone Constraints}
+
+A second-order-cone specialization makes the constraint use the same vector that appears in the norm terms. Suppose the admissible pairs satisfy
+\BEQ
+(t,Eu)\in \mathcal Q,
+\quad t=\ell^Tx,
+\label{eq:aligned-soc-specialization}
+\EEQ
+where $\mathcal Q$ is defined by \eqref{eq:second-order-cone}. Using the notation of \eqref{eq:common-factor-norm-part}, \eqref{eq:common-factor-norm-part} is minimized over vectors $Eu$ with $\|Eu\|_2\leq \ell^Tx$. In this case the candidate form in \eqref{eq:soc-candidate} is preserved if the minimizer has $Eu=\theta Dx$ with a scalar $\theta$ independent of $x$. The advantage over a general cone $G$ is that this condition reduces to the following convex minimization over $z$, with $x$ treated as a parameter:
+\BEQ
+\min_{\|z\|_2\leq \ell^Tx}
+q\|Dx\|_2+r\|z\|_2+\gamma b\|hDx+sz\|_2.
+\label{eq:aligned-soc-vector-minimization}
+\EEQ
+For each fixed $x$, \eqref{eq:aligned-soc-vector-minimization} is a second-order cone program. It is not the semidefinite program \eqref{eq:soc-search-program}. The purpose of \eqref{eq:aligned-soc-vector-minimization} is to find conditions under which the same scalar $\theta$ works for all feasible states, so that the Bellman image is a single function of the form \eqref{eq:soc-candidate}, not a separately computed function for each $x$.
+
+The existence of a parallel minimizer can be proved. Fix $x$ and write $\zeta=Dx$. If $\zeta\neq0$, decompose $z=\xi\zeta+w$ with $\zeta^Tw=0$. Then
+\BEQ
+\|\xi\zeta\|_2\leq\|\xi\zeta+w\|_2,
+\quad
+\|h\zeta+s\xi\zeta\|_2\leq\|h\zeta+s\xi\zeta+sw\|_2.
+\label{eq:aligned-soc-projection-inequality}
+\EEQ
+Thus replacing $z$ by $\xi\zeta$ keeps feasibility in \eqref{eq:aligned-soc-vector-minimization} and does not increase the objective. If $\zeta=0$, then $z=0$ is optimal because $r\geq0$ and $b\geq0$. Hence \eqref{eq:aligned-soc-vector-minimization} has a minimizer parallel to $Dx$.
+
+This gives the following algorithm. Let $X_a=\{x:\hbox{ there is }u\hbox{ with }(x,u)\in G\}$.
+\begin{enumerate}
+\item Compute an optimizer $\vartheta$ of the one-dimensional convex problem
+\BEQ
+\min_{\xi\in\reals} r|\xi|+\gamma b|h+s\xi|.
+\label{eq:aligned-soc-scalar-minimization}
+\EEQ
+\item Compute
+\BEQ
+\alpha=\inf\left\{\frac{\ell^Tx}{\|Dx\|_2}:x\in X_a,\ Dx\neq0\right\}.
+\label{eq:aligned-soc-state-ratio}
+\EEQ
+If $\alpha<|\vartheta|$, stop: the reduction does not certify invariance on $X_a$. If $\alpha\geq|\vartheta|$, then $z=\vartheta Dx$ is feasible in \eqref{eq:aligned-soc-vector-minimization} for every $x\in X_a$ with $Dx\neq0$. For $Dx=0$, use $z=0$. Since \eqref{eq:aligned-soc-scalar-minimization} minimizes over all real $\xi$, the norm part in \eqref{eq:common-factor-norm-part} becomes
+\BEQ
+(q+r|\vartheta|+\gamma b|h+s\vartheta|)\|Dx\|_2.
+\label{eq:aligned-soc-reduced-norm}
+\EEQ
+\item Solve the linear equations $EK=\vartheta D$ for a matrix $K$. If they are infeasible, stop. Set $M_s=BK$ and apply the control $u=Kx$. Then $Eu=\vartheta Dx$ and $Bu=M_sx$ for every $x\in X_a$.
+\item Return the candidate parameters
+\BEQ
+ a_+=\gamma(A+M_s)^Ta,
+\quad b_+=q+r|\vartheta|+\gamma b|h+s\vartheta|,
+\quad C_+=D.
+\label{eq:aligned-soc-updated-parameters}
+\EEQ
+With these parameters, \eqref{eq:soc-restricted-bellman-map} has the form \eqref{eq:soc-candidate}.
+\end{enumerate}
+
+\begin{example}
+Let $X=[0,\infty)$, $G=\{(x,u):x\geq0,\ |u|\leq x\}$, $A=B=Q=R=C=D=E=\ell=1$, and $\gamma=3/4$. Then \eqref{eq:soc-linear-dynamics} and \eqref{eq:soc-norm-cost} become
+\BEQ
+x_{k+1}=x_k+u_k,
+\quad
+f(x_k,u_k)=x_k+|u_k|,
+\quad
+|u_k|\leq x_k.
+\label{eq:aligned-soc-numerical-data}
+\EEQ
+Use $a=0$, $b=2$, and $C=1$ in \eqref{eq:soc-candidate}, so $V(x)=2x$ on $X$. In \eqref{eq:common-factor-norm-part}, $q=r=h=s=1$. The scalar problem \eqref{eq:aligned-soc-scalar-minimization} is
+\BEQ
+\min_{\xi\in\reals}|\xi|+\frac32|1+\xi|,
+\label{eq:aligned-soc-numerical-scalar}
+\EEQ
+The objective in \eqref{eq:aligned-soc-numerical-scalar} equals $-\frac52\xi-\frac32$ for $\xi\leq-1$, $\frac32+\frac12\xi$ for $-1\leq\xi\leq0$, and $\frac32+\frac52\xi$ for $\xi\geq0$. Hence an optimizer is $\vartheta=-1$. Since $X_G=X$, \eqref{eq:aligned-soc-state-ratio} gives $\alpha=1$. Thus $\alpha=|\vartheta|$. The equation $EK=\vartheta D$ gives $K=-1$, and $M_s=BK=-1$. The update \eqref{eq:aligned-soc-updated-parameters} gives
+\BEQ
+ a_+=0,
+\quad b_+=1+1+\frac34\,2|1-1|=2,
+\quad C_+=1,
+\label{eq:aligned-soc-numerical-update}
+\EEQ
+so the candidate is a fixed point of \eqref{eq:soc-restricted-bellman-map}. For $x>0$ and $v=u/x\in[-1,1]$,
+\BEQ
+\begin{aligned}
+(\mathcal T V)(x)
+&=x+\min_{|u|\leq x}\left(|u|+\frac32(x+u)\right)\\
+&=x+x\min_{-1\leq v\leq1}\left(|v|+\frac32(1+v)\right)\\
+&=x+x\min\left\{\min_{-1\leq v\leq0}\left(\frac52+\frac12v\right),
+\min_{0\leq v\leq1}\left(\frac52+\frac52v\right)\right\}\\
+&=2x=V(x).
+\end{aligned}
+\label{eq:aligned-soc-numerical-bellman}
+\EEQ
+For $x=0$, the only feasible control is $u=0$, and \eqref{eq:aligned-soc-numerical-bellman} also gives $(\mathcal T V)(0)=V(0)=0$. The feedback $u=-x$ gives $x_1=0$, zero later cost, and first-stage cost $x+|-x|=2x$. Hence the value function is $J^\textrm{opt}(x)=2x$, and $u=-x$ is optimal.
+
+\end{example}
+
+\begin{example}
+Let $X=\reals_+^2$, let controls satisfy $\|u\|_2\leq x_1+x_2$ and $x+2u\in X$, and set
+\BEQ
+A=I,
+\quad B=2I,
+\quad Q=R=C=D=E=I,
+\quad \ell=\BBM1\\1\EBM,
+\quad \gamma=3/4.
+\label{eq:aligned-soc-two-dimensional-data}
+\EEQ
+Then \eqref{eq:soc-linear-dynamics} and \eqref{eq:soc-norm-cost} are
+\BEQ
+x_{k+1}=x_k+2u_k,
+\quad
+f(x_k,u_k)=\|x_k\|_2+\|u_k\|_2,
+\quad
+\|u_k\|_2\leq x_{1,k}+x_{2,k},
+\quad x_k+2u_k\in X.
+\label{eq:aligned-soc-two-dimensional-system}
+\EEQ
+Use $a=0$, $b=3/2$, and $C=I$ in \eqref{eq:soc-candidate}, so $V(x)=\frac32\|x\|_2$. In \eqref{eq:common-factor-norm-part}, $q=r=h=1$ and $s=2$. Dropping the successor-state constraint in \eqref{eq:aligned-soc-two-dimensional-system} gives the minimization
+\BEQ
+\min_{\|z\|_2\leq x_1+x_2}
+\|x\|_2+\|z\|_2+\frac98\|x+2z\|_2.
+\label{eq:aligned-soc-two-dimensional-vector-minimization}
+\EEQ
+Numerically solving \eqref{eq:aligned-soc-two-dimensional-vector-minimization} gives
+\BEQ
+\begin{array}{c|c|c}
+ x & z^\star & \hbox{optimal value}\\ \hline
+ (1,0)^T & (-0.5000,0)^T & 1.5000\\
+ (1,1)^T & (-0.5000,-0.5000)^T & 2.1213\\
+ (2,1)^T & (-1.0000,-0.5000)^T & 3.3541\\
+ (1,3)^T & (-0.5000,-1.5000)^T & 4.7434.
+\end{array}
+\label{eq:aligned-soc-two-dimensional-numerical-solutions}
+\EEQ
+The numerical solutions in \eqref{eq:aligned-soc-two-dimensional-numerical-solutions} have $z^\star=-x/2$. This control gives successor zero, so it also satisfies the successor-state constraint in \eqref{eq:aligned-soc-two-dimensional-system}. The scalar problem \eqref{eq:aligned-soc-scalar-minimization} is
+\BEQ
+\min_{\xi\in\reals}|\xi|+\frac98|1+2\xi|,
+\label{eq:aligned-soc-two-dimensional-scalar}
+\EEQ
+whose optimizer is $\vartheta=-1/2$. Since $X_G=X$, \eqref{eq:aligned-soc-state-ratio} gives
+\BEQ
+\alpha=\inf_{x\in\reals_+^2,\ x\neq0}\frac{x_1+x_2}{\|x\|_2}=1>|\vartheta|.
+\label{eq:aligned-soc-two-dimensional-state-ratio}
+\EEQ
+The equation $EK=\vartheta D$ gives $K=-I/2$, and $M_s=BK=-I$. The update \eqref{eq:aligned-soc-updated-parameters} gives $a_+=0$, $b_+=3/2$, and $C_+=I$. For $x\neq0$ and $v=u/\|x\|_2$,
+\BEQ
+\begin{aligned}
+(\mathcal T V)(x)
+&=\|x\|_2+
+\min_{\substack{\|u\|_2\leq x_1+x_2\\x+2u\in X}}
+\left(\|u\|_2+\frac98\|x+2u\|_2\right)\\
+&=\|x\|_2+
+\|x\|_2\min_{\substack{\|v\|_2\leq (x_1+x_2)/\|x\|_2\\x+2\|x\|_2v\in X}}
+\left(\|v\|_2+\frac98\left\|\frac{x}{\|x\|_2}+2v\right\|_2\right)\\
+&=\frac32\|x\|_2=V(x),
+\end{aligned}
+\label{eq:aligned-soc-two-dimensional-bellman}
+\EEQ
+where the unconstrained minimum in \eqref{eq:aligned-soc-two-dimensional-vector-minimization} is attained at $v=-x/(2\|x\|_2)$, which also satisfies $x+2\|x\|_2v=0\in X$. For $x=0$, the only feasible control is $u=0$, and \eqref{eq:aligned-soc-two-dimensional-bellman} gives $(\mathcal T V)(0)=0$. The feedback $u=-x/2$ gives next state zero, zero later cost, and first-stage cost $\frac32\|x\|_2$. Hence $J^\textrm{opt}(x)=\frac32\|x\|_2$, and $u=-x/2$ is optimal.
+\end{example}
+
+
+
+\begin{example}
+Consider six coupled thermal zones with signed temperature deviations $x\in\reals^6$. Let
+\BEQ
+P=\BBM
+0&0&0&0&0&1\\
+1&0&0&0&0&0\\
+0&1&0&0&0&0\\
+0&0&1&0&0&0\\
+0&0&0&1&0&0\\
+0&0&0&0&1&0
+\EBM.
+\label{eq:soc-thermal-shift-matrix}
+\EEQ
+The matrix $P$ shifts each component to the next zone. Use $A=0.80P$, $B=I$, $Q=R=C=I$, and $\gamma=0.95$ in \eqref{eq:soc-linear-dynamics} and \eqref{eq:soc-norm-cost}. The admissible controls satisfy
+\BEQ
+\|u\|_2\leq0.20\|x\|_2.
+\label{eq:soc-thermal-power-bound}
+\EEQ
+For $x\in\reals^6$, the set of pairs satisfying \eqref{eq:soc-thermal-power-bound} is not convex: for any nonzero $v$, both $(v,0.20v)$ and $(-v,0.20v)$ satisfy the constraint, but their midpoint $(0,0.20v)$ does not. Therefore this example is not an instance of the conic search program \eqref{eq:soc-search-program}.
+The feedback
+\BEQ
+u^\textrm{fb}(x)=-0.20Px
+\label{eq:soc-thermal-optimal-feedback}
+\EEQ
+is feasible for \eqref{eq:soc-thermal-power-bound} because $P^TP=I$. It gives the multi-step contraction
+\BEQ
+x_{k+1}=0.60Px_k,
+\quad
+\|x_{k+1}\|_2=0.60\|x_k\|_2.
+\label{eq:soc-thermal-optimal-contraction}
+\EEQ
+Let $V_b(x)=b\|x\|_2$. This is the candidate \eqref{eq:soc-candidate} with $a=0$ and $C=I$. Substituting $A=0.80P$, $B=I$, and $Q=R=I$ into the Bellman minimization \eqref{eq:soc-restricted-bellman-map}, with admissibility given by \eqref{eq:soc-thermal-power-bound}, gives the following minimization over all feasible controls:
+\BEQ
+(\mathcal T V_b)(x)=
+\inf_{\|u\|_2\leq0.20\|x\|_2}
+\left(\|x\|_2+\|u\|_2+0.95b\|0.80Px+u\|_2\right).
+\label{eq:soc-thermal-bellman-minimization}
+\EEQ
+Set $y=P^Tu$. Since $P^TP=I$, the constraint in \eqref{eq:soc-thermal-bellman-minimization} is $\|y\|_2\leq0.20\|x\|_2$, and
+\BEQ
+\|0.80Px+u\|_2=\|P(0.80x+y)\|_2=\|0.80x+y\|_2.
+\label{eq:soc-thermal-orthogonal-change}
+\EEQ
+For every feasible $y$, the reverse triangle inequality gives
+\BEQ
+\|0.80x+y\|_2\geq0.80\|x\|_2-\|y\|_2.
+\label{eq:soc-thermal-reverse-triangle}
+\EEQ
+Hence, if $0.95b>1$, the objective in \eqref{eq:soc-thermal-bellman-minimization} is bounded below by
+\BEQ
+\|x\|_2+\|y\|_2+0.95b(0.80\|x\|_2-\|y\|_2)
+\geq
+\|x\|_2+0.20\|x\|_2+0.95b(0.60\|x\|_2).
+\label{eq:soc-thermal-bellman-lower-bound}
+\EEQ
+The second inequality in \eqref{eq:soc-thermal-bellman-lower-bound} uses $\|y\|_2\leq0.20\|x\|_2$ and $1-0.95b<0$. Equality in \eqref{eq:soc-thermal-reverse-triangle} and \eqref{eq:soc-thermal-bellman-lower-bound} holds at $y=-0.20x$, equivalently at the feedback \eqref{eq:soc-thermal-optimal-feedback}. Thus
+\BEQ
+(\mathcal T V_b)(x)=(1.20+0.57b)\|x\|_2.
+\label{eq:soc-thermal-bellman-image}
+\EEQ
+The direct Bellman subsolution condition for this one-parameter candidate is $b\|x\|_2\leq(\mathcal T V_b)(x)$ for every $x$. By \eqref{eq:soc-thermal-bellman-image}, it gives $b\leq1.20+0.57b$ when $0.95b>1$. This scalar inequality does not make \eqref{eq:soc-search-program} exact. In fact, if the factor certificate \eqref{eq:soc-scaled-factor-certificate} and gain bounds \eqref{eq:soc-scaled-gain-certificate} held for this data, matching the coefficients of $x$ and $u$ would give
+\BEQ
+bI=M_Q+0.80N_FP,
+\quad 0=M_R+N_F,
+\quad \|M_Q\|_2\leq1,
+\quad \|M_R\|_2\leq1.
+\label{eq:soc-thermal-certificate-obstruction}
+\EEQ
+Since $P^TP=I$, equation \eqref{eq:soc-thermal-certificate-obstruction} implies $\|N_F\|_2\leq1$ and $b\leq1+0.80\|N_F\|_2\leq1.80$ for every candidate satisfying that certificate.
+Solving $b=1.20+0.57b$ gives
+\BEQ
+b=\frac{1.20}{1-0.95\cdot0.60}=2.790697674\ldots,
+\label{eq:soc-thermal-value-coefficient}
+\EEQ
+and this value satisfies $0.95b>1$. Since it exceeds $1.80$, \eqref{eq:soc-thermal-certificate-obstruction} cannot hold at this value. The function $V(x)=b\|x\|_2$ is nevertheless a fixed point of the Bellman minimization in \eqref{eq:soc-thermal-bellman-minimization}. Along \eqref{eq:soc-thermal-optimal-feedback},
+\BEQ
+\sum_{k=0}^\infty \gamma^k\left(\|x_k\|_2+\|u_k^\textrm{fb}\|_2\right)
+=\sum_{k=0}^\infty (0.95)^k(1.20)(0.60)^k\|x_0\|_2
+=2.790697674\ldots\|x_0\|_2.
+\label{eq:soc-thermal-optimal-cost}
+\EEQ
+Equations \eqref{eq:soc-thermal-bellman-minimization}--\eqref{eq:soc-thermal-bellman-image} solve the Bellman minimization for this instance. The lower bound in \eqref{eq:soc-thermal-bellman-lower-bound} holds for every feasible control, and equality holds at \eqref{eq:soc-thermal-optimal-feedback}; hence \eqref{eq:soc-thermal-optimal-feedback} is optimal. Equation \eqref{eq:soc-thermal-optimal-contraction} gives the norm contraction used by the candidate. Thus the example has value $J^\textrm{opt}(x)=2.790697674\ldots\|x\|_2$ and optimal feedback $u^\textrm{fb}(x)=-0.20Px$, but it does not demonstrate exactness of \eqref{eq:soc-search-program}.
+\end{example}
+
+\begin{example}
+Keep the data of the previous example, but replace $A=0.80P$ by the symmetric matrix
+\BEQ
+A_t=\BBM
+0.60&0.10&0&0&0&0.10\\
+0.10&0.60&0.10&0&0&0\\
+0&0.10&0.60&0.10&0&0\\
+0&0&0.10&0.60&0.10&0\\
+0&0&0&0.10&0.60&0.10\\
+0.10&0&0&0&0.10&0.60
+\EBM.
+\label{eq:soc-thermal-tridiagonal-matrix}
+\EEQ
+The corner entries in \eqref{eq:soc-thermal-tridiagonal-matrix} couple the first and sixth zones. The eigenvectors are the discrete Fourier modes, and the eigenvalues are $0.60+0.20\cos(2\pi j/6)$ for $j=0,\ldots,5$. Hence the eigenvalues are $0.80$, $0.70$, $0.70$, $0.50$, $0.50$, and $0.40$, so $\|A_t\|_2=0.80$. For $V_b(x)=b\|x\|_2$, the Bellman minimization in \eqref{eq:soc-restricted-bellman-map} becomes
+\BEQ
+(\mathcal T V_b)(x)=
+\inf_{\|u\|_2\leq0.20\|x\|_2}
+\left(\|x\|_2+\|u\|_2+0.95b\|A_tx+u\|_2\right).
+\label{eq:soc-thermal-tridiagonal-bellman-minimization}
+\EEQ
+Since $\|A_tx\|_2\leq0.80\|x\|_2$, the reverse triangle inequality gives
+\BEQ
+\|A_tx+u\|_2\geq\|A_tx\|_2-\|u\|_2.
+\label{eq:soc-thermal-tridiagonal-reverse-triangle}
+\EEQ
+This gives a lower bound, but it is not enough to repeat the proof of the previous example. Equality in \eqref{eq:soc-thermal-tridiagonal-reverse-triangle} with $\|A_tx\|_2=0.80\|x\|_2$ can hold only for directions in which \eqref{eq:soc-thermal-tridiagonal-matrix} acts with gain $0.80$. For an eigenvector $v$ of \eqref{eq:soc-thermal-tridiagonal-matrix} with eigenvalue $0.40$, the scalar minimization along $v$ is
+\BEQ
+(\mathcal T V_b)(v)=
+\inf_{|s|\leq0.20}
+\left(1+|s|+0.95b|0.40+s|\right)\|v\|_2.
+\label{eq:soc-thermal-tridiagonal-small-eigenvalue}
+\EEQ
+If $0.95b>1$, the minimizer in \eqref{eq:soc-thermal-tridiagonal-small-eigenvalue} is $s=-0.20$, giving
+\BEQ
+(\mathcal T V_b)(v)=(1.20+0.19b)\|v\|_2.
+\label{eq:soc-thermal-tridiagonal-small-image}
+\EEQ
+For an eigenvector $w$ of \eqref{eq:soc-thermal-tridiagonal-matrix} with eigenvalue $0.80$, the scalar minimization is
+\BEQ
+(\mathcal T V_b)(w)=
+\inf_{|s|\leq0.20}
+\left(1+|s|+0.95b|0.80+s|\right)\|w\|_2
+=(1.20+0.57b)\|w\|_2.
+\label{eq:soc-thermal-tridiagonal-large-image}
+\EEQ
+The last equality in \eqref{eq:soc-thermal-tridiagonal-large-image} uses $0.95b>1$, which makes $s=-0.20$ optimal. Equations \eqref{eq:soc-thermal-tridiagonal-small-image} and \eqref{eq:soc-thermal-tridiagonal-large-image} show that the image of $b\|x\|_2$ under \eqref{eq:soc-restricted-bellman-map} is not a constant multiple of $\|x\|_2$. The one-parameter candidate used in the previous example is not invariant under the Bellman minimization for \eqref{eq:soc-thermal-tridiagonal-matrix}. Thus this example does not solve the optimal control problem exactly. It identifies the obstruction: \eqref{eq:soc-thermal-tridiagonal-matrix} does not give the identity used in \eqref{eq:soc-thermal-orthogonal-change}, so the Bellman image cannot be reduced to \eqref{eq:soc-thermal-bellman-image}.
+\end{example}
+
+
+The lower-bound conclusion from \eqref{eq:soc-search-program} is not new by itself; it is the usual Bellman-inequality certificate used in approximate dynamic programming and iterated Bellman inequalities \cite{de-farias-van-roy-2003,wang-odonoghue-boyd-2015}. Norm-cost linear control is also well studied: $\ell_1$ optimal feedback can be formulated by linear programming in important cases \cite{dahleh-pearson-1987}, and recent terminal-cost design for linear model predictive control treats weighted $1$-norm and infinity-norm stage costs through set inclusions \cite{danielson-2021}. Thus \eqref{eq:soc-search-program} should be presented as a candidate exactness test, not as a new lower-bound method. The possible new contribution is narrower: find conditions on the Euclidean-norm problem \eqref{eq:soc-linear-dynamics}--\eqref{eq:soc-norm-cost} under which the optimizer of \eqref{eq:soc-search-program} is tight and equals the value function in \eqref{eq:soc-candidate}.
+
+\subsection{Exponential Cone Search}
+
+The exponential cone is the closed convex cone generated by triples $(r,s,t)$ satisfying $s>0$ and $s\exp(r/s)\leq t$. Its dual cone gives finite certificates for inequalities containing logarithms, exponentials, relative entropy, and logarithms of sums of exponentials. This suggests entropy-regularized, risk-sensitive, or multiplicative control problems. The exactness test is the same as before: use the exponential-cone certificate to prove nonnegativity of \eqref{eq:cone-first-residual}, then give an admissible feedback whose accumulated cost equals the largest restricted Bellman subsolution. Without that feedback equality, the result is only a certified lower bound.
+
+\subsection{Power Cone Search}
+
+For $0<\beta<1$, the three-dimensional power cone is
+\BEQ
+\{(r,s,t):r\geq0,
+s\geq0,
+|t|\leq r^\beta s^{1-\beta}\}.
+\label{eq:power-cone}
+\EEQ
+It gives finite certificates for weighted products and powers. This suggests homogeneous nonquadratic costs and candidate functions built from weighted $p$-power terms. The restricted problem is exact only if the Bellman minimization maps the chosen powered candidate functions back into the same powered candidate functions, or if a feedback identity closes the upper-bound gap as in \eqref{eq:orthant-feedback-equality}.
+
+\subsection{Completely Positive and Copositive Cone Search}
+
+The completely positive cone is the cone of matrices that can be written as finite sums of $zz^T$ with $z\geq0$. The copositive cone is its dual cone, consisting of symmetric matrices $M$ satisfying $z^TMz\geq0$ for every $z\geq0$. These cones can certify quadratic residuals on the nonnegative orthant. They suggest positive quadratic and bilinear control problems. The computational gap is important: exact membership tests for these cones are difficult, so a tractable result would need an explicitly chosen inner or outer approximation and would then prove only the corresponding restricted lower bound unless a feedback equality also holds.
+
+\subsection{Moment and Sum-of-Squares Cone Search}
+
+Moment cones and sum-of-squares cones give semidefinite certificates for polynomial nonnegativity. This specialization overlaps with the polynomial section: the Bellman residual \eqref{eq:cone-first-residual} is a polynomial, and the certificate is a finite-degree sum-of-squares identity. The possible exact class is narrower than polynomial lower bounding. One must identify a finite degree at which the largest certified polynomial subsolution is attained and then verify a feedback equality that gives the matching admissible cost.
+
+\subsection{Shape-Restricted Function Cone Search}
+
+Cones of monotone functions, convex functions, and submodular set functions suggest order-preserving, convexity-preserving, and control problems on finite partially ordered sets. These cones are usually infinite-dimensional, so a finite exact result must first choose a finite restriction such as piecewise-affine convex functions on fixed cells or submodular functions on a fixed finite lattice. The finite restriction gives only a restricted Bellman subsolution until an invariance proof or a feedback equality shows that the restricted largest element equals the value function.
+
+
+
+\section{Graveyard}
+
+\subsection{Polynomial Feedback Verification}
+
+Consider a discounted polynomial control problem with $0<\gamma<1$ and with $X$, $G$, $F$, and $f$ as in \eqref{eq:polynomial-state-set} and \eqref{eq:semialgebraic-graph}. Seek a polynomial $V\in\mathcal P_d$ and a polynomial feedback $\mu:X\rightarrow\reals^m$ such that $(x,\mu(x))\in G$ for all $x\in X$ and
+\BEQ
+V(x)=f(x,\mu(x))+\gamma V(F(x,\mu(x))),
+\quad x\in X.
+\label{eq:polynomial-feedback-equality}
+\EEQ
+The feedback may be found from the first-order optimality equations for the control variable, together with the polynomial identity \eqref{eq:polynomial-feedback-equality}. Verification has two parts. First, require \eqref{eq:polynomial-certificate}, \eqref{eq:polynomial-nonnegative-certificate}, and Assumption \ref{ass:proper-policy}; these give $V\leq J^\textrm{opt}$ by Lemma \ref{lem:subsolution-lower-bound}. Second, use the admissible trajectory generated by $\mu$. Repeated use of \eqref{eq:polynomial-feedback-equality} gives, for every $N$,
+\BEQ
+V(x_0)=\sum_{k=0}^N\gamma^k f(x_k,\mu(x_k))+\gamma^{N+1}V(x_{N+1}),
+\quad x_{k+1}=F(x_k,\mu(x_k)).
+\label{eq:polynomial-feedback-sum}
+\EEQ
+If $\gamma^{N+1}V(x_{N+1})\rightarrow0$, then \eqref{eq:polynomial-feedback-sum} gives an admissible cost equal to $V(x_0)$. Hence $J^\textrm{opt}\leq V$, and Proposition \ref{prop:polynomial-exactness} applies.
+
+\subsection{Homogeneous Polynomial Problems}
+
+Assume that $X$ and $G$ are cones, that $F$ is homogeneous of degree one, and that $f$ is homogeneous of degree $2d$. Then multiplying an admissible trajectory by $\alpha\geq0$ multiplies the total cost by $\alpha^{2d}$. This motivates the candidate condition
+\BEQ
+V(\alpha x)=\alpha^{2d}V(x),
+\quad \alpha\geq0.
+\label{eq:homogeneous-value-candidate}
+\EEQ
+The search uses homogeneous polynomials $V\in\mathcal P_d$ satisfying \eqref{eq:homogeneous-value-candidate}. The Bellman inequality is certified by \eqref{eq:polynomial-certificate}, and nonnegativity is certified by \eqref{eq:polynomial-nonnegative-certificate}. If an admissible feedback $\mu$ satisfies
+\BEQ
+V(x)=f(x,\mu(x))+\gamma V(F(x,\mu(x))),
+\quad x\in X,
+\label{eq:homogeneous-feedback-equality}
+\EEQ
+then repeated use of \eqref{eq:homogeneous-feedback-equality} along $x_{k+1}=F(x_k,\mu(x_k))$ gives
+\BEQ
+V(x_0)=\sum_{k=0}^N\gamma^k f(x_k,\mu(x_k))+
+\gamma^{N+1}V(x_{N+1}).
+\label{eq:homogeneous-feedback-sum}
+\EEQ
+If the last term in \eqref{eq:homogeneous-feedback-sum} tends to zero, then the feedback gives $J^\textrm{opt}\leq V$. Under Assumption \ref{ass:proper-policy}, the certificates in \eqref{eq:polynomial-certificate} and \eqref{eq:polynomial-nonnegative-certificate} give $V\leq J^\textrm{opt}$ by Lemma \ref{lem:subsolution-lower-bound}. Hence $V=J^\textrm{opt}$.
+
+\begin{example}
+A coupled homogeneous quartic instance has $X=\reals^2$, scalar control $u$, and
+\BEQ
+F(x,u)=\BBM x_2\\ -x_1+u\EBM,
+\quad
+f(x,u)=x_1^4+x_2^4+\eta x_1^2x_2^2+\rho u^4,
+\quad \eta>0,
+\quad \rho>0.
+\label{eq:coupled-homogeneous-data}
+\EEQ
+Search over homogeneous quartics
+\BEQ
+V_p(x)=p_1x_1^4+p_2x_1^3x_2+p_3x_1^2x_2^2+p_4x_1x_2^3+p_5x_2^4.
+\label{eq:coupled-homogeneous-candidate}
+\EEQ
+Integrating \eqref{eq:coupled-homogeneous-candidate} over the unit disk gives $\frac{\pi}{24}(3p_1+p_3+3p_5)$. Compute a polynomial lower bound by solving
+\BEQ
+\begin{array}{ll}
+\maximize & 3p_1+p_3+3p_5\\
+\st & f(x,u)+\gamma V_p(F(x,u))-V_p(x)\geq0,
+\quad x\in\reals^2,
+\quad u\in\reals,\\
+& V_p(x)\geq0,
+\quad x\in\reals^2.
+\end{array}
+\label{eq:coupled-homogeneous-program}
+\EEQ
+The two inequalities in \eqref{eq:coupled-homogeneous-program} are multivariate quartic nonnegativity constraints and can be imposed as sum-of-squares constraints. The control acts through the second component of \eqref{eq:coupled-homogeneous-data}, and the term $x_1^2x_2^2$ couples the state variables. Thus \eqref{eq:coupled-homogeneous-program} is not a product of scalar programs.
+\end{example}
+
+The separate assessment \texttt{polynomial\_exactness\_assessment.tex}, Theorem~1, proves that the value for \eqref{eq:coupled-homogeneous-data} is not polynomial for any $\eta,\rho>0$ and $0<\gamma\leq1$. Its Theorem~2 proves that every globally nonnegative polynomial Bellman subsolution normalized to vanish at zero must be homogeneous quartic, so increasing its degree cannot close the uniform approximation gap on the unit circle. Theorem~3 proves that nonpolynomiality persists under sufficiently small general perturbations of the linear dynamics and homogeneous quartic cost. These conclusions rule out this example as an exact polynomial control class. The objective in \eqref{eq:coupled-homogeneous-program} uses the disk integral because arbitrary positive weights on monomial coefficients need not define a positive integral objective.
+
+\subsection{Finite Polynomial Lifts}
+
+A third class starts from a chosen vector $\Phi(x)$ of monomials and searches for a quadratic candidate in the lifted variables,
+\BEQ
+V(x)=\Phi(x)^TP\Phi(x),
+\quad P=P^T.
+\label{eq:polynomial-lift-candidate}
+\EEQ
+This gives a polynomial candidate in $x$. The useful case is when $\Phi(F(x,u))$ is polynomial in $\Phi(x)$ and a finite collection of polynomial functions of $(x,u)$. Then \eqref{eq:polynomial-bellman-nonnegativity} becomes a polynomial inequality in $(x,u)$ whose coefficients depend linearly on $P$. Verification again uses \eqref{eq:polynomial-certificate} and \eqref{eq:polynomial-nonnegative-certificate}. If an admissible feedback makes \eqref{eq:polynomial-feedback-equality} hold for the candidate \eqref{eq:polynomial-lift-candidate}, then the summation identity \eqref{eq:polynomial-feedback-sum} gives the upper bound. This class includes nonlinear problems whose value function is not quadratic in $x$ but is quadratic after the chosen monomial lift.
+
+\begin{example}
+A lifted instance with nonlinear control has state $x=(x_1,x_2)$, scalar control $u$, and
+\BEQ
+x_{1,k+1}=a x_{1,k}+u_k,
+\quad
+x_{2,k+1}=b x_{2,k}+c x_{1,k}^2+d x_{1,k}u_k+e u_k^2,
+\label{eq:nonlinear-control-lift-dynamics}
+\EEQ
+where $d\neq0$ or $e\neq0$. Use
+\BEQ
+\Phi(x)=\BBM x_1^2\\ x_1x_2\\ x_2^2\EBM,
+\quad
+V_P(x)=\Phi(x)^TP\Phi(x),
+\quad P=P^T.
+\label{eq:nonlinear-control-lift-candidate}
+\EEQ
+Let
+\BEQ
+f(x,u)=\Phi(x)^TQ\Phi(x)+\rho u^4,
+\quad
+Q=Q^T\succeq0,
+\quad
+\rho>0.
+\label{eq:nonlinear-control-lift-cost}
+\EEQ
+The Bellman residual
+\BEQ
+R_P(x,u)=f(x,u)+\gamma V_P(F(x,u))-V_P(x)
+\label{eq:nonlinear-control-lift-residual}
+\EEQ
+is a polynomial in $(x,u)$ whose coefficients are affine in $P$. Compute $P$ by maximizing $\operatorname{trace}(WP)$, with $W\succ0$, subject to
+\BEQ
+R_P(x,u)\geq0,
+\quad x\in\reals^2,
+\quad u\in\reals,
+\quad
+V_P(x)\geq0,
+\quad x\in\reals^2.
+\label{eq:nonlinear-control-lift-program}
+\EEQ
+The two inequalities in \eqref{eq:nonlinear-control-lift-program} can be imposed as sum of squares constraints. Since $u$ enters both equations in \eqref{eq:nonlinear-control-lift-dynamics}, and since $x_{2,k+1}$ contains $x_{1,k}u_k$ or $u_k^2$, this is not a lifted linear quadratic problem with an autonomous state.
+\end{example}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{bellman-1957}
+R. Bellman.
+\newblock \emph{Dynamic Programming}.
+\newblock Princeton University Press, 1957.
+
+\bibitem{bertsekas-2007}
+D. P. Bertsekas.
+\newblock \emph{Dynamic Programming and Optimal Control, Volume II}.
+\newblock Athena Scientific, 3rd edition, 2007.
+
+\bibitem{blanchini-2023}
+F. Blanchini, P. Bolzern, P. Colaneri, G. De Nicolao, and G. Giordano.
+\newblock Optimal control of compartmental models: the exact solution.
+\newblock \emph{Automatica}, 147:110680, 2023.
+
+\bibitem{boyd-vandenberghe-2004}
+S. Boyd and L. Vandenberghe.
+\newblock \emph{Convex Optimization}.
+\newblock Cambridge University Press, 2004.
+
+\bibitem{de-farias-van-roy-2003}
+D. P. de Farias and B. Van Roy.
+\newblock The linear programming approach to approximate dynamic programming.
+\newblock \emph{Operations Research}, 51(6):850--865, 2003.
+
+\bibitem{dahleh-pearson-1987}
+M. A. Dahleh and J. B. Pearson.
+\newblock $\ell_1$-optimal feedback controllers for MIMO discrete-time systems.
+\newblock \emph{IEEE Transactions on Automatic Control}, 32(4):314--322, 1987.
+
+\bibitem{danielson-2021}
+C. Danielson.
+\newblock Terminal-cost design for model predictive control with linear stage-costs: A set-theoretic method.
+\newblock \emph{Optimal Control Applications and Methods}, 2021.
+
+\bibitem{dijkstra-1959}
+E. W. Dijkstra.
+\newblock A note on two problems in connexion with graphs.
+\newblock \emph{Numerische Mathematik}, 1:269--271, 1959.
+
+\bibitem{kalman-1960}
+R. E. Kalman.
+\newblock Contributions to the theory of optimal control.
+\newblock \emph{Boletin de la Sociedad Matematica Mexicana}, 5:102--119, 1960.
+
+\bibitem{li-rantzer-2024}
+Y. Li and A. Rantzer.
+\newblock Exact dynamic programming for positive systems with linear optimal cost.
+\newblock \emph{IEEE Transactions on Automatic Control}, 2024.
+
+\bibitem{manne-1960}
+A. S. Manne.
+\newblock Linear programming and sequential decisions.
+\newblock \emph{Management Science}, 6(3):259--267, 1960.
+
+\bibitem{pates-rantzer-cdc}
+R. Pates and A. Rantzer.
+\newblock Optimal control on positive cones.
+\newblock In \emph{Proceedings of the IEEE Conference on Decision and Control}, 2024.
+
+\bibitem{powell-2022}
+W. B. Powell.
+\newblock \emph{Reinforcement Learning and Stochastic Optimization: A Unified Framework for Sequential Decisions}.
+\newblock Wiley, 2022.
+
+\bibitem{rantzer-2006}
+A. Rantzer.
+\newblock Relaxed dynamic programming in switching systems.
+\newblock \emph{IEE Proceedings-Control Theory and Applications}, 153(5):567--574, 2006.
+
+
+\bibitem{wang-odonoghue-boyd-2015}
+Y. Wang, B. O'Donoghue, and S. Boyd.
+\newblock Approximate dynamic programming via iterated Bellman inequalities.
+\newblock \emph{International Journal of Robust and Nonlinear Control}, 25(10):1472--1496, 2015.
+
+\bibitem{rantzer-2022}
+A. Rantzer.
+\newblock Explicit solution to Bellman equation for positive systems with linear cost.
+\newblock In \emph{Proceedings of the IEEE Conference on Decision and Control}, pages 6154--6155, 2022.
+
+\end{thebibliography}
+
+\end{document}
